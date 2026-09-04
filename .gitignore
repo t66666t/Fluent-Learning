@@ -1,0 +1,56 @@
+# Flutter / Dart 构建产物
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+pubspec.lock
+
+# IDE 配置
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# macOS
+.DS_Store
+
+# 临时文件
+*.log
+*.tmp
+out.txt
+
+# 分析报告（可选保留）
+analyze_*.txt
+dart_analyze_*.txt
+
+# 临时测试文件
+temp_*
+dummy*.mkv
+test_draw*.png
+test_draw*.ass
+test_bg*.png
+test_bg*.ass
+
+# ffmpeg 临时解压目录
+ffmpeg_temp/
+ffmpeg*.zip
+
+# 其他工具目录
+.qoder/
+.kiro/
+.trae/
+.dbg/
+.uploads/
+.workbuddy/
+
+# Python bytecode caches
+__pycache__/
+*.py[cod]
+
+# Large local/runtime artifacts not suitable for regular Git hosting
+*.hprof
+assets/binaries/windows/ffprobe.exe

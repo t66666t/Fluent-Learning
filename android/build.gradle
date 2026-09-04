@@ -1,0 +1,70 @@
+allprojects {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        google()
+        mavenCentral()
+    }
+}
+
+// 统一所有模块（含第三方插件）的 JVM 目标版本，解决 photo_manager、desktop_drop 等插件编译冲突
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+}
+
+// Expose SDK versions for Android subprojects (Flutter plugins usually read these)
+ext {
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    minSdkVersion = 24
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+// As a safeguard, ensure any Android plugins applied in subprojects use SDK 34
+gradle.beforeProject { p ->
+    p.plugins.withId("com.android.application") {
+        def androidExt = p.extensions.findByName("android")
+        if (androidExt != null) {
+            androidExt.compileSdkVersion = 34
+            androidExt.defaultConfig {
+                targetSdkVersion 34
+            }
+        }
+    }
+    p.plugins.withId("com.android.library") {
+        def androidExt = p.extensions.findByName("android")
+        if (androidExt != null) {
+            androidExt.compileSdkVersion = 34
+            androidExt.defaultConfig {
+                targetSdkVersion 34
+            }
+        }
+    }
+}
