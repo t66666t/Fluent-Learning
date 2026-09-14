@@ -99,10 +99,17 @@ install(FILES
   DESTINATION "${INSTALL_YT_DLP_RESOURCE_DIR}"
   RENAME "yt-dlp.exe"
   COMPONENT Runtime)
+# ffmpeg.exe is required for bundled yt-dlp post-processing.
+# ffprobe.exe is gitignored (too large for GitHub) and may be absent on a
+# fresh clone; OPTIONAL keeps `flutter build windows` from failing at INSTALL.
 install(FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/../assets/binaries/windows/ffmpeg.exe"
+  DESTINATION "${INSTALL_YT_DLP_RESOURCE_DIR}"
+  COMPONENT Runtime)
+install(FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/../assets/binaries/windows/ffprobe.exe"
   DESTINATION "${INSTALL_YT_DLP_RESOURCE_DIR}"
+  OPTIONAL
   COMPONENT Runtime)
 
 if(PLUGIN_BUNDLED_LIBRARIES)
