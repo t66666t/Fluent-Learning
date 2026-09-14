@@ -33,12 +33,53 @@ class HomeTabPage extends StatelessWidget {
     );
   }
 
+  /// Primary「继续学」: open execution page; prefer next incomplete via
+  /// [LearningUnitDetailPage.autoContinueLearning] → PlaybackNavigation.
+  Future<void> _continuePrimary(
+    BuildContext context,
+    LearningUnit unit,
+  ) async {
+    final repo = context.read<LearningUnitRepository>();
+    final library = context.read<LibraryService>();
+    final nextId = repo.nextIncompleteMediaId(unit);
+    final canContinue =
+        nextId != null && library.getVideo(nextId) != null;
+
+    if (!context.mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => LearningUnitDetailPage(
+          unitId: unit.id,
+          autoContinueLearning: canContinue,
+        ),
+        settings: RouteSettings(name: '/learning_unit/${unit.id}'),
+      ),
+    );
+  }
+
   void _goLibrary() {
     mainShellTabRequest.value = MainShellTab.library;
   }
 
   bool _libraryHasMedia(LibraryService library) {
     return library.videosForSyncMetadata.any((v) => !v.isRecycled);
+  }
+
+  /// Most recently updated incomplete unit (active → paused → planned).
+  LearningUnit? _mostRecentIncomplete(List<LearningUnit> units) {
+    final candidates = units.where((u) => u.isIncomplete).toList()
+      ..sort((a, b) {
+        int rank(LearningUnit u) => switch (u.status) {
+              LearningUnitStatus.active => 0,
+              LearningUnitStatus.paused => 1,
+              LearningUnitStatus.planned => 2,
+              _ => 3,
+            };
+        final byRank = rank(a).compareTo(rank(b));
+        if (byRank != 0) return byRank;
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
+    return candidates.isEmpty ? null : candidates.first;
   }
 
   @override
@@ -69,13 +110,15 @@ class HomeTabPage extends StatelessWidget {
             );
           }
 
-          final continueUnits = repo.units
+          final primary = _mostRecentIncomplete(repo.units);
+          final continueOthers = repo.units
               .where(
                 (u) =>
-                    u.status == LearningUnitStatus.active ||
-                    u.status == LearningUnitStatus.paused,
+                    u.id != primary?.id &&
+                    (u.status == LearningUnitStatus.active ||
+                        u.status == LearningUnitStatus.paused),
               )
-              .take(6)
+              .take(5)
               .toList();
           final recommended = _recommender.recommend(repo.units);
 
@@ -87,20 +130,28 @@ class HomeTabPage extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     repo.lastError!,
-                    style: const TextStyle(color: Colors.orangeAccent, fontSize: 12),
+                    style: const TextStyle(
+                      color: Colors.orangeAccent,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               _HomeSection(
                 title: '继续学',
                 emptyHint: '暂无进行中的学习单元',
-                children: continueUnits
-                    .map(
-                      (u) => _UnitCard(
-                        unit: u,
-                        onTap: () => _openUnit(context, u.id),
-                      ),
-                    )
-                    .toList(),
+                children: [
+                  if (primary != null)
+                    _ContinuePrimaryCard(
+                      unit: primary,
+                      onTap: () => _continuePrimary(context, primary),
+                    ),
+                  ...continueOthers.map(
+                    (u) => _UnitCard(
+                      unit: u,
+                      onTap: () => _openUnit(context, u.id),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               _HomeSection(
@@ -113,6 +164,7 @@ class HomeTabPage extends StatelessWidget {
                       (item) => _UnitCard(
                         unit: item.unit,
                         reason: item.reason,
+                        requireReason: true,
                         onTap: () => _openUnit(context, item.unit.id),
                       ),
                     )
@@ -271,16 +323,15 @@ class _HomeSection extends StatelessWidget {
   }
 }
 
-class _UnitCard extends StatelessWidget {
-  const _UnitCard({
+/// Primary continue card — one tap opens execution / continue-learning.
+class _ContinuePrimaryCard extends StatelessWidget {
+  const _ContinuePrimaryCard({
     required this.unit,
     required this.onTap,
-    this.reason,
   });
 
   final LearningUnit unit;
   final VoidCallback onTap;
-  final String? reason;
 
   @override
   Widget build(BuildContext context) {
@@ -289,6 +340,99 @@ class _UnitCard extends StatelessWidget {
         ? unit.status.labelZh
         : '截止 ${due.month}/${due.day} · ${unit.status.labelZh}';
     final pct = (unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0);
+
+    return Material(
+      color: const Color(0xFF1A2A3A),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.play_circle_filled,
+                    color: Colors.lightBlueAccent,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      unit.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$pct%',
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                dueLabel,
+                style: const TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '点按继续下一段未完成内容',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.lightBlueAccent,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: LinearProgressIndicator(
+                  value: unit.progress.percent.clamp(0.0, 1.0),
+                  minHeight: 4,
+                  backgroundColor: Colors.white12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UnitCard extends StatelessWidget {
+  const _UnitCard({
+    required this.unit,
+    required this.onTap,
+    this.reason,
+    this.requireReason = false,
+  });
+
+  final LearningUnit unit;
+  final VoidCallback onTap;
+  final String? reason;
+  final bool requireReason;
+
+  @override
+  Widget build(BuildContext context) {
+    final due = unit.schedule.dueDate;
+    final dueLabel = due == null
+        ? unit.status.labelZh
+        : '截止 ${due.month}/${due.day} · ${unit.status.labelZh}';
+    final pct = (unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0);
+    final reasonLine = (reason == null || reason!.trim().isEmpty)
+        ? (requireReason ? '建议继续学习' : null)
+        : reason;
 
     return Material(
       color: const Color(0xFF1E1E1E),
@@ -326,10 +470,10 @@ class _UnitCard extends StatelessWidget {
                 dueLabel,
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
-              if (reason != null && reason!.isNotEmpty) ...[
+              if (reasonLine != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  reason!,
+                  reasonLine,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(

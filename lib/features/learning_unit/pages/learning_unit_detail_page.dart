@@ -7,14 +7,47 @@ import 'package:fluent_learning/models/video_item.dart';
 import 'package:fluent_learning/services/library_service.dart';
 import 'package:fluent_learning/services/playback_navigation_service.dart';
 import 'package:fluent_learning/services/playlist_manager.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
 
 /// Detail / execution page: item list, progress, open playback, mark complete.
-class LearningUnitDetailPage extends StatelessWidget {
-  const LearningUnitDetailPage({super.key, required this.unitId});
+class LearningUnitDetailPage extends StatefulWidget {
+  const LearningUnitDetailPage({
+    super.key,
+    required this.unitId,
+    this.autoContinueLearning = false,
+  });
 
   final String unitId;
 
-  Future<void> _openPlayback(BuildContext context, VideoItem item) async {
+  /// When true, after first frame open next incomplete media via
+  /// [PlaybackNavigationService] (home primary「继续学」path).
+  final bool autoContinueLearning;
+
+  @override
+  State<LearningUnitDetailPage> createState() => _LearningUnitDetailPageState();
+}
+
+class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
+    with AppInlineFeedbackMixin {
+  bool _didAutoContinue = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoContinueLearning) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _didAutoContinue) return;
+        _didAutoContinue = true;
+        final repo = context.read<LearningUnitRepository>();
+        final library = context.read<LibraryService>();
+        final unit = repo.getById(widget.unitId);
+        if (unit == null) return;
+        _continueNext(repo, library, unit);
+      });
+    }
+  }
+
+  Future<void> _openPlayback(VideoItem item) async {
     final playlist = context.read<PlaylistManager>();
     if (!playlist.matchesFolderPlaylist(item.parentId, item.id)) {
       playlist.loadFolderPlaylist(item.parentId, item.id);
@@ -25,7 +58,6 @@ class LearningUnitDetailPage extends StatelessWidget {
   }
 
   Future<void> _continueNext(
-    BuildContext context,
     LearningUnitRepository repo,
     LibraryService library,
     LearningUnit unit,
@@ -34,14 +66,93 @@ class LearningUnitDetailPage extends StatelessWidget {
     if (nextId == null) return;
     final video = library.getVideo(nextId);
     if (video == null) return;
-    await _openPlayback(context, video);
+    await _openPlayback(video);
+  }
+
+  Future<void> _toggleLeafComplete(
+    LearningUnitRepository repo,
+    String mediaId,
+    bool currentlyDone,
+  ) async {
+    final markingDone = !currentlyDone;
+    await repo.markMediaComplete(
+      widget.unitId,
+      mediaId,
+      completed: markingDone,
+    );
+    if (!mounted) return;
+    showInlineFeedback(
+      markingDone
+          ? AppFeedbackMessage.success('已标记完成', title: '进度更新')
+          : AppFeedbackMessage.info('已取消完成', title: '进度更新'),
+    );
+  }
+
+  Future<void> _onUnitAction(
+    _UnitAction action,
+    LearningUnitRepository repo,
+    LearningUnit unit,
+  ) async {
+    switch (action) {
+      case _UnitAction.pause:
+        await repo.setStatus(widget.unitId, LearningUnitStatus.paused);
+        if (!mounted) return;
+        showInlineFeedback(
+          AppFeedbackMessage.info('单元已暂停', title: '状态更新'),
+        );
+      case _UnitAction.resume:
+        await repo.setStatus(widget.unitId, LearningUnitStatus.active);
+        if (!mounted) return;
+        showInlineFeedback(
+          AppFeedbackMessage.success('已恢复学习', title: '状态更新'),
+        );
+      case _UnitAction.complete:
+        await repo.setStatus(widget.unitId, LearningUnitStatus.completed);
+        if (!mounted) return;
+        showInlineFeedback(
+          AppFeedbackMessage.success('单元已标记完成', title: '完成'),
+        );
+      case _UnitAction.editDue:
+        await _editDueDate(repo, unit);
+      case _UnitAction.clearDue:
+        await repo.update(
+          unit.copyWith(
+            schedule: unit.schedule.copyWith(clearDueDate: true),
+          ),
+        );
+        if (!mounted) return;
+        showInlineFeedback(
+          AppFeedbackMessage.info('已清除截止日期', title: '日程'),
+        );
+      case _UnitAction.archive:
+        await repo.softDelete(widget.unitId);
+        if (mounted) Navigator.of(context).pop();
+    }
+  }
+
+  /// Incomplete items first; stable within each group.
+  List<String> _sortedMediaIds(
+    LearningUnitRepository repo,
+    LearningUnit unit,
+    List<String> mediaIds,
+  ) {
+    final incomplete = <String>[];
+    final complete = <String>[];
+    for (final id in mediaIds) {
+      if (repo.isLeafComplete(unit, id)) {
+        complete.add(id);
+      } else {
+        incomplete.add(id);
+      }
+    }
+    return [...incomplete, ...complete];
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<LearningUnitRepository, LibraryService>(
       builder: (context, repo, library, _) {
-        final unit = repo.getById(unitId);
+        final unit = repo.getById(widget.unitId);
         if (unit == null) {
           return Scaffold(
             backgroundColor: const Color(0xFF121212),
@@ -59,11 +170,12 @@ class LearningUnitDetailPage extends StatelessWidget {
           );
         }
 
-        final mediaIds = repo.resolveMediaIds(unit);
+        final mediaIds = _sortedMediaIds(repo, unit, repo.resolveMediaIds(unit));
         final completedCount = repo.completedLeafCount(unit);
         final percentLabel =
             '${(unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0)}%';
         final nextId = repo.nextIncompleteMediaId(unit);
+        final banner = buildInlineFeedbackBanner(dense: true);
 
         return Scaffold(
           backgroundColor: const Color(0xFF121212),
@@ -73,30 +185,7 @@ class LearningUnitDetailPage extends StatelessWidget {
             elevation: 0,
             actions: [
               PopupMenuButton<_UnitAction>(
-                onSelected: (action) async {
-                  switch (action) {
-                    case _UnitAction.pause:
-                      await repo.setStatus(unitId, LearningUnitStatus.paused);
-                    case _UnitAction.resume:
-                      await repo.setStatus(unitId, LearningUnitStatus.active);
-                    case _UnitAction.complete:
-                      await repo.setStatus(
-                        unitId,
-                        LearningUnitStatus.completed,
-                      );
-                    case _UnitAction.editDue:
-                      await _editDueDate(context, repo, unit);
-                    case _UnitAction.clearDue:
-                      await repo.update(
-                        unit.copyWith(
-                          schedule: unit.schedule.copyWith(clearDueDate: true),
-                        ),
-                      );
-                    case _UnitAction.archive:
-                      await repo.softDelete(unitId);
-                      if (context.mounted) Navigator.of(context).pop();
-                  }
-                },
+                onSelected: (action) => _onUnitAction(action, repo, unit),
                 itemBuilder: (context) => [
                   if (unit.status != LearningUnitStatus.paused)
                     const PopupMenuItem(
@@ -136,6 +225,11 @@ class LearningUnitDetailPage extends StatelessWidget {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (banner != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: banner,
+                ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Column(
@@ -156,7 +250,7 @@ class LearningUnitDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     InkWell(
-                      onTap: () => _editDueDate(context, repo, unit),
+                      onTap: () => _editDueDate(repo, unit),
                       borderRadius: BorderRadius.circular(4),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -216,7 +310,7 @@ class LearningUnitDetailPage extends StatelessWidget {
                         width: double.infinity,
                         child: FilledButton.icon(
                           onPressed: () =>
-                              _continueNext(context, repo, library, unit),
+                              _continueNext(repo, library, unit),
                           icon: const Icon(Icons.play_arrow, size: 20),
                           label: const Text('继续学习'),
                           style: FilledButton.styleFrom(
@@ -256,7 +350,8 @@ class LearningUnitDetailPage extends StatelessWidget {
                               .clamp(0, 100)
                               .toStringAsFixed(0);
                           final title = video?.title ?? '未知媒体 ($id)';
-                          final duration = _durationLabel(video?.durationMs ?? 0);
+                          final duration =
+                              _durationLabel(video?.durationMs ?? 0);
 
                           return ListTile(
                             leading: Icon(
@@ -330,17 +425,12 @@ class LearningUnitDetailPage extends StatelessWidget {
                                       done ? Icons.undo : Icons.check,
                                       color: Colors.white38,
                                     ),
-                                    onPressed: () {
-                                      repo.markMediaComplete(
-                                        unitId,
-                                        id,
-                                        completed: !done,
-                                      );
-                                    },
+                                    onPressed: () =>
+                                        _toggleLeafComplete(repo, id, done),
                                   ),
                             onTap: video == null
                                 ? null
-                                : () => _openPlayback(context, video),
+                                : () => _openPlayback(video),
                           );
                         },
                       ),
@@ -353,7 +443,6 @@ class LearningUnitDetailPage extends StatelessWidget {
   }
 
   Future<void> _editDueDate(
-    BuildContext context,
     LearningUnitRepository repo,
     LearningUnit unit,
   ) async {
@@ -380,12 +469,16 @@ class LearningUnitDetailPage extends StatelessWidget {
         );
       },
     );
-    if (!context.mounted || picked == null) return;
+    if (!mounted || picked == null) return;
     final due = DateTime(picked.year, picked.month, picked.day, 23, 59);
     await repo.update(
       unit.copyWith(
         schedule: unit.schedule.copyWith(dueDate: due),
       ),
+    );
+    if (!mounted) return;
+    showInlineFeedback(
+      AppFeedbackMessage.success('截止日期已更新', title: '日程'),
     );
   }
 

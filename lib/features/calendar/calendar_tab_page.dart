@@ -32,13 +32,24 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
     });
   }
 
-  void _openUnit(String unitId) {
-    Navigator.of(context).push(
+  /// Open unit detail; restore selected day after pop (Phase 15).
+  Future<void> _openUnit(String unitId) async {
+    final keptDay = _selectedDay;
+    final keptMonth = _month;
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => LearningUnitDetailPage(unitId: unitId),
         settings: RouteSettings(name: '/learning_unit/$unitId'),
       ),
     );
+    if (!mounted) return;
+    // Preserve calendar selection if anything reset it while detail was open.
+    if (_selectedDay != keptDay || _month != keptMonth) {
+      setState(() {
+        _month = keptMonth;
+        _selectedDay = keptDay;
+      });
+    }
   }
 
   @override
