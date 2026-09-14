@@ -42,6 +42,7 @@ import '../services/playlist_manager.dart';
 import 'home_screen.dart';
 import '../utils/app_toast.dart';
 import '../utils/desktop_media_management_shortcuts.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 class CollectionScreen extends StatefulWidget {
   final String collectionId;
@@ -246,7 +247,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                   color: const Color(
                     0xFF6EA8FF,
                   ).withValues(alpha: 0.09 * value),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.borderLg,
                   border: Border.all(
                     color: const Color(
                       0xFF8DBBFF,
@@ -1095,7 +1096,7 @@ class _CollectionScreenState extends State<CollectionScreen>
         return Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.borderLg,
             onTap: hasSelectedItems
                 ? () => _moveItemsToParentCollection(library, collection)
                 : null,
@@ -1105,11 +1106,11 @@ class _CollectionScreenState extends State<CollectionScreen>
               margin: margin,
               decoration: BoxDecoration(
                 color: isHovering
-                    ? Colors.blueAccent.withValues(alpha: 0.3)
+                    ? AppColors.primary.withValues(alpha: 0.3)
                     : const Color(0xFF2C2C2C),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.borderLg,
                 border: Border.all(
-                  color: isHovering ? Colors.blueAccent : Colors.white24,
+                  color: isHovering ? AppColors.primary : Colors.white24,
                   width: 2,
                   style: isHovering ? BorderStyle.solid : BorderStyle.none,
                 ),
@@ -1119,13 +1120,13 @@ class _CollectionScreenState extends State<CollectionScreen>
                 children: [
                   Icon(
                     Icons.reply_all,
-                    color: isHovering ? Colors.blueAccent : Colors.white70,
+                    color: isHovering ? AppColors.primary : Colors.white70,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     "移动到上一级",
                     style: TextStyle(
-                      color: isHovering ? Colors.blueAccent : Colors.white70,
+                      color: isHovering ? AppColors.primary : Colors.white70,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1195,7 +1196,7 @@ class _CollectionScreenState extends State<CollectionScreen>
               _exitSelectionMode();
             },
             child: Scaffold(
-              backgroundColor: const Color(0xFF121212),
+              backgroundColor: AppColors.scaffold,
               extendBody: true,
               // Only the search prompt follows the Android keyboard. The
               // folder/search-result grid stays at its original dimensions
@@ -1234,8 +1235,8 @@ class _CollectionScreenState extends State<CollectionScreen>
                                   ? Icons.view_list_rounded
                                   : Icons.grid_view_rounded,
                               color: settings.mediaLibraryViewMode == 0
-                                  ? Colors.white70
-                                  : Colors.blueAccent,
+                                  ? AppColors.onSurfaceVariant
+                                  : AppColors.primary,
                             ),
                             tooltip: settings.mediaLibraryViewMode == 0
                                 ? _managementTooltip(
@@ -1292,7 +1293,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                             status,
                                             style: const TextStyle(
                                               fontSize: 10,
-                                              color: Colors.white70,
+                                              color: AppColors.onSurfaceVariant,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           );
@@ -1868,7 +1869,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                               if (!isVisible) return const SizedBox.shrink();
                               return Container(
                                 height: playbackCardBottom,
-                                color: const Color(0xFF2C2C2C),
+                                color: AppColors.elevated,
                               );
                             },
                           ),
@@ -1938,7 +1939,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                     Icon(
                                       Icons.cloud_upload,
                                       size: 80,
-                                      color: Colors.blueAccent,
+                                      color: AppColors.primary,
                                     ),
                                     SizedBox(height: 16),
                                     Text(
@@ -1999,7 +2000,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                   : null,
               bottomNavigationBar: _isSelectionMode && _selectedIds.isNotEmpty
                   ? BottomAppBar(
-                      color: const Color(0xFF1E1E1E),
+                      color: AppColors.elevated,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -2028,11 +2029,11 @@ class _CollectionScreenState extends State<CollectionScreen>
                             TextButton.icon(
                               icon: const Icon(
                                 Icons.edit,
-                                color: Colors.blueAccent,
+                                color: AppColors.primary,
                               ),
                               label: const Text(
                                 "重命名",
-                                style: TextStyle(color: Colors.blueAccent),
+                                style: TextStyle(color: AppColors.primary),
                               ),
                               onPressed: () {
                                 final id = _selectedIds.first;
@@ -2509,7 +2510,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                   child: Icon(
                                     Icons.folder,
                                     size: centerIconSize,
-                                    color: Colors.blueAccent.withValues(
+                                    color: AppColors.primary.withValues(
                                       alpha: 0.8,
                                     ),
                                   ),
@@ -2519,7 +2520,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 child: Icon(
                                   Icons.folder,
                                   size: centerIconSize,
-                                  color: Colors.blueAccent.withValues(
+                                  color: AppColors.primary.withValues(
                                     alpha: 0.8,
                                   ),
                                 ),
@@ -2540,7 +2541,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                               child: Icon(
                                 Icons.folder,
                                 size: iconSize,
-                                color: Colors.blueAccent.withValues(alpha: 0.9),
+                                color: AppColors.primary.withValues(alpha: 0.9),
                               ),
                             ),
                           ),
@@ -2558,7 +2559,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                   vertical: 6,
                 ),
                 color: isSelected
-                    ? Colors.blueAccent.withValues(alpha: 0.1)
+                    ? AppColors.primary.withValues(alpha: 0.1)
                     : Colors.transparent,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2584,7 +2585,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                         "${collection.childrenIds.length} 个项目",
                         style: TextStyle(
                           fontSize: metaFontSize,
-                          color: Colors.white54,
+                          color: AppColors.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -2617,14 +2618,14 @@ class _CollectionScreenState extends State<CollectionScreen>
 
         Widget interactiveCard = Card(
           color: isSelected
-              ? Colors.blueAccent.withValues(alpha: 0.2)
+              ? AppColors.primary.withValues(alpha: 0.2)
               : const Color(0xFF2C2C2C),
           elevation: isSelected ? 4 : 2,
           clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
             side: isSelected
-                ? const BorderSide(color: Colors.blueAccent, width: 2)
+                ? const BorderSide(color: AppColors.primary, width: 2)
                 : BorderSide.none,
           ),
           child: InkWell(
@@ -2683,7 +2684,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 const Icon(
                                   Icons.folder,
                                   size: 50,
-                                  color: Colors.blueAccent,
+                                  color: AppColors.primary,
                                 ),
                                 Text(
                                   "${_selectedIds.length} 个项目",
@@ -2697,7 +2698,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                           : Icon(
                               Icons.folder,
                               size: 60,
-                              color: Colors.blueAccent,
+                              color: AppColors.primary,
                             ),
                     ),
                   ),
@@ -2842,7 +2843,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                     ),
                     child: Icon(
                       isSelected ? Icons.check_circle : Icons.circle_outlined,
-                      color: isSelected ? Colors.blueAccent : Colors.white70,
+                      color: isSelected ? AppColors.primary : Colors.white70,
                       size: MediaListLayoutMetrics.gridSelectionIconSize(
                         cardWidth,
                       ),
@@ -2910,7 +2911,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                     child: const Icon(
                                       Icons.music_note,
                                       size: 50,
-                                      color: Colors.white24,
+                                      color: AppColors.outline,
                                     ),
                                   ),
                                   errorWidget: Container(
@@ -2918,7 +2919,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                     child: const Icon(
                                       Icons.music_note,
                                       size: 50,
-                                      color: Colors.white24,
+                                      color: AppColors.outline,
                                     ),
                                   ),
                                 )
@@ -2927,7 +2928,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                   child: const Icon(
                                     Icons.music_note,
                                     size: 50,
-                                    color: Colors.white24,
+                                    color: AppColors.outline,
                                   ),
                                 ))
                         : LayoutBuilder(
@@ -2953,7 +2954,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                   child: const Icon(
                                     Icons.movie,
                                     size: 50,
-                                    color: Colors.white24,
+                                    color: AppColors.outline,
                                   ),
                                 ),
                                 errorWidget: const Icon(
@@ -3002,7 +3003,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                       0.0,
                                       1.0,
                                     ),
-                                    backgroundColor: Colors.white24,
+                                    backgroundColor: AppColors.outline,
                                     color: Colors.redAccent,
                                   ),
                                 );
@@ -3078,7 +3079,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 "${(item.durationMs / 1000 / 60).floor()}:${((item.durationMs / 1000) % 60).floor().toString().padLeft(2, '0')}",
                                 style: TextStyle(
                                   fontSize: metaFontSize,
-                                  color: Colors.white54,
+                                  color: AppColors.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -3121,12 +3122,12 @@ class _CollectionScreenState extends State<CollectionScreen>
         Widget interactiveCard = Card(
           clipBehavior: Clip.antiAlias,
           color: isSelected
-              ? Colors.blueAccent.withValues(alpha: 0.2)
+              ? AppColors.primary.withValues(alpha: 0.2)
               : const Color(0xFF2C2C2C),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
             side: isSelected
-                ? const BorderSide(color: Colors.blueAccent, width: 2)
+                ? const BorderSide(color: AppColors.primary, width: 2)
                 : BorderSide.none,
           ),
           child: InkWell(
@@ -3181,7 +3182,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                       child: Icon(
                         Icons.movie,
                         size: 60,
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -3223,7 +3224,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                   if (candidateData.isNotEmpty) {
                     targetChild = Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blueAccent, width: 2),
+                        border: Border.all(color: AppColors.primary, width: 2),
                         borderRadius: BorderRadius.circular(radius),
                       ),
                       child: interactiveCard,
@@ -3310,7 +3311,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                     ),
                     child: Icon(
                       isSelected ? Icons.check_circle : Icons.circle_outlined,
-                      color: isSelected ? Colors.blueAccent : Colors.white70,
+                      color: isSelected ? AppColors.primary : Colors.white70,
                       size: MediaListLayoutMetrics.gridSelectionIconSize(
                         cardWidth,
                       ),
@@ -3445,19 +3446,19 @@ class _CollectionScreenState extends State<CollectionScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFF2C2C2C),
-          title: const Text("大文件数据目录", style: TextStyle(color: Colors.white)),
+          backgroundColor: AppColors.elevated,
+          title: const Text("大文件数据目录", style: TextStyle(color: AppColors.onSurface)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("当前目录", style: TextStyle(color: Colors.white70)),
+              const Text("当前目录", style: TextStyle(color: AppColors.onSurfaceVariant)),
               const SizedBox(height: 6),
-              Text(tempPath, style: const TextStyle(color: Colors.white)),
+              Text(tempPath, style: const TextStyle(color: AppColors.onSurface)),
               const SizedBox(height: 12),
-              const Text("默认目录", style: TextStyle(color: Colors.white70)),
+              const Text("默认目录", style: TextStyle(color: AppColors.onSurfaceVariant)),
               const SizedBox(height: 6),
-              Text(defaultPath, style: const TextStyle(color: Colors.white)),
+              Text(defaultPath, style: const TextStyle(color: AppColors.onSurface)),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -3479,7 +3480,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3A3A3A),
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.onSurface,
                       ),
                       child: const Text("选择目录"),
                     ),
@@ -3494,7 +3495,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                       },
                       child: const Text(
                         "恢复默认",
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: AppColors.onSurfaceVariant),
                       ),
                     ),
                   ),
@@ -3503,7 +3504,7 @@ class _CollectionScreenState extends State<CollectionScreen>
               const SizedBox(height: 8),
               const Text(
                 "修改后会迁移媒体库视频、缩略图和字幕到新目录。",
-                style: TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
               ),
             ],
           ),
@@ -3525,7 +3526,7 @@ class _CollectionScreenState extends State<CollectionScreen>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4F7BF5),
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.onSurface,
               ),
               child: const Text("应用并迁移"),
             ),
@@ -3542,7 +3543,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: AppColors.elevated,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -3595,12 +3596,12 @@ class _CollectionScreenState extends State<CollectionScreen>
                       children: [
                         const Text(
                           "每行卡片数量",
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: AppColors.onSurfaceVariant),
                         ),
                         Text(
                           "${tempColumnCount.toInt()} 列",
                           style: const TextStyle(
-                            color: Colors.blueAccent,
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -3631,12 +3632,12 @@ class _CollectionScreenState extends State<CollectionScreen>
                       children: [
                         const Text(
                           "标题字号",
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: AppColors.onSurfaceVariant),
                         ),
                         Text(
                           "${(tempFontScale * 100).toStringAsFixed(1)}%",
                           style: const TextStyle(
-                            color: Colors.blueAccent,
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -3658,7 +3659,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                     Text(
                       "预览字号 ${_resolveCardTitleFontSize(_estimateGridCardWidth(context, tempColumnCount.round()), tempFontScale).toStringAsFixed(1)}",
                       style: const TextStyle(
-                        color: Colors.white38,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -3668,12 +3669,12 @@ class _CollectionScreenState extends State<CollectionScreen>
                       children: [
                         const Text(
                           "卡片高度",
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: AppColors.onSurfaceVariant),
                         ),
                         Text(
                           tempHeightScale.toStringAsFixed(2),
                           style: const TextStyle(
-                            color: Colors.blueAccent,
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -3701,11 +3702,11 @@ class _CollectionScreenState extends State<CollectionScreen>
                       children: [
                         const Text(
                           "每行数量",
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: AppColors.onSurfaceVariant),
                         ),
                         Text(
                           "${tempListColumnCount.toInt()} 列",
-                          style: const TextStyle(color: Colors.blueAccent),
+                          style: const TextStyle(color: AppColors.primary),
                         ),
                       ],
                     ),
@@ -3726,10 +3727,10 @@ class _CollectionScreenState extends State<CollectionScreen>
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       value: tempShowThumb,
-                      activeThumbColor: Colors.blueAccent,
+                      activeThumbColor: AppColors.primary,
                       title: const Text(
                         "显示缩略图",
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: AppColors.onSurfaceVariant),
                       ),
                       onChanged: (v) {
                         setSheetState(() => tempShowThumb = v);
@@ -3740,10 +3741,10 @@ class _CollectionScreenState extends State<CollectionScreen>
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       value: tempShowIndex,
-                      activeThumbColor: Colors.blueAccent,
+                      activeThumbColor: AppColors.primary,
                       title: const Text(
                         "显示序号",
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: AppColors.onSurfaceVariant),
                       ),
                       onChanged: (v) {
                         setSheetState(() => tempShowIndex = v);
@@ -3836,8 +3837,8 @@ class _CollectionScreenState extends State<CollectionScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(color: Colors.white70)),
-            Text(valueText, style: const TextStyle(color: Colors.blueAccent)),
+            Text(title, style: const TextStyle(color: AppColors.onSurfaceVariant)),
+            Text(valueText, style: const TextStyle(color: AppColors.primary)),
           ],
         ),
         slider,
@@ -3856,11 +3857,11 @@ class _BoxSelectionPainter extends CustomPainter {
     if (selectionRect == null) return;
 
     final paint = Paint()
-      ..color = Colors.blueAccent.withValues(alpha: 0.1)
+      ..color = AppColors.primary.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()
-      ..color = Colors.blueAccent.withValues(alpha: 0.5)
+      ..color = AppColors.primary.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

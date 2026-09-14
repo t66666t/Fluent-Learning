@@ -22,6 +22,7 @@ import 'package:fluent_learning/utils/subtitle_util.dart';
 import 'package:fluent_learning/utils/app_toast.dart';
 
 import 'package:fluent_learning/widgets/bilibili_login_dialogs.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 class BilibiliDownloadScreen extends StatefulWidget {
   final String? initialInput;
@@ -404,7 +405,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
         return await showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
-                backgroundColor: const Color(0xFF2C2C2C),
+                backgroundColor: AppColors.elevated,
                 title: const Text(
                   "发现合集",
                   style: TextStyle(color: Colors.white),
@@ -1852,7 +1853,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
     final content = Container(
       margin: EdgeInsets.fromLTRB(16, 0, 16, isLastInTask ? 16 : 0),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C),
+        color: AppColors.elevated,
         borderRadius: BorderRadius.vertical(
           top: isHeader ? const Radius.circular(12) : Radius.zero,
           bottom: isLastInTask ? const Radius.circular(12) : Radius.zero,
@@ -1908,7 +1909,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
             color: Colors.pinkAccent.withValues(alpha: highlighted ? 0.10 : 0),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.borderLg,
             border: Border.all(
               color: Colors.pinkAccent.withValues(alpha: highlighted ? 0.8 : 0),
               width: 1.5,
@@ -1970,7 +1971,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.borderLg,
                             border: Border.all(
                               color: Colors.pinkAccent,
                               width: 1.5,
@@ -2153,7 +2154,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
               final int inputMaxLines = screenWidth < 480 ? 3 : 4;
 
               return Scaffold(
-                backgroundColor: const Color(0xFF121212),
+                backgroundColor: AppColors.scaffold,
                 appBar: AppBar(
                   titleSpacing: isCompactAppBar ? 8 : null,
                   title: GestureDetector(
@@ -2169,7 +2170,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                       style: TextStyle(fontSize: isCompactAppBar ? 16 : 18),
                     ),
                   ),
-                  backgroundColor: const Color(0xFF1E1E1E),
+                  backgroundColor: AppColors.elevated,
                   actions: [
                     if (!_streamingMode)
                       Selector<
@@ -2226,7 +2227,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                         horizontal: topHorizontalPadding,
                         vertical: topVerticalPadding,
                       ),
-                      color: const Color(0xFF1E1E1E),
+                      color: AppColors.elevated,
                       child: Builder(
                         builder: (context) {
                           final inputField = TextField(
@@ -2338,7 +2339,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                                         : () => _parseVideo(service),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.pinkAccent,
-                                      foregroundColor: Colors.white,
+                                      foregroundColor: AppColors.onSurface,
                                       padding: EdgeInsets.symmetric(
                                         horizontal:
                                             parseButtonHorizontalPadding,
@@ -2578,9 +2579,9 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
         media.orientation == Orientation.portrait && media.size.width < 600;
 
     return Card(
-      color: const Color(0xFF2C2C2C),
+      color: AppColors.elevated,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadii.borderLg),
       child: Column(
         children: [
           InkWell(
@@ -3071,7 +3072,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                   if (ep.status == DownloadStatus.checking)
                     const LinearProgressIndicator(
                       backgroundColor: Colors.grey,
-                      color: Colors.blueAccent,
+                      color: AppColors.primary,
                       minHeight: 4,
                     )
                   else if (ep.status == DownloadStatus.repairing)
@@ -3162,7 +3163,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                     Icons.check,
                     size: 14,
                     color: ep.isExported
-                        ? Colors.blueAccent
+                        ? AppColors.primary
                         : Colors.greenAccent,
                   ),
                   const SizedBox(width: 4),
@@ -3170,7 +3171,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                     ep.downloadSpeed!,
                     style: TextStyle(
                       color: ep.isExported
-                          ? Colors.blueAccent
+                          ? AppColors.primary
                           : Colors.greenAccent,
                       fontSize: 12,
                     ),
@@ -3768,7 +3769,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                     if (ep.status == DownloadStatus.checking)
                       const LinearProgressIndicator(
                         backgroundColor: Colors.grey,
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                         minHeight: 2,
                       )
                     else if (ep.status == DownloadStatus.repairing)
@@ -3860,7 +3861,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                       Icons.check,
                       size: 10,
                       color: ep.isExported
-                          ? Colors.blueAccent
+                          ? AppColors.primary
                           : Colors.greenAccent,
                     ),
                     const SizedBox(width: 4),
@@ -3868,7 +3869,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
                       ep.downloadSpeed!,
                       style: TextStyle(
                         color: ep.isExported
-                            ? Colors.blueAccent
+                            ? AppColors.primary
                             : Colors.greenAccent,
                         fontSize: 10,
                       ),
@@ -3899,7 +3900,7 @@ class _BilibiliDownloadScreenState extends State<BilibiliDownloadScreen>
     BilibiliSelectionSummary selection,
   ) {
     return BottomAppBar(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
       padding: EdgeInsets.zero,
       child: SizedBox(
         height: 64,

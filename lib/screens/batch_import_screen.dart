@@ -18,6 +18,7 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../models/video_item.dart';
 import '../models/video_item.dart' as vi;
 import '../utils/app_toast.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 class BatchImportScreen extends StatefulWidget {
   final String? folderId;
@@ -86,24 +87,24 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2C2C2C),
-        title: const Text("选择导入方式", style: TextStyle(color: Colors.white)),
+        backgroundColor: AppColors.elevated,
+        title: const Text("选择导入方式", style: TextStyle(color: AppColors.onSurface)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(
                 Icons.photo_library,
-                color: Colors.blueAccent,
+                color: AppColors.primary,
               ),
-              title: const Text("从相册导入", style: TextStyle(color: Colors.white)),
+              title: const Text("从相册导入", style: TextStyle(color: AppColors.onSurface)),
               subtitle: const Text(
                 "选择手机相册中的媒体文件",
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
               ),
               onTap: () => Navigator.pop(context, 'gallery'),
             ),
-            const Divider(color: Colors.white24),
+            const Divider(color: AppColors.outline),
             ListTile(
               leading: const Icon(
                 Icons.folder_open,
@@ -111,11 +112,11 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
               ),
               title: const Text(
                 "从文件管理器导入",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.onSurface),
               ),
               subtitle: const Text(
                 "浏览文件系统选择媒体文件",
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
               ),
               onTap: () => Navigator.pop(context, 'file_manager'),
             ),
@@ -124,7 +125,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("取消", style: TextStyle(color: Colors.white70)),
+            child: const Text("取消", style: TextStyle(color: AppColors.onSurfaceVariant)),
           ),
         ],
       ),
@@ -379,8 +380,8 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2C2C2C),
-        title: const Text("操作说明", style: TextStyle(color: Colors.white)),
+        backgroundColor: AppColors.elevated,
+        title: const Text("操作说明", style: TextStyle(color: AppColors.onSurface)),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +413,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
             onPressed: () => Navigator.pop(context),
             child: const Text(
               "我知道了",
-              style: TextStyle(color: Colors.blueAccent),
+              style: TextStyle(color: AppColors.primary),
             ),
           ),
         ],
@@ -427,7 +428,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -436,7 +437,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
         Text(
           content,
           style: const TextStyle(
-            color: Colors.white70,
+            color: AppColors.onSurfaceVariant,
             fontSize: 13,
             height: 1.4,
           ),
@@ -467,12 +468,12 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
           }
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFF121212),
+          backgroundColor: AppColors.scaffold,
           appBar: AppBar(
             title: const Text("批量导入媒体及对应字幕", style: TextStyle(fontSize: 15)),
             centerTitle: false,
-            backgroundColor: const Color(0xFF1E1E1E),
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.elevated,
+            foregroundColor: AppColors.onSurface,
             actions: [
               IconButton(
                 icon: const Icon(Icons.remove),
@@ -505,8 +506,8 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                         label: const Text('导入媒体'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blueAccent,
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.onSurface,
                         ),
                       ),
                     ),
@@ -519,7 +520,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: Colors.orangeAccent,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.onSurface,
                         ),
                       ),
                     ),
@@ -528,11 +529,11 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                       onPressed: _showHelpDialog,
                       icon: const Icon(
                         Icons.help_outline,
-                        color: Colors.white70,
+                        color: AppColors.onSurfaceVariant,
                       ),
                       tooltip: "操作说明",
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white10,
+                        backgroundColor: AppColors.outlineVariant,
                         padding: const EdgeInsets.all(12),
                       ),
                     ),
@@ -543,7 +544,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
 
               // Header Row
               Container(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.onSurface.withValues(alpha: 0.05),
                 height: 40,
                 child: Row(
                   children: [
@@ -552,13 +553,13 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                         child: Text(
                           '媒体列表',
                           style: TextStyle(
-                            color: Colors.blueAccent.shade100,
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                    Container(width: 1, color: Colors.white24),
+                    Container(width: 1, color: AppColors.outline),
                     Expanded(
                       child: Center(
                         child: Text(
@@ -570,14 +571,14 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                         ),
                       ),
                     ),
-                    Container(width: 1, color: Colors.white24),
+                    Container(width: 1, color: AppColors.outline),
                     SizedBox(
                       width: 100,
                       child: Center(
                         child: Text(
                           '操作',
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: AppColors.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -625,7 +626,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 padding: const EdgeInsets.only(left: 20),
                                 child: const Icon(
                                   Icons.delete,
-                                  color: Colors.white,
+                                  color: AppColors.onSurface,
                                 ),
                               ),
                               secondaryBackground: Container(
@@ -634,7 +635,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 padding: const EdgeInsets.only(right: 20),
                                 child: const Icon(
                                   Icons.delete,
-                                  color: Colors.white,
+                                  color: AppColors.onSurface,
                                 ),
                               ),
                               onDismissed: (_) {
@@ -644,10 +645,10 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 height: rowHeight,
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: Colors.white12),
+                                    bottom: BorderSide(color: AppColors.outlineVariant),
                                   ),
                                   color: index % 2 == 0
-                                      ? Colors.white.withValues(alpha: 0.02)
+                                      ? AppColors.onSurface.withValues(alpha: 0.02)
                                       : Colors.transparent,
                                 ),
                                 child: item.path == null
@@ -655,7 +656,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                         child: Text(
                                           "--",
                                           style: TextStyle(
-                                            color: Colors.white24,
+                                            color: AppColors.outline,
                                             fontSize: fontSize * 0.8,
                                           ),
                                         ),
@@ -689,7 +690,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                                 style: TextStyle(
                                                   color: isImported
                                                       ? Colors.green
-                                                      : Colors.white,
+                                                      : AppColors.onSurface,
                                                   fontSize: fontSize,
                                                 ),
                                                 maxLines: 2,
@@ -699,7 +700,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                                 Text(
                                                   duration,
                                                   style: TextStyle(
-                                                    color: Colors.white54,
+                                                    color: AppColors.onSurfaceVariant,
                                                     fontSize: fontSize * 0.7,
                                                   ),
                                                 ),
@@ -714,7 +715,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                       ),
                     ),
 
-                    VerticalDivider(width: 1, color: Colors.white24),
+                    VerticalDivider(width: 1, color: AppColors.outline),
 
                     // Subtitle Column
                     Expanded(
@@ -747,7 +748,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 padding: const EdgeInsets.only(left: 20),
                                 child: const Icon(
                                   Icons.delete,
-                                  color: Colors.white,
+                                  color: AppColors.onSurface,
                                 ),
                               ),
                               secondaryBackground: Container(
@@ -756,7 +757,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 padding: const EdgeInsets.only(right: 20),
                                 child: const Icon(
                                   Icons.delete,
-                                  color: Colors.white,
+                                  color: AppColors.onSurface,
                                 ),
                               ),
                               onDismissed: (_) {
@@ -769,10 +770,10 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                 height: rowHeight,
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: Colors.white12),
+                                    bottom: BorderSide(color: AppColors.outlineVariant),
                                   ),
                                   color: index % 2 == 0
-                                      ? Colors.white.withValues(alpha: 0.02)
+                                      ? AppColors.onSurface.withValues(alpha: 0.02)
                                       : Colors.transparent,
                                 ),
                                 child: item.path == null
@@ -780,7 +781,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                         child: Text(
                                           "--",
                                           style: TextStyle(
-                                            color: Colors.white24,
+                                            color: AppColors.outline,
                                             fontSize: fontSize * 0.8,
                                           ),
                                         ),
@@ -806,7 +807,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                           child: Text(
                                             p.basename(item.path!),
                                             style: TextStyle(
-                                              color: Colors.white70,
+                                              color: AppColors.onSurfaceVariant,
                                               fontSize: fontSize,
                                             ),
                                             maxLines: 2,
@@ -821,7 +822,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                       ),
                     ),
 
-                    VerticalDivider(width: 1, color: Colors.white24),
+                    VerticalDivider(width: 1, color: AppColors.outline),
 
                     // Action Column
                     SizedBox(
@@ -850,10 +851,10 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                             height: rowHeight,
                             decoration: BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Colors.white12),
+                                bottom: BorderSide(color: AppColors.outlineVariant),
                               ),
                               color: index % 2 == 0
-                                  ? Colors.white.withValues(alpha: 0.02)
+                                  ? AppColors.onSurface.withValues(alpha: 0.02)
                                   : Colors.transparent,
                             ),
                             child: Row(
@@ -869,7 +870,7 @@ class _BatchImportScreenState extends State<BatchImportScreen> {
                                           ? Colors.orange
                                           : (subItem?.path != null
                                                 ? Colors.blue
-                                                : Colors.grey),
+                                                : AppColors.onSurfaceVariant),
                                       size: fontSize + 4,
                                     ),
                                     onPressed: () {

@@ -19,6 +19,7 @@ import '../utils/app_toast.dart';
 import '../utils/media_folder_scanner.dart';
 import 'package:fluent_learning/system/media_picker/media_picker.dart';
 import '../widgets/task_queue_table.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 class BatchSubtitleScreen extends StatefulWidget {
   final String? collectionId;
@@ -157,7 +158,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
             context: context,
             label: '全部开始',
             icon: Icons.play_arrow_rounded,
-            color: Colors.green.shade700,
+            color: AppColors.success,
             onPressed: () => _startAll(manager),
           ),
         ),
@@ -267,7 +268,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
             icon: Icons.play_arrow_rounded,
             height: metrics.buttonHeight,
             fontSize: metrics.fontSize,
-            color: Colors.green.shade700,
+            color: AppColors.success,
             onPressed: () => _startAll(manager),
           ),
         ];
@@ -361,7 +362,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
         horizontal: padding * 1.6,
         vertical: padding * 0.5,
       ),
-      color: Colors.blueGrey.withValues(alpha: 0.08),
+      color: AppColors.primary.withValues(alpha: 0.08),
       child: Row(
         children: [
           Icon(
@@ -516,7 +517,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
               theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
           padding: EdgeInsets.symmetric(horizontal: fontSize * 0.85),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadii.borderMd,
           ),
         ),
       ),
@@ -539,7 +540,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
       color: selected
           ? theme.colorScheme.primary
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.65),
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: AppRadii.borderMd,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onPressed,
@@ -827,7 +828,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
           ? accent.withValues(alpha: 0.1)
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.34),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.borderMd,
         side: BorderSide(
           color: active
               ? accent.withValues(alpha: 0.48)
@@ -946,7 +947,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
       icon: Icons.subtitles_outlined,
       title: '外部视频软字幕内嵌',
       subtitle: status,
-      accent: enabled ? Colors.green.shade600 : theme.colorScheme.primary,
+      accent: enabled ? AppColors.success : theme.colorScheme.primary,
       active: enabled,
       tooltip: '配置外部视频软字幕内嵌',
       trailing: Icon(
@@ -1536,7 +1537,7 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
               Navigator.of(ctx).pop();
               _clearAll(manager);
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('清除全部'),
           ),
         ],

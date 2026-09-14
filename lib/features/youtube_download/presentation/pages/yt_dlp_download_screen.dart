@@ -17,6 +17,7 @@ import 'package:fluent_learning/features/youtube_download/services/yt_dlp_meta_p
 import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 import 'package:fluent_learning/utils/app_toast.dart';
 import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 class YtDlpDownloadScreen extends StatefulWidget {
   final String? initialInput;
@@ -256,7 +257,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
             final updateError = service.ytDlpUpdateError?.trim();
 
             return AlertDialog(
-              backgroundColor: const Color(0xFF222326),
+              backgroundColor: AppColors.elevated,
               title: const Text('yt-dlp 环境状态'),
               content: SizedBox(
                 width: 420,
@@ -287,9 +288,9 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                           : updateHint,
                       style: TextStyle(
                         color: service.isUpdatingYtDlp
-                            ? Colors.lightBlueAccent
+                            ? AppColors.primary
                             : service.hasNewerYtDlpRelease
-                            ? Colors.amberAccent
+                            ? AppColors.warning
                             : Colors.white60,
                         fontSize: 12,
                       ),
@@ -299,7 +300,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                       SelectableText(
                         '更新检查错误:\n$updateError',
                         style: const TextStyle(
-                          color: Colors.orangeAccent,
+                          color: AppColors.warning,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -497,9 +498,9 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
             }
 
             return AlertDialog(
-              backgroundColor: const Color(0xFF222326),
+              backgroundColor: AppColors.elevated,
               title: InkWell(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadii.borderSm,
                 onTap: () {
                   setState(() {
                     titleTapCount += 1;
@@ -820,7 +821,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.04),
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadii.borderMd,
                             ),
                             child: Column(
                               children: [
@@ -976,7 +977,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                   onPressed: () => Navigator.pop(dialogContext, true),
                   child: const Text(
                     '清空',
-                    style: TextStyle(color: Colors.redAccent),
+                    style: TextStyle(color: AppColors.error),
                   ),
                 ),
               ],
@@ -1081,10 +1082,10 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       margin: const EdgeInsets.fromLTRB(12, 10, 12, 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E2430),
+        color: AppColors.elevated,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: (active ? Colors.lightBlueAccent : Colors.white38).withValues(
+          color: (active ? AppColors.primary : Colors.white38).withValues(
             alpha: 0.35,
           ),
         ),
@@ -1093,7 +1094,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         children: [
           Icon(
             active ? Icons.wb_sunny_rounded : Icons.light_mode_outlined,
-            color: active ? Colors.lightBlueAccent : Colors.white70,
+            color: active ? AppColors.primary : Colors.white70,
             size: 20,
           ),
           const SizedBox(width: 10),
@@ -1123,10 +1124,10 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         runSpacing: 8,
         children: [
           _buildInfoChip('任务 ${service.tasks.length}', Colors.white70),
-          _buildInfoChip('处理中 ${service.activeCount}', const Color(0xFFFF5A5F)),
-          _buildInfoChip('队列中 ${service.queuedCount}', Colors.orangeAccent),
-          _buildInfoChip('已完成 ${service.completedCount}', Colors.greenAccent),
-          _buildInfoChip('失败 ${service.failedCount}', Colors.redAccent),
+          _buildInfoChip('处理中 ${service.activeCount}', AppColors.error),
+          _buildInfoChip('队列中 ${service.queuedCount}', AppColors.warning),
+          _buildInfoChip('已完成 ${service.completedCount}', AppColors.success),
+          _buildInfoChip('失败 ${service.failedCount}', AppColors.error),
         ],
       ),
     );
@@ -1199,7 +1200,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
               final int inputMaxLines = screenWidth < 480 ? 3 : 4;
 
               return Scaffold(
-                backgroundColor: const Color(0xFF121212),
+                backgroundColor: AppColors.scaffold,
                 appBar: AppBar(
                   titleSpacing: isCompactAppBar ? 8 : null,
                   title: Text(
@@ -1208,7 +1209,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: isCompactAppBar ? 16 : 18),
                   ),
-                  backgroundColor: const Color(0xFF1E1E1E),
+                  backgroundColor: AppColors.elevated,
                   actions: [
                     Selector<
                       YtDlpDownloadService,
@@ -1246,11 +1247,11 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                 ? Icons.info_outline
                                 : Icons.warning_amber_rounded,
                             color: runtime.newer
-                                ? Colors.amberAccent
+                                ? AppColors.warning
                                 : hasFullPostProcessing
-                                ? Colors.greenAccent
+                                ? AppColors.success
                                 : canResolve
-                                ? Colors.lightBlueAccent
+                                ? AppColors.primary
                                 : Colors.amber,
                           ),
                           iconSize: appBarIconSize,
@@ -1284,7 +1285,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                 ? Icons.wb_sunny_rounded
                                 : Icons.light_mode_outlined,
                             color: keepAwake.enabled
-                                ? const Color(0xFFFF5A5F)
+                                ? AppColors.error
                                 : Colors.white70,
                           ),
                           iconSize: appBarIconSize,
@@ -1312,7 +1313,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                 body: Column(
                   children: [
                     Container(
-                      color: const Color(0xFF1E1E1E),
+                      color: AppColors.elevated,
                       padding: EdgeInsets.symmetric(
                         horizontal: topHorizontalPadding,
                         vertical: topVerticalPadding,
@@ -1373,7 +1374,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                             backgroundColor: const Color(
                                               0xFFFF4040,
                                             ),
-                                            foregroundColor: Colors.white,
+                                            foregroundColor: AppColors.onSurface,
                                             padding: EdgeInsets.symmetric(
                                               horizontal:
                                                   parseButtonHorizontalPadding,
@@ -1458,7 +1459,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                         backgroundColor: const Color(
                                           0xFFFF4040,
                                         ),
-                                        foregroundColor: Colors.white,
+                                        foregroundColor: AppColors.onSurface,
                                         padding: EdgeInsets.symmetric(
                                           horizontal:
                                               parseButtonHorizontalPadding,
@@ -1656,7 +1657,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                           return const SizedBox.shrink();
                         }
                         return BottomAppBar(
-                          color: const Color(0xFF1E1E1E),
+                          color: AppColors.elevated,
                           child: SizedBox(
                             height: 64,
                             child: ListView(
@@ -1868,12 +1869,12 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                     if (failureTypeText != null)
                                       _buildInfoChip(
                                         failureTypeText,
-                                        Colors.redAccent,
+                                        AppColors.error,
                                       ),
                                     if (task.fallbackAttemptCount > 0)
                                       _buildInfoChip(
                                         '回退 ${task.fallbackAttemptCount} 次',
-                                        Colors.orangeAccent,
+                                        AppColors.warning,
                                       ),
                                   ],
                                 ),
@@ -1894,7 +1895,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                       ? '重新下载'
                                       : '开始',
                                   icon: Icons.play_arrow,
-                                  color: const Color(0xFFFF5A5F),
+                                  color: AppColors.error,
                                   size: actionButtonSize,
                                   iconSize: actionIconSize,
                                   onPressed: () => service.startTask(task),
@@ -2077,7 +2078,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                             collapsedFailureText,
                             style: TextStyle(
                               color: task.status == YtDlpTaskStatus.failed
-                                  ? Colors.redAccent
+                                  ? AppColors.error
                                   : Colors.white54,
                               fontSize: 11,
                             ),
@@ -2240,7 +2241,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
               value: showIndeterminate ? null : animatedProgress,
               minHeight: 3,
               backgroundColor: Colors.grey[800],
-              color: const Color(0xFFFF5A5F),
+              color: AppColors.error,
             ),
           ),
         ),
@@ -2362,7 +2363,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.borderMd,
         border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
       ),
       child: Column(
@@ -2509,7 +2510,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.borderMd,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2568,7 +2569,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
   }) {
     final isSmallScreen = MediaQuery.of(context).size.width < 400;
     final isEnabled = onTap != null;
-    final baseColor = isDestructive ? Colors.redAccent : Colors.white;
+    final baseColor = isDestructive ? AppColors.error : Colors.white;
     final contentColor = isEnabled
         ? baseColor
         : baseColor.withValues(alpha: 0.38);
@@ -2600,7 +2601,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                 style: TextStyle(
                   color: isEnabled
                       ? (isDestructive
-                            ? Colors.redAccent.withValues(alpha: 0.7)
+                            ? AppColors.error.withValues(alpha: 0.7)
                             : Colors.white70)
                       : Colors.white38,
                   fontSize: isSmallScreen ? 8 : 9,
@@ -2666,9 +2667,9 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.redAccent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.25)),
+        color: AppColors.error.withValues(alpha: 0.08),
+        borderRadius: AppRadii.borderMd,
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2689,7 +2690,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
             Text(
               '已自动回退 ${task.fallbackAttemptCount} 次'
               '${task.appliedFallbackSteps.isNotEmpty ? ' · 最近一步 ${_fallbackStepText(task.appliedFallbackSteps.last)}' : ''}',
-              style: const TextStyle(color: Colors.orangeAccent, fontSize: 11),
+              style: const TextStyle(color: AppColors.warning, fontSize: 11),
             ),
           ],
           if (summaryParts.isNotEmpty) ...[
@@ -2945,19 +2946,19 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         label = '待开始';
         break;
       case YtDlpTaskStatus.queued:
-        color = Colors.orangeAccent;
+        color = AppColors.warning;
         label = '队列中';
         break;
       case YtDlpTaskStatus.resolving:
-        color = Colors.lightBlueAccent;
+        color = AppColors.primary;
         label = '解析中';
         break;
       case YtDlpTaskStatus.pausing:
-        color = Colors.amberAccent;
+        color = AppColors.warning;
         label = '暂停中';
         break;
       case YtDlpTaskStatus.downloading:
-        color = const Color(0xFFFF5A5F);
+        color = AppColors.error;
         label = '下载中';
         break;
       case YtDlpTaskStatus.postProcessing:
@@ -2969,7 +2970,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         label = '已暂停';
         break;
       case YtDlpTaskStatus.completed:
-        color = Colors.greenAccent;
+        color = AppColors.success;
         label = '已完成';
         break;
       case YtDlpTaskStatus.exported:
@@ -2977,7 +2978,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         label = '已导出';
         break;
       case YtDlpTaskStatus.failed:
-        color = Colors.redAccent;
+        color = AppColors.error;
         label = '失败';
         break;
       case YtDlpTaskStatus.cancelled:
@@ -3012,7 +3013,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.borderSm,
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
@@ -3042,7 +3043,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.borderSm,
       ),
       child: Row(
         children: [
@@ -3173,13 +3174,13 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
         ),
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadii.borderSm,
           child: Container(
             height: 36,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadii.borderSm,
             ),
             child: Row(
               children: [
@@ -3296,13 +3297,13 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
     final summary = _buildSubtitleSelectionSummary(meta, selection);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppRadii.borderSm,
       child: Container(
         height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadii.borderSm,
         ),
         child: Row(
           children: [
@@ -3373,7 +3374,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                             CheckboxListTile(
                               dense: true,
                               value: tempSelected.contains(track.selectionKey),
-                              activeColor: Colors.redAccent,
+                              activeColor: AppColors.error,
                               controlAffinity: ListTileControlAffinity.leading,
                               contentPadding: EdgeInsets.zero,
                               title: Text(
@@ -3589,13 +3590,13 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.borderMd,
       ),
       child: Row(
         children: [
           Checkbox(
             value: isSelected,
-            activeColor: Colors.redAccent,
+            activeColor: AppColors.error,
             onChanged: (value) => onChanged(value == true),
           ),
           Expanded(

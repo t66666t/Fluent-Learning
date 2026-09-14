@@ -11,6 +11,7 @@ import '../models/video_item.dart';
 import '../models/media_source_ref.dart';
 import '../utils/app_toast.dart';
 import '../widgets/responsive_icon_button.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 Future<void> _openRecycleBinVideo(BuildContext context, VideoItem item) async {
   final isOnline =
@@ -108,7 +109,7 @@ class _SizeDisplayState extends State<SizeDisplay> {
       if (_cachedSize == 0) return const SizedBox.shrink();
       return Text(
         " • 可释放: ${LibraryService.formatSize(_cachedSize!)}",
-        style: const TextStyle(color: Colors.grey, fontSize: 12),
+        style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
       );
     }
 
@@ -122,7 +123,7 @@ class _SizeDisplayState extends State<SizeDisplay> {
         if (size == 0) return const SizedBox.shrink();
         return Text(
           " • 可释放: ${LibraryService.formatSize(size)}",
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
+          style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
         );
       },
     );
@@ -238,7 +239,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
         style: TextStyle(
           fontSize: titleFontSize,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: AppColors.onSurface,
         ),
       );
     }
@@ -261,7 +262,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
               style: TextStyle(
                 fontSize: titleFontSize,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppColors.onSurface,
                 height: 1.1,
               ),
             ),
@@ -273,7 +274,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
               style: TextStyle(
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.w400,
-                color: Colors.white70,
+                color: AppColors.onSurfaceVariant,
                 height: 1.1,
               ),
             ),
@@ -388,12 +389,12 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                           Icon(
                             Icons.delete_outline,
                             size: 80,
-                            color: Colors.white24,
+                            color: AppColors.outline,
                           ),
                           SizedBox(height: 16),
                           Text(
                             "回收站是空的",
-                            style: TextStyle(color: Colors.white54),
+                            style: TextStyle(color: AppColors.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -419,8 +420,8 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
 
                         return Card(
                           color: isSelected
-                              ? Colors.blueAccent.withValues(alpha: 0.2)
-                              : const Color(0xFF2C2C2C),
+                              ? AppColors.primary.withValues(alpha: 0.2)
+                              : AppColors.elevated,
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: _isSelectionMode
@@ -440,12 +441,12 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                                 : Icon(
                                     isFolder ? Icons.folder : Icons.movie,
                                     color: isFolder
-                                        ? Colors.amber
-                                        : Colors.blue,
+                                        ? AppColors.warning
+                                        : AppColors.primary,
                                   ),
                             title: Text(
                               name,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(color: AppColors.onSurface),
                             ),
                             subtitle: Row(
                               children: [
@@ -455,7 +456,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                                     child: Text(
                                       subtitleText,
                                       style: const TextStyle(
-                                        color: Colors.white54,
+                                        color: AppColors.onSurfaceVariant,
                                         fontSize: 12,
                                       ),
                                       maxLines: 1,
@@ -470,7 +471,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                                 ? IconButton(
                                     icon: const Icon(
                                       Icons.restore,
-                                      color: Colors.green,
+                                      color: AppColors.success,
                                     ),
                                     onPressed: () {
                                       library.restoreFromRecycleBin([id]);
@@ -516,18 +517,18 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                     ),
               bottomNavigationBar: _isSelectionMode && _selectedIds.isNotEmpty
                   ? BottomAppBar(
-                      color: const Color(0xFF1E1E1E),
+                      color: AppColors.elevated,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           TextButton.icon(
                             icon: const Icon(
                               Icons.restore,
-                              color: Colors.green,
+                              color: AppColors.success,
                             ),
                             label: const Text(
                               "还原",
-                              style: TextStyle(color: Colors.green),
+                              style: TextStyle(color: AppColors.success),
                             ),
                             onPressed: () {
                               library.restoreFromRecycleBin(
@@ -545,11 +546,11 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                           TextButton.icon(
                             icon: const Icon(
                               Icons.delete_forever,
-                              color: Colors.redAccent,
+                              color: AppColors.error,
                             ),
                             label: const Text(
                               "彻底删除",
-                              style: TextStyle(color: Colors.redAccent),
+                              style: TextStyle(color: AppColors.error),
                             ),
                             onPressed: () {
                               showDialog(
@@ -576,7 +577,7 @@ class _RecycleBinScreenState extends State<RecycleBinScreen> {
                                       },
                                       child: const Text(
                                         "删除",
-                                        style: TextStyle(color: Colors.red),
+                                        style: TextStyle(color: AppColors.error),
                                       ),
                                     ),
                                   ],
@@ -659,19 +660,19 @@ class _RecycledFolderDetailScreenState
             return Scaffold(
               appBar: AppBar(
                 title: Text(widget.collection.name),
-                backgroundColor: const Color(0xFF1E1E1E),
+                backgroundColor: AppColors.elevated,
               ),
               body: Column(
                 children: [
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: AppColors.warning.withValues(alpha: 0.1),
                     child: Row(
                       children: [
                         const Icon(
                           Icons.info_outline,
-                          color: Colors.orange,
+                          color: AppColors.warning,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -679,7 +680,7 @@ class _RecycledFolderDetailScreenState
                           child: Text(
                             "您正在查看已删除文件夹的内容。\n若要操作这些项目，请先还原该文件夹。",
                             style: TextStyle(
-                              color: Colors.orange[300],
+                              color: AppColors.warning,
                               fontSize: 13,
                             ),
                           ),
@@ -692,7 +693,7 @@ class _RecycledFolderDetailScreenState
                         ? const Center(
                             child: Text(
                               "文件夹为空",
-                              style: TextStyle(color: Colors.white54),
+                              style: TextStyle(color: AppColors.onSurfaceVariant),
                             ),
                           )
                         : ListView.builder(
@@ -714,13 +715,13 @@ class _RecycledFolderDetailScreenState
                                   leading: Icon(
                                     isFolder ? Icons.folder : Icons.movie,
                                     color:
-                                        (isFolder ? Colors.amber : Colors.blue)
+                                        (isFolder ? AppColors.warning : AppColors.primary)
                                             .withValues(alpha: 0.5),
                                   ),
                                   title: Text(
                                     name,
                                     style: TextStyle(
-                                      color: Colors.white.withValues(
+                                      color: AppColors.onSurface.withValues(
                                         alpha: 0.7,
                                       ),
                                     ),
@@ -732,7 +733,7 @@ class _RecycledFolderDetailScreenState
                                           child: Text(
                                             "${item.childrenIds.length} 个项目",
                                             style: const TextStyle(
-                                              color: Colors.white38,
+                                              color: AppColors.onSurfaceVariant,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -744,7 +745,7 @@ class _RecycledFolderDetailScreenState
                                             child: Text(
                                               (item as VideoItem).path,
                                               style: const TextStyle(
-                                                color: Colors.white38,
+                                                color: AppColors.onSurfaceVariant,
                                                 fontSize: 12,
                                               ),
                                               maxLines: 1,

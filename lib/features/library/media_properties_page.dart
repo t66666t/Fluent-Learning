@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:fluent_learning/features/library/media_prompt_builder.dart';
 import 'package:fluent_learning/models/video_item.dart';
 import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/app/responsive.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Read-only media properties page for a library [VideoItem].
 class MediaPropertiesPage extends StatelessWidget {
@@ -28,16 +30,16 @@ class MediaPropertiesPage extends StatelessWidget {
         final item = library.getVideo(videoId);
         if (item == null) {
           return Scaffold(
-            backgroundColor: const Color(0xFF121212),
+            backgroundColor: AppColors.scaffold,
             appBar: AppBar(
               title: const Text('媒体属性'),
-              backgroundColor: const Color(0xFF1E1E1E),
+              backgroundColor: AppColors.elevated,
               elevation: 0,
             ),
             body: const Center(
               child: Text(
                 '媒体不存在或已删除',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(color: AppColors.onSurfaceVariant),
               ),
             ),
           );
@@ -46,10 +48,10 @@ class MediaPropertiesPage extends StatelessWidget {
         final libraryBreadcrumb = _libraryBreadcrumb(library, item);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF121212),
+          backgroundColor: AppColors.scaffold,
           appBar: AppBar(
             title: const Text('媒体属性'),
-            backgroundColor: const Color(0xFF1E1E1E),
+            backgroundColor: AppColors.elevated,
             elevation: 0,
             actions: [
               IconButton(
@@ -63,7 +65,12 @@ class MediaPropertiesPage extends StatelessWidget {
             ],
           ),
           body: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+            padding: EdgeInsets.fromLTRB(
+              context.isCompact ? 12 : (context.isExpanded ? 24 : 16),
+              12,
+              context.isCompact ? 12 : (context.isExpanded ? 24 : 16),
+              32,
+            ),
             children: [
               _Section(
                 title: '库内位置',
@@ -298,8 +305,8 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.elevated,
+        borderRadius: AppRadii.borderMd,
       ),
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
       child: Column(
@@ -308,7 +315,7 @@ class _Section extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white70,
+              color: AppColors.onSurfaceVariant,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -343,14 +350,14 @@ class _Row extends StatelessWidget {
             width: 88,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white54, fontSize: 13),
+              style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13),
             ),
           ),
           Expanded(
             child: SelectableText(
               value,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.onSurface,
                 fontSize: 13,
                 fontFamily: mono ? 'monospace' : null,
               ),

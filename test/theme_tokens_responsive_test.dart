@@ -78,4 +78,31 @@ void main() {
     expect(theme.appBarTheme.backgroundColor, AppColors.elevated);
     expect(theme.cardTheme.color, AppColors.elevated);
   });
+
+  test('pageTransitionsTheme uses fade+slide on Android/desktop, Cupertino on Apple', () {
+    final theme = buildAppDarkTheme(
+      baseTextTheme: ThemeData.dark(useMaterial3: true).textTheme,
+    );
+    final builders = theme.pageTransitionsTheme.builders;
+    expect(
+      builders[TargetPlatform.android],
+      isA<AppFadeSlidePageTransitionsBuilder>(),
+    );
+    expect(
+      builders[TargetPlatform.windows],
+      isA<AppFadeSlidePageTransitionsBuilder>(),
+    );
+    expect(
+      builders[TargetPlatform.linux],
+      isA<AppFadeSlidePageTransitionsBuilder>(),
+    );
+    expect(
+      builders[TargetPlatform.iOS].runtimeType.toString(),
+      'CupertinoPageTransitionsBuilder',
+    );
+    expect(
+      builders[TargetPlatform.macOS].runtimeType.toString(),
+      'CupertinoPageTransitionsBuilder',
+    );
+  });
 }

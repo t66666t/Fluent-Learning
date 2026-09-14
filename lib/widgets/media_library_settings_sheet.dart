@@ -7,6 +7,7 @@ import '../services/library_service.dart';
 import '../services/settings_service.dart';
 import '../services/bilibili/bilibili_streaming_service.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 String _formatStorageBytes(int bytes) {
   if (bytes <= 0) return '0 KB';
@@ -55,9 +56,9 @@ void showMediaLibrarySettingsBottomSheet(
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: const Color(0xFF1E1E1E),
+    backgroundColor: AppColors.elevated,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
     ),
     builder: (context) {
       var copyImportedMedia = settings.copyImportedMediaToPrivateStorage;
@@ -74,31 +75,31 @@ void showMediaLibrarySettingsBottomSheet(
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.onSurface,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Material(
-                  color: const Color(0xFF292929),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.surfaceContainer,
+                  borderRadius: AppRadii.borderLg,
                   clipBehavior: Clip.antiAlias,
                   child: SwitchListTile.adaptive(
                     value: copyImportedMedia,
-                    activeThumbColor: Colors.blueAccent,
+                    activeThumbColor: AppColors.primary,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 4,
                     ),
                     title: const Text(
                       '导入时复制媒体到应用私有目录',
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: TextStyle(color: AppColors.onSurface, fontSize: 15),
                     ),
                     subtitle: const Padding(
                       padding: EdgeInsets.only(top: 6),
                       child: Text(
                         '开启后，新导入的媒体会先完整复制到软件管理的目录，并直接使用副本播放。原文件不会被修改。',
                         style: TextStyle(
-                          color: Colors.white60,
+                          color: AppColors.onSurfaceVariant,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -128,7 +129,7 @@ void showMediaLibrarySettingsBottomSheet(
                 const Text(
                   '仅影响开关变更后新开始的导入任务；不会搬迁已有媒体。副本会占用额外空间，移入回收站后仍会保留并计入占用空间，永久删除卡片时一并删除。',
                   style: TextStyle(
-                    color: Colors.white54,
+                    color: AppColors.onSurfaceVariant,
                     fontSize: 12,
                     height: 1.45,
                   ),
@@ -137,7 +138,7 @@ void showMediaLibrarySettingsBottomSheet(
                 const Text(
                   '即使关闭，若系统只提供临时文件地址，软件仍会保存必要副本，以避免媒体在缓存清理后失效。',
                   style: TextStyle(
-                    color: Colors.white38,
+                    color: AppColors.onSurfaceVariant,
                     fontSize: 11,
                     height: 1.4,
                   ),
@@ -232,8 +233,8 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF292929),
-      borderRadius: BorderRadius.circular(12),
+      color: AppColors.surfaceContainer,
+      borderRadius: AppRadii.borderLg,
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
@@ -248,11 +249,11 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
                 ),
                 leading: const Icon(
                   Icons.cloud_download_outlined,
-                  color: Colors.white70,
+                  color: AppColors.onSurfaceVariant,
                 ),
                 title: const Text(
                   'Bilibili 在线视频缓存',
-                  style: TextStyle(color: Colors.white, fontSize: 15),
+                  style: TextStyle(color: AppColors.onSurface, fontSize: 15),
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 6),
@@ -261,7 +262,7 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
                         ? '正在统计...'
                         : '${_formatStorageBytes(report?.bytes ?? 0)} · '
                               '${report?.fileCount ?? 0} 个文件（含已下载的离线素材）',
-                    style: const TextStyle(color: Colors.white60, fontSize: 12),
+                    style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
                   ),
                 ),
                 trailing: Row(
@@ -307,7 +308,7 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
                     padding: EdgeInsets.fromLTRB(14, 0, 14, 14),
                     child: Text(
                       '暂无在线视频缓存',
-                      style: TextStyle(color: Colors.white38, fontSize: 12),
+                      style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
                     ),
                   );
                 }
@@ -325,7 +326,7 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.onSurface,
                             fontSize: 13,
                           ),
                         ),
@@ -336,7 +337,7 @@ class _OnlineCacheSectionState extends State<_OnlineCacheSection> {
                             ' · 播放缓存 ${_formatStorageBytes(row.breakdown.gatewayBytes)}'
                             ' · 共 ${_formatStorageBytes(row.breakdown.totalBytes)}',
                             style: const TextStyle(
-                              color: Colors.white54,
+                              color: AppColors.onSurfaceVariant,
                               fontSize: 11,
                             ),
                           ),

@@ -1,4 +1,4 @@
-/// App-level ThemeData builder (Phase 9 / beautify U1).
+/// App-level ThemeData builder (Phase 9 / beautify U1–U4).
 ///
 /// Tokens live in [AppColors] / [AppRadii] / [AppMotion]; this file wires them
 /// into MaterialApp so interactive surfaces share radius 8–12 and short motion.
@@ -31,6 +31,49 @@ ColorScheme _appDarkColorScheme() {
     outline: AppColors.outline,
     outlineVariant: AppColors.outlineVariant,
   );
+}
+
+
+/// Short fade + slight horizontal slide for Android / desktop routes.
+///
+/// Curves and perceived timing follow [AppMotion]; iOS/macOS keep Cupertino.
+class AppFadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
+  const AppFadeSlidePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final primary = CurvedAnimation(
+      parent: animation,
+      curve: AppMotion.standard,
+      reverseCurve: AppMotion.accelerate,
+    );
+    // Secondary route eases out slightly so the incoming page reads as a short cross-fade.
+    final secondary = CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: AppMotion.decelerate,
+      reverseCurve: AppMotion.standard,
+    );
+
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0, end: 1).animate(primary),
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.03, 0),
+          end: Offset.zero,
+        ).animate(primary),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 1, end: 0.92).animate(secondary),
+          child: child,
+        ),
+      ),
+    );
+  }
 }
 
 /// Builds the shared dark [ThemeData] used by MaterialApp.
@@ -219,11 +262,12 @@ ThemeData buildAppDarkTheme({
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.android: AppFadeSlidePageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.windows: ZoomPageTransitionsBuilder(),
-        TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+        TargetPlatform.windows: AppFadeSlidePageTransitionsBuilder(),
+        TargetPlatform.linux: AppFadeSlidePageTransitionsBuilder(),
+        TargetPlatform.fuchsia: AppFadeSlidePageTransitionsBuilder(),
       },
     ),
   );
