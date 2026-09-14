@@ -19,7 +19,6 @@ import '../services/temporary_storage_cleanup_models.dart';
 import '../services/temporary_storage_cleanup_service.dart';
 import '../services/transcription_manager.dart';
 import '../screens/batch_import_screen.dart';
-import '../screens/bilibili_download_screen.dart';
 import '../utils/app_toast.dart';
 
 class VideoActionButtons extends StatefulWidget {
@@ -1274,18 +1273,19 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
                 color: Color(0xFFFB7299),
               ),
               title: const Text('导入 Bilibili 链接（在线播放）'),
-              subtitle: const Text('仅导入播放链接；下载请使用小电视按钮'),
+              subtitle: const Text('经下载中心打开；仅导入播放链接'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   mainContext,
                   MaterialPageRoute(
-                    builder: (_) => BilibiliDownloadScreen(
+                    builder: (_) => DownloadCenterPage(
                       targetFolderId: collectionId,
+                      openBilibiliOnLaunch: true,
                       initialStreamingMode: true,
                     ),
                     settings: const RouteSettings(
-                      name: '/bilibili_stream_import',
+                      name: '/download_center',
                     ),
                   ),
                 );

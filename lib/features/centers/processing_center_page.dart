@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
+import 'package:provider/provider.dart';
 
-/// Processing Center shell — navigates to existing [BatchSubtitleScreen].
+import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
+import 'package:fluent_learning/system/processing_center/processing_center.dart';
+
+/// Processing Center — live queue list mirrored from TranscriptionManager.
 class ProcessingCenterPage extends StatelessWidget {
   const ProcessingCenterPage({super.key, this.collectionId});
 
@@ -24,60 +27,214 @@ class ProcessingCenterPage extends StatelessWidget {
         title: const Text('处理中心'),
         backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
+        actions: [
+          TextButton(
+            onPressed: () => _openBatchSubtitle(context),
+            child: const Text('批量字幕'),
+          ),
+        ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Material(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => _openBatchSubtitle(context),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                child: Row(
+      body: Consumer<ProcessingCenter>(
+        builder: (context, center, _) {
+          final jobs = center.jobs;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    CircleAvatar(
-                      backgroundColor: Color(0x3326A69A),
-                      child: Icon(Icons.closed_caption, color: Colors.tealAccent),
+                    _StatChip(
+                      label: '排队 ${center.queuedCount}',
+                      color: Colors.orangeAccent,
                     ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '批量字幕 / 转录队列',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '打开现有批量字幕生成与后台转录队列',
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
+                    _StatChip(
+                      label: '进行 ${center.runningCount}',
+                      color: Colors.lightBlueAccent,
                     ),
-                    Icon(Icons.chevron_right, color: Colors.white38),
+                    _StatChip(
+                      label: '成功 ${center.successCount}',
+                      color: Colors.tealAccent,
+                    ),
+                    _StatChip(
+                      label: '失败 ${center.failedCount}',
+                      color: Colors.redAccent,
+                    ),
                   ],
                 ),
               ),
+              const Divider(height: 1, color: Colors.white12),
+              Expanded(
+                child: jobs.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Text(
+                            '暂无处理任务\n播放页「生成 AI 字幕」入队后会显示在这里',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white38, fontSize: 13),
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        itemCount: jobs.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          return _JobTile(job: jobs[index]);
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _JobTile extends StatelessWidget {
+  const _JobTile({required this.job});
+
+  final ProcessingJobView job;
+
+  @override
+  Widget build(BuildContext context) {
+    final phase = job.phase;
+    final Color accent;
+    final String phaseLabel;
+    final IconData icon;
+    switch (phase) {
+      case ProcessingJobPhase.queued:
+        accent = Colors.orangeAccent;
+        phaseLabel = '排队';
+        icon = Icons.hourglass_empty;
+        break;
+      case ProcessingJobPhase.running:
+        accent = Colors.lightBlueAccent;
+        phaseLabel = '进行中';
+        icon = Icons.play_circle_outline;
+        break;
+      case ProcessingJobPhase.success:
+        accent = Colors.tealAccent;
+        phaseLabel = '成功';
+        icon = Icons.check_circle_outline;
+        break;
+      case ProcessingJobPhase.failed:
+        accent = Colors.redAccent;
+        phaseLabel = '失败';
+        icon = Icons.error_outline;
+        break;
+    }
+
+    return Material(
+      color: const Color(0xFF1E1E1E),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: accent, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    job.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    phaseLabel,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            '播放页「生成 AI 字幕」会经处理中心门面入队，可在上方队列中查看。',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              'ID  ${job.id}',
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 11,
+                fontFamily: 'monospace',
+              ),
+            ),
+            if (job.message.trim().isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                job.message,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              ),
+            ],
+            if (phase == ProcessingJobPhase.running) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: job.progress > 0 && job.progress <= 1
+                      ? job.progress
+                      : null,
+                  minHeight: 4,
+                  backgroundColor: Colors.white12,
+                  color: accent,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

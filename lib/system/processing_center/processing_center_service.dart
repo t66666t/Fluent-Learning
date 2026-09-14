@@ -1,13 +1,20 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
+
+import 'package:fluent_learning/models/batch_subtitle_task_view.dart';
+import 'package:fluent_learning/models/transcription_status.dart';
 import 'package:fluent_learning/services/library_service.dart';
 import 'package:fluent_learning/services/settings_service.dart';
 import 'package:fluent_learning/services/transcription_manager.dart';
+import 'package:fluent_learning/system/processing_center/processing_job.dart';
 import 'package:fluent_learning/system/processing_center/processing_job_type.dart';
 
 /// System Processing Center — thin queue facade over existing managers.
 ///
-/// MVP maps [ProcessingJobType.transcription] to [TranscriptionManager].
+/// MVP maps [ProcessingJobType.transcription] to [TranscriptionManager] and
+/// mirrors its queue into a stable job list (pc_* ids when enqueued here).
 class ProcessingCenter extends ChangeNotifier {
   ProcessingCenter({
     required TranscriptionManager transcriptionManager,
@@ -15,7 +22,10 @@ class ProcessingCenter extends ChangeNotifier {
     required SettingsService settingsService,
   })  : _transcriptionManager = transcriptionManager,
         _libraryService = libraryService,
-        _settingsService = settingsService;
+        _settingsService = settingsService {
+    _transcriptionManager.addListener(_onTranscriptionChanged);
+    _syncFromTranscriptionManager();
+  }
 
   final TranscriptionManager _transcriptionManager;
   final LibraryService _libraryService;
@@ -23,10 +33,42 @@ class ProcessingCenter extends ChangeNotifier {
 
   int _jobSeq = 0;
 
+  /// mediaKey → facade job id (stable across TM status updates).
+  final Map<String, String> _jobIdByMediaKey = <String, String>{};
+
+  /// Ordered job rows for UI (newest-relevant: running/queued first).
+  List<ProcessingJobView> _jobs = const <ProcessingJobView>[];
+
+  List<ProcessingJobView> get jobs =>
+      List<ProcessingJobView>.unmodifiable(_jobs);
+
+  int get queuedCount =>
+      _jobs.where((j) => j.phase == ProcessingJobPhase.queued).length;
+
+  int get runningCount =>
+      _jobs.where((j) => j.phase == ProcessingJobPhase.running).length;
+
+  int get successCount =>
+      _jobs.where((j) => j.phase == ProcessingJobPhase.success).length;
+
+  int get failedCount =>
+      _jobs.where((j) => j.phase == ProcessingJobPhase.failed).length;
+
+  @override
+  void dispose() {
+    _transcriptionManager.removeListener(_onTranscriptionChanged);
+    super.dispose();
+  }
+
+  void _onTranscriptionChanged() {
+    _syncFromTranscriptionManager();
+  }
+
   /// Enqueue a processing job. Returns a local job id string.
   ///
   /// For transcription, each [mediaIds] entry is resolved via [LibraryService].
   /// Path-only callers may pass `params['videoPath']` (+ optional `videoId`).
+  /// The returned id is immediately present in [jobs] (queued).
   Future<String> enqueueProcessingJob({
     required ProcessingJobType type,
     required List<String> mediaIds,
@@ -37,6 +79,7 @@ class ProcessingCenter extends ChangeNotifier {
     switch (type) {
       case ProcessingJobType.transcription:
         await _enqueueTranscription(
+          jobId: jobId,
           mediaIds: mediaIds,
           params: params,
         );
@@ -55,6 +98,7 @@ class ProcessingCenter extends ChangeNotifier {
   }
 
   Future<void> _enqueueTranscription({
+    required String jobId,
     required List<String> mediaIds,
     Map<String, dynamic>? params,
   }) async {
@@ -80,7 +124,6 @@ class ProcessingCenter extends ChangeNotifier {
     for (final id in mediaIds) {
       final trimmed = id.trim();
       if (trimmed.isEmpty) continue;
-      // Skip if already added via videoPath + same id.
       if (targets.any((t) => t.videoId == trimmed)) continue;
       final video = _libraryService.getVideo(trimmed);
       if (video == null) {
@@ -96,6 +139,19 @@ class ProcessingCenter extends ChangeNotifier {
       );
     }
 
+    // Register rows before engine enqueue so the player-returned id is visible
+    // in Processing Center immediately (same id for single-target enqueue).
+    for (var i = 0; i < targets.length; i++) {
+      final target = targets[i];
+      final mediaKey = mediaKeyFor(target.path, videoId: target.videoId);
+      final rowId = targets.length == 1 ? jobId : '${jobId}_$i';
+      _jobIdByMediaKey[mediaKey] = rowId;
+    }
+    _syncFromTranscriptionManager(
+      pendingTargets: targets,
+      pendingJobId: jobId,
+    );
+
     for (final target in targets) {
       await _transcriptionManager.startTranscription(
         target.path,
@@ -104,6 +160,125 @@ class ProcessingCenter extends ChangeNotifier {
         autoCache: autoCache,
         autoStart: autoStart,
       );
+    }
+  }
+
+  /// Public helper matching TranscriptionManager media-key rules.
+  static String mediaKeyFor(String videoPath, {String? videoId}) {
+    final trimmedId = videoId?.trim();
+    if (trimmedId != null && trimmedId.isNotEmpty) {
+      return 'id:$trimmedId';
+    }
+    final normalizedPath = p.normalize(videoPath);
+    final safePath =
+        Platform.isWindows ? normalizedPath.toLowerCase() : normalizedPath;
+    return 'path:$safePath';
+  }
+
+  void _syncFromTranscriptionManager({
+    List<_TranscriptionTarget>? pendingTargets,
+    String? pendingJobId,
+  }) {
+    final snapshot = _transcriptionManager.getQueueSnapshot();
+    final byMediaKey = <String, BatchSubtitleTaskView>{};
+    for (final task in snapshot) {
+      byMediaKey[task.mediaKey] = task;
+    }
+
+    // Ensure pending enqueues appear even before TM notifies.
+    if (pendingTargets != null && pendingJobId != null) {
+      for (var i = 0; i < pendingTargets.length; i++) {
+        final t = pendingTargets[i];
+        final key = mediaKeyFor(t.path, videoId: t.videoId);
+        if (byMediaKey.containsKey(key)) continue;
+        final title = () {
+          final id = t.videoId?.trim();
+          if (id != null && id.isNotEmpty) {
+            final v = _libraryService.getVideo(id);
+            if (v != null && v.title.trim().isNotEmpty) return v.title;
+          }
+          return p.basename(t.path);
+        }();
+        byMediaKey[key] = BatchSubtitleTaskView(
+          mediaKey: key,
+          videoPath: t.path,
+          videoId: t.videoId,
+          videoName: title,
+          videoDuration: '',
+          isExternal: false,
+          status: TranscriptionStatus.idle,
+          progress: 0.0,
+          statusMessage: '已加入处理中心队列',
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          isStarted: true,
+        );
+        final rowId =
+            pendingTargets.length == 1 ? pendingJobId : '${pendingJobId}_$i';
+        _jobIdByMediaKey.putIfAbsent(key, () => rowId);
+      }
+    }
+
+    // Drop stale id mappings for mediaKeys no longer in TM (+ pending).
+    _jobIdByMediaKey
+        .removeWhere((key, _) => !byMediaKey.containsKey(key));
+
+    final next = <ProcessingJobView>[];
+    for (final task in byMediaKey.values) {
+      final id = _jobIdByMediaKey.putIfAbsent(
+        task.mediaKey,
+        () => 'tm_${task.mediaKey}',
+      );
+      next.add(
+        ProcessingJobView(
+          id: id,
+          type: ProcessingJobType.transcription,
+          phase: _phaseFor(task),
+          title: task.videoName,
+          createdAt: task.createdAt,
+          mediaKey: task.mediaKey,
+          progress: task.progress,
+          message: task.statusMessage,
+        ),
+      );
+    }
+
+    next.sort((a, b) {
+      final phaseOrder = _phaseSortKey(a.phase) - _phaseSortKey(b.phase);
+      if (phaseOrder != 0) return phaseOrder;
+      return b.createdAt.compareTo(a.createdAt);
+    });
+
+    _jobs = next;
+    notifyListeners();
+  }
+
+  static int _phaseSortKey(ProcessingJobPhase phase) {
+    switch (phase) {
+      case ProcessingJobPhase.running:
+        return 0;
+      case ProcessingJobPhase.queued:
+        return 1;
+      case ProcessingJobPhase.failed:
+        return 2;
+      case ProcessingJobPhase.success:
+        return 3;
+    }
+  }
+
+  static ProcessingJobPhase _phaseFor(BatchSubtitleTaskView task) {
+    switch (task.status) {
+      case TranscriptionStatus.completed:
+        return ProcessingJobPhase.success;
+      case TranscriptionStatus.error:
+        return ProcessingJobPhase.failed;
+      case TranscriptionStatus.idle:
+        return ProcessingJobPhase.queued;
+      case TranscriptionStatus.downloading:
+      case TranscriptionStatus.extracting:
+      case TranscriptionStatus.uploading:
+      case TranscriptionStatus.transcribing:
+      case TranscriptionStatus.embedding:
+        return ProcessingJobPhase.running;
     }
   }
 }

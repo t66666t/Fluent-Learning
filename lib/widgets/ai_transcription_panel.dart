@@ -30,6 +30,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
   bool _hasRequestedForCurrentVideo = false;
   TranscriptionStatus? _terminalStatusForCurrentVideo;
   String _terminalMessageForCurrentVideo = "";
+  String? _lastProcessingJobId;
 
   @override
   void initState() {
@@ -94,7 +95,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
         if (widget.videoId != null && widget.videoId!.trim().isNotEmpty)
           widget.videoId!.trim(),
       ];
-      await processing.enqueueProcessingJob(
+      final jobId = await processing.enqueueProcessingJob(
         type: ProcessingJobType.transcription,
         mediaIds: mediaIds,
         params: <String, dynamic>{
@@ -105,6 +106,11 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
           'modelId': active.id,
         },
       );
+      if (mounted) {
+        setState(() {
+          _lastProcessingJobId = jobId;
+        });
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -286,12 +292,15 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
       final String queueText = queuePosition > 0
           ? "已加入队列，当前顺位：$queuePosition"
           : "已加入队列，等待处理中";
+      final jobHint = _lastProcessingJobId == null
+          ? ''
+          : '\n处理中心任务 ID：$_lastProcessingJobId';
       return _buildStatusCard(
         icon: Icons.queue,
         borderColor: Colors.orange.withValues(alpha: 0.5),
         bgColor: Colors.orange.withValues(alpha: 0.12),
         title: "排队中",
-        message: queueText,
+        message: '$queueText$jobHint',
       );
     }
 
