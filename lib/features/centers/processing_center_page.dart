@@ -1,18 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/features/centers/ocr_subtitle_entry_page.dart';
 import 'package:fluent_learning/features/centers/video_compose_entry_page.dart';
 import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/playback_navigation_service.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
 import 'package:fluent_learning/system/processing_center/processing_center.dart';
 
 /// Processing Center — capability entries + live queue from TranscriptionManager.
-class ProcessingCenterPage extends StatelessWidget {
+class ProcessingCenterPage extends StatefulWidget {
   const ProcessingCenterPage({super.key, this.collectionId});
 
   final String? collectionId;
 
+  @override
+  State<ProcessingCenterPage> createState() => _ProcessingCenterPageState();
+}
+
+class _ProcessingCenterPageState extends State<ProcessingCenterPage>
+    with AppInlineFeedbackMixin {
   void _open(BuildContext context, Widget page, {required String name}) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -25,7 +38,7 @@ class ProcessingCenterPage extends StatelessWidget {
   void _openBatchSubtitle(BuildContext context) {
     _open(
       context,
-      BatchSubtitleScreen(collectionId: collectionId),
+      BatchSubtitleScreen(collectionId: widget.collectionId),
       name: '/batch_subtitle',
     );
   }
@@ -46,6 +59,68 @@ class ProcessingCenterPage extends StatelessWidget {
     );
   }
 
+  void _retryJob(ProcessingCenter center, ProcessingJobView job) {
+    final ok = center.retryJob(job.id);
+    showInlineFeedback(
+      ok
+          ? AppFeedbackMessage.success('已重新入队并开始：${job.title}', title: '重试')
+          : AppFeedbackMessage.error('无法重试该任务', title: '重试失败'),
+    );
+  }
+
+  Future<void> _openSuccessResult(ProcessingJobView job) async {
+    final videoId = job.videoId?.trim();
+    if (!job.isExternal && videoId != null && videoId.isNotEmpty) {
+      final library = context.read<LibraryService>();
+      final item = library.getVideo(videoId);
+      if (item == null) {
+        showInlineFeedback(
+          AppFeedbackMessage.error('媒体已不存在或已被删除', title: '无法打开'),
+        );
+        return;
+      }
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        PlaybackNavigationService.buildPlaybackEntryRoute(item),
+      );
+      return;
+    }
+
+    final path = job.videoPath?.trim();
+    if (path == null || path.isEmpty) {
+      showInlineFeedback(
+        AppFeedbackMessage.info('暂无可用结果路径', title: '结果'),
+      );
+      return;
+    }
+
+    final file = File(path);
+    if (!await file.exists()) {
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.error('结果文件已不存在', title: '无法打开'),
+      );
+      return;
+    }
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('explorer', ['/select,', path]);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', ['-R', path]);
+      } else if (Platform.isLinux) {
+        await Process.run('xdg-open', [p.dirname(path)]);
+      } else {
+        await OpenFilex.open(path);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.error('打开失败：$e', title: '无法打开'),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +133,7 @@ class ProcessingCenterPage extends StatelessWidget {
       body: Consumer<ProcessingCenter>(
         builder: (context, center, _) {
           final jobs = center.jobs;
+          final feedback = buildInlineFeedbackBanner(dense: true);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -66,6 +142,10 @@ class ProcessingCenterPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (feedback != null) ...[
+                      feedback,
+                      const SizedBox(height: 10),
+                    ],
                     const Text(
                       '能力入口',
                       style: TextStyle(
@@ -176,7 +256,17 @@ class ProcessingCenterPage extends StatelessWidget {
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
                         itemBuilder: (context, index) {
-                          return _JobTile(job: jobs[index]);
+                          final job = jobs[index];
+                          return _JobTile(
+                            job: job,
+                            onRetry: job.phase == ProcessingJobPhase.failed
+                                ? () => _retryJob(center, job)
+                                : null,
+                            onOpenResult:
+                                job.phase == ProcessingJobPhase.success
+                                    ? () => _openSuccessResult(job)
+                                    : null,
+                          );
                         },
                       ),
               ),
@@ -316,9 +406,15 @@ class _StatChip extends StatelessWidget {
 }
 
 class _JobTile extends StatelessWidget {
-  const _JobTile({required this.job});
+  const _JobTile({
+    required this.job,
+    this.onRetry,
+    this.onOpenResult,
+  });
 
   final ProcessingJobView job;
+  final VoidCallback? onRetry;
+  final VoidCallback? onOpenResult;
 
   @override
   Widget build(BuildContext context) {
@@ -352,78 +448,120 @@ class _JobTile extends StatelessWidget {
     return Material(
       color: const Color(0xFF1E1E1E),
       borderRadius: AppRadii.borderMd,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: accent, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    job.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+      child: InkWell(
+        borderRadius: AppRadii.borderMd,
+        onTap: onOpenResult,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: accent, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      job.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(AppRadii.sm - 2),
+                    ),
+                    child: Text(
+                      phaseLabel,
+                      style: TextStyle(
+                        color: accent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'ID  ${job.id}',
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 11,
+                  fontFamily: 'monospace',
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(AppRadii.sm - 2),
-                  ),
-                  child: Text(
-                    phaseLabel,
-                    style: TextStyle(
-                      color: accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
+              ),
+              if (job.message.trim().isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  job.message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+              if (phase == ProcessingJobPhase.running) ...[
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: job.progress > 0 && job.progress <= 1
+                        ? job.progress
+                        : null,
+                    minHeight: 4,
+                    backgroundColor: Colors.white12,
+                    color: accent,
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'ID  ${job.id}',
-              style: const TextStyle(
-                color: Colors.white38,
-                fontSize: 11,
-                fontFamily: 'monospace',
-              ),
-            ),
-            if (job.message.trim().isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                job.message,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-            ],
-            if (phase == ProcessingJobPhase.running) ...[
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: job.progress > 0 && job.progress <= 1
-                      ? job.progress
-                      : null,
-                  minHeight: 4,
-                  backgroundColor: Colors.white12,
-                  color: accent,
+              if (onRetry != null || onOpenResult != null) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    if (onRetry != null)
+                      OutlinedButton.icon(
+                        onPressed: onRetry,
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text('重试'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.redAccent,
+                          side: const BorderSide(color: Colors.redAccent),
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    if (onOpenResult != null) ...[
+                      if (onRetry != null) const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: onOpenResult,
+                        icon: const Icon(Icons.open_in_new, size: 16),
+                        label: const Text('查看结果'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.tealAccent,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

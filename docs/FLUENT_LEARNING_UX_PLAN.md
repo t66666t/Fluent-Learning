@@ -82,6 +82,8 @@
 
 **验收**：中心一眼看到忙闲；关键成功无新悬浮通知。
 
+**状态（实现中）**：空态组件 `MediaLibraryEmptyState`；Centers 大厅徽章；处理中心重试/查看结果；试用选片降级到 AppBar 菜单；CollectionScreen 同步 `librarySelectionActive`。
+
 ---
 
 ## Phase 17 — 日历深度

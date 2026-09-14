@@ -17,6 +17,9 @@ class ProcessingJobView {
     required this.title,
     required this.createdAt,
     this.mediaKey,
+    this.videoPath,
+    this.videoId,
+    this.isExternal = false,
     this.progress = 0.0,
     this.message = '',
   });
@@ -27,6 +30,9 @@ class ProcessingJobView {
   final String title;
   final int createdAt;
   final String? mediaKey;
+  final String? videoPath;
+  final String? videoId;
+  final bool isExternal;
   final double progress;
   final String message;
 
@@ -37,6 +43,9 @@ class ProcessingJobView {
     String? title,
     int? createdAt,
     String? mediaKey,
+    String? videoPath,
+    String? videoId,
+    bool? isExternal,
     double? progress,
     String? message,
   }) {
@@ -47,6 +56,9 @@ class ProcessingJobView {
       title: title ?? this.title,
       createdAt: createdAt ?? this.createdAt,
       mediaKey: mediaKey ?? this.mediaKey,
+      videoPath: videoPath ?? this.videoPath,
+      videoId: videoId ?? this.videoId,
+      isExternal: isExternal ?? this.isExternal,
       progress: progress ?? this.progress,
       message: message ?? this.message,
     );

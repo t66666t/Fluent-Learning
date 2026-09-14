@@ -58,6 +58,9 @@ class ProcessingCenter extends ChangeNotifier {
   int get failedCount =>
       _jobs.where((j) => j.phase == ProcessingJobPhase.failed).length;
 
+  /// Queued + running — used by Centers hall badges.
+  int get inProgressCount => queuedCount + runningCount;
+
   @override
   void dispose() {
     _transcriptionManager.removeListener(_onTranscriptionChanged);
@@ -191,6 +194,36 @@ class ProcessingCenter extends ChangeNotifier {
     }
   }
 
+  /// Re-queue a failed transcription job and start it.
+  ///
+  /// Returns `false` if the job is missing, not failed, or has no mediaKey.
+  bool retryJob(String jobId) {
+    ProcessingJobView? match;
+    for (final job in _jobs) {
+      if (job.id == jobId) {
+        match = job;
+        break;
+      }
+    }
+    if (match == null || match.phase != ProcessingJobPhase.failed) {
+      return false;
+    }
+    final mediaKey = match.mediaKey?.trim();
+    if (mediaKey == null || mediaKey.isEmpty) return false;
+    final ok = _transcriptionManager.retryTask(mediaKey);
+    if (!ok) return false;
+    _transcriptionManager.startTask(mediaKey);
+    return true;
+  }
+
+  /// Look up a job by id (for result navigation).
+  ProcessingJobView? jobById(String jobId) {
+    for (final job in _jobs) {
+      if (job.id == jobId) return job;
+    }
+    return null;
+  }
+
   /// Public helper matching TranscriptionManager media-key rules.
   static String mediaKeyFor(String videoPath, {String? videoId}) {
     final trimmedId = videoId?.trim();
@@ -264,6 +297,9 @@ class ProcessingCenter extends ChangeNotifier {
           title: task.videoName,
           createdAt: task.createdAt,
           mediaKey: task.mediaKey,
+          videoPath: task.videoPath,
+          videoId: task.videoId,
+          isExternal: task.isExternal,
           progress: task.progress,
           message: task.statusMessage,
         ),

@@ -15,6 +15,7 @@ import 'collection_screen.dart';
 import 'recycle_bin_screen.dart';
 import 'package:fluent_learning/features/library/media_properties_page.dart';
 import 'package:fluent_learning/features/library/library_selection_active.dart';
+import 'package:fluent_learning/widgets/media_library_empty_state.dart';
 import 'batch_import_screen.dart';
 import '../models/video_collection.dart';
 import '../models/video_item.dart';
@@ -2186,23 +2187,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Stack(
                       children: [
                         if (contents.isEmpty)
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.folder_open,
-                                  size: 80,
-                                  color: Colors.white24,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  "还没有内容",
-                                  style: TextStyle(color: Colors.white54),
-                                ),
-                              ],
-                            ),
-                          )
+                          const MediaLibraryEmptyState.library()
                         else ...[
                           GestureDetector(
                             onScaleStart: (details) {

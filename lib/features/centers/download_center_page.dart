@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/features/youtube_download/presentation/pages/yt_dlp_download_screen.dart';
 import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:fluent_learning/models/bilibili_download_task.dart';
 import 'package:fluent_learning/screens/bilibili_download_screen.dart';
 import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
 import 'package:fluent_learning/system/download_center/download_center.dart';
@@ -83,31 +82,6 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
     );
   }
 
-  static int _countBilibiliInProgress(BilibiliDownloadService service) {
-    var count = 0;
-    for (final task in service.tasks) {
-      for (final video in task.videos) {
-        for (final ep in video.episodes) {
-          switch (ep.status) {
-            case DownloadStatus.queued:
-            case DownloadStatus.fetchingInfo:
-            case DownloadStatus.downloading:
-            case DownloadStatus.merging:
-            case DownloadStatus.checking:
-            case DownloadStatus.repairing:
-              count++;
-              break;
-            case DownloadStatus.pending:
-            case DownloadStatus.completed:
-            case DownloadStatus.failed:
-              break;
-          }
-        }
-      }
-    }
-    return count;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,8 +93,10 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
       ),
       body: Consumer2<BilibiliDownloadService, YtDlpDownloadService>(
         builder: (context, bilibili, ytDlp, _) {
-          final biliInProgress = _countBilibiliInProgress(bilibili);
-          final ytInProgress = ytDlp.activeCount + ytDlp.queuedCount;
+          final biliInProgress =
+              DownloadCenterQueueSummary.countBilibiliInProgress(bilibili);
+          final ytInProgress =
+              DownloadCenterQueueSummary.countYtDlpInProgress(ytDlp);
           final totalInProgress = biliInProgress + ytInProgress;
 
           final feedback = buildInlineFeedbackBanner(dense: true);

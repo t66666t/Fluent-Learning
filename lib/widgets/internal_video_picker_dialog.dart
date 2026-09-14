@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluent_learning/widgets/media_library_empty_state.dart';
 
 import 'package:fluent_learning/models/video_collection.dart';
 import 'package:fluent_learning/models/video_item.dart';
@@ -264,7 +265,7 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _tree.roots.isEmpty && _searchQuery.isEmpty
-            ? const Center(child: Text('暂无媒体，请先导入视频或音频'))
+            ? const MediaLibraryEmptyState.pickerEmpty()
             : Column(
                 children: [
                   _buildToolbar(),
@@ -502,12 +503,9 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
         const VerticalDivider(width: 1),
         Expanded(
           child: contents.isEmpty
-              ? Center(
-                  child: Text(
-                    _searchQuery.isEmpty ? '此文件夹为空' : '无匹配结果',
-                    style: TextStyle(color: Theme.of(context).hintColor),
-                  ),
-                )
+              ? (_searchQuery.isEmpty
+                  ? const MediaLibraryEmptyState.pickerFolderEmpty()
+                  : const MediaLibraryEmptyState.searchNoResults(compact: true))
               : ListView.builder(
                   itemCount: contents.length,
                   itemBuilder: (ctx, index) {
@@ -525,12 +523,9 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
 
   Widget _buildTreeList(List<VideoPickerTreeNode> roots) {
     if (roots.isEmpty) {
-      return Center(
-        child: Text(
-          _searchQuery.isEmpty ? '暂无媒体' : '无匹配结果',
-          style: TextStyle(color: Theme.of(context).hintColor),
-        ),
-      );
+      return _searchQuery.isEmpty
+          ? const MediaLibraryEmptyState.pickerEmpty()
+          : const MediaLibraryEmptyState.searchNoResults(compact: true);
     }
     return ListView.builder(
       itemCount: roots.length,

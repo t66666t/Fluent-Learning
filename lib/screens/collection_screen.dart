@@ -31,7 +31,9 @@ import '../widgets/mini_playback_card.dart';
 import '../widgets/playback_card_layout.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'recycle_bin_screen.dart';
+import 'package:fluent_learning/features/library/library_selection_active.dart';
 import 'package:fluent_learning/features/library/media_properties_page.dart';
+import 'package:fluent_learning/widgets/media_library_empty_state.dart';
 import '../widgets/video_action_buttons.dart';
 import '../widgets/responsive_icon_button.dart';
 import '../services/media_playback_service.dart';
@@ -1139,6 +1141,16 @@ class _CollectionScreenState extends State<CollectionScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Phase 16: keep MainShell NavigationBar in sync with multi-select
+    // (same contract as HomeScreen — Collection is pushed inside Library tab).
+    if (librarySelectionActive.value != _isSelectionMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (librarySelectionActive.value != _isSelectionMode) {
+          librarySelectionActive.value = _isSelectionMode;
+        }
+      });
+    }
     final settings = Provider.of<SettingsService>(context);
     final useCompactTopBar = useCompactMediaLibraryTopBar(context);
     _stablePlaybackBottomInset =
@@ -1500,34 +1512,14 @@ class _CollectionScreenState extends State<CollectionScreen>
                     child: Stack(
                       children: [
                         contents.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      _isSearchResults
-                                          ? Icons.search_off_rounded
-                                          : Icons.video_collection_outlined,
-                                      size: 80,
-                                      color: Colors.white24,
+                            ? (_isSearchResults
+                                ? const MediaLibraryEmptyState.searchNoResults()
+                                : MediaLibraryEmptyState.collection(
+                                    child: VideoActionButtons(
+                                      collectionId: widget.collectionId,
+                                      isHorizontal: true,
                                     ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      _isSearchResults ? "没有找到匹配项目" : "合集是空的",
-                                      style: const TextStyle(
-                                        color: Colors.white54,
-                                      ),
-                                    ),
-                                    if (!_isSearchResults) ...[
-                                      const SizedBox(height: 16),
-                                      VideoActionButtons(
-                                        collectionId: widget.collectionId,
-                                        isHorizontal: true,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              )
+                                  ))
                             : GestureDetector(
                                 onScaleStart: (details) {
                                   // Allow box selection in two cases:
