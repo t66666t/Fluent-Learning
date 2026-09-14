@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/app/main_shell.dart';
 import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
+import 'package:fluent_learning/features/learning_unit/due_relative_label.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 import 'package:fluent_learning/features/learning_unit/pages/create_learning_unit_page.dart';
 import 'package:fluent_learning/features/learning_unit/pages/learning_unit_detail_page.dart';
@@ -336,9 +337,12 @@ class _ContinuePrimaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final due = unit.schedule.dueDate;
+    final relative = dueRelativeLabel(due);
     final dueLabel = due == null
         ? unit.status.labelZh
-        : '截止 ${due.month}/${due.day} · ${unit.status.labelZh}';
+        : relative == null
+            ? '截止 ${due.month}/${due.day} · ${unit.status.labelZh}'
+            : '$relative · ${unit.status.labelZh}';
     final pct = (unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0);
 
     return Material(
@@ -426,9 +430,12 @@ class _UnitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final due = unit.schedule.dueDate;
+    final relative = dueRelativeLabel(due);
     final dueLabel = due == null
         ? unit.status.labelZh
-        : '截止 ${due.month}/${due.day} · ${unit.status.labelZh}';
+        : relative == null
+            ? '截止 ${due.month}/${due.day} · ${unit.status.labelZh}'
+            : '$relative · ${unit.status.labelZh}';
     final pct = (unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0);
     final reasonLine = (reason == null || reason!.trim().isEmpty)
         ? (requireReason ? '建议继续学习' : null)

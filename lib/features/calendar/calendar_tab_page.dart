@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/features/calendar/calendar_board_index.dart';
 import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
+import 'package:fluent_learning/features/learning_unit/due_relative_label.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 import 'package:fluent_learning/features/learning_unit/pages/learning_unit_detail_page.dart';
+import 'package:fluent_learning/services/library_service.dart';
 
 /// 「日历」Tab — month board with due / study-activity / completed markers.
 class CalendarTabPage extends StatefulWidget {
@@ -52,6 +55,35 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
     }
   }
 
+  /// 「开始学」: detail + autoContinue → PlaybackNavigation (home continue path).
+  Future<void> _startLearning(LearningUnit unit) async {
+    final keptDay = _selectedDay;
+    final keptMonth = _month;
+    final repo = context.read<LearningUnitRepository>();
+    final library = context.read<LibraryService>();
+    final nextId = repo.nextIncompleteMediaId(unit);
+    final canContinue =
+        nextId != null && library.getVideo(nextId) != null;
+
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => LearningUnitDetailPage(
+          unitId: unit.id,
+          autoContinueLearning: canContinue,
+        ),
+        settings: RouteSettings(name: '/learning_unit/${unit.id}'),
+      ),
+    );
+    if (!mounted) return;
+    if (_selectedDay != keptDay || _month != keptMonth) {
+      setState(() {
+        _month = keptMonth;
+        _selectedDay = keptDay;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,11 +115,11 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
       body: Consumer<LearningUnitRepository>(
         builder: (context, repo, _) {
           // Rebuilds whenever repository notifies (due/edit/progress).
-          final board = _CalendarBoardIndex.build(repo.units, _month);
+          final board = CalendarBoardIndex.build(repo.units, _month);
 
           final selected = _selectedDay;
           final daySlice = selected == null
-              ? const _DaySlice.empty()
+              ? const CalendarDaySlice.empty()
               : board.sliceFor(selected);
 
           final undated = repo.units
@@ -118,11 +150,11 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
               const SizedBox(height: 8),
               if (daySlice.units.isEmpty)
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12),
                   child: Text(
-                    '该日无截止或学习活动',
+                    '该日暂无截止或学习 · 去首页新建单元或设置截止',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54),
+                    style: TextStyle(color: Colors.white54, fontSize: 13),
                   ),
                 )
               else
@@ -131,6 +163,9 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
                     unit: u,
                     reason: daySlice.reasonFor(u),
                     onTap: () => _openUnit(u.id),
+                    onStartLearning: u.isIncomplete
+                        ? () => _startLearning(u)
+                        : null,
                   ),
                 ),
               if (undated.isNotEmpty) ...[
@@ -145,8 +180,9 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
                 ...undated.map(
                   (u) => _CalendarUnitTile(
                     unit: u,
-                    reason: _DayUnitReason.undated,
+                    reason: CalendarDayUnitReason.undated,
                     onTap: () => _openUnit(u.id),
+                    onStartLearning: () => _startLearning(u),
                   ),
                 ),
               ],
@@ -155,193 +191,6 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
         },
       ),
     );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Index / markers
-// ---------------------------------------------------------------------------
-
-enum _DayUnitReason { due, activity, both, undated }
-
-class _DayFlags {
-  const _DayFlags({
-    this.hasDue = false,
-    this.hasActivity = false,
-    this.hasCompleted = false,
-  });
-
-  final bool hasDue;
-  final bool hasActivity;
-  final bool hasCompleted;
-
-  bool get isEmpty => !hasDue && !hasActivity && !hasCompleted;
-}
-
-class _DaySlice {
-  const _DaySlice({
-    required this.units,
-    required this.reasons,
-    required this.completionRate,
-  });
-
-  const _DaySlice.empty()
-      : units = const <LearningUnit>[],
-        reasons = const <String, _DayUnitReason>{},
-        completionRate = 0;
-
-  final List<LearningUnit> units;
-  final Map<String, _DayUnitReason> reasons;
-  final double completionRate; // 0..1 average progress of listed units
-
-  _DayUnitReason reasonFor(LearningUnit u) =>
-      reasons[u.id] ?? _DayUnitReason.due;
-}
-
-class _CalendarBoardIndex {
-  _CalendarBoardIndex._({
-    required this.month,
-    required this.flagsByDay,
-    required this.dueByDay,
-    required this.activityByDay,
-  });
-
-  final DateTime month;
-  final Map<int, _DayFlags> flagsByDay;
-  final Map<int, List<LearningUnit>> dueByDay;
-  final Map<int, List<LearningUnit>> activityByDay;
-
-  static bool isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  static bool inMonth(DateTime d, DateTime month) =>
-      d.year == month.year && d.month == month.month;
-
-  /// Study activity: progress-touching updates (updatedAt) or completedAt.
-  /// Pure create-on-same-day without progress is not treated as study.
-  static bool hasStudyActivityOn(LearningUnit unit, DateTime day) {
-    final completedAt = unit.completedAt;
-    if (completedAt != null && isSameDay(completedAt, day)) return true;
-
-    if (!isSameDay(unit.updatedAt, day)) return false;
-
-    final createdSameDay = isSameDay(unit.createdAt, day);
-    if (!createdSameDay) return true;
-
-    final progress = unit.progress;
-    if (progress.percent > 0) return true;
-    if (progress.watchedMsByMedia.values.any((ms) => ms > 0)) return true;
-    if (progress.completedMediaIds.isNotEmpty) return true;
-    if (unit.status == LearningUnitStatus.completed) return true;
-    return false;
-  }
-
-  factory _CalendarBoardIndex.build(
-    List<LearningUnit> units,
-    DateTime month,
-  ) {
-    final dueByDay = <int, List<LearningUnit>>{};
-    final activityByDay = <int, List<LearningUnit>>{};
-    final flagsByDay = <int, _DayFlags>{};
-
-    void mergeFlags(int day, {_DayFlags Function(_DayFlags)? update}) {
-      final prev = flagsByDay[day] ?? const _DayFlags();
-      flagsByDay[day] = update == null ? prev : update(prev);
-    }
-
-    for (final unit in units) {
-      final due = unit.schedule.dueDate;
-      if (due != null && inMonth(due, month)) {
-        dueByDay.putIfAbsent(due.day, () => <LearningUnit>[]).add(unit);
-        mergeFlags(
-          due.day,
-          update: (f) => _DayFlags(
-            hasDue: true,
-            hasActivity: f.hasActivity,
-            hasCompleted: f.hasCompleted ||
-                unit.status == LearningUnitStatus.completed,
-          ),
-        );
-      }
-
-      // Scan possible activity days within month: updatedAt / completedAt.
-      final candidates = <DateTime>{
-        DateTime(
-          unit.updatedAt.year,
-          unit.updatedAt.month,
-          unit.updatedAt.day,
-        ),
-        if (unit.completedAt != null)
-          DateTime(
-            unit.completedAt!.year,
-            unit.completedAt!.month,
-            unit.completedAt!.day,
-          ),
-      };
-      for (final day in candidates) {
-        if (!inMonth(day, month)) continue;
-        if (!hasStudyActivityOn(unit, day)) continue;
-        activityByDay.putIfAbsent(day.day, () => <LearningUnit>[]).add(unit);
-        mergeFlags(
-          day.day,
-          update: (f) => _DayFlags(
-            hasDue: f.hasDue,
-            hasActivity: true,
-            hasCompleted: f.hasCompleted ||
-                unit.status == LearningUnitStatus.completed ||
-                (unit.completedAt != null && isSameDay(unit.completedAt!, day)),
-          ),
-        );
-      }
-    }
-
-    return _CalendarBoardIndex._(
-      month: month,
-      flagsByDay: flagsByDay,
-      dueByDay: dueByDay,
-      activityByDay: activityByDay,
-    );
-  }
-
-  _DayFlags flagsFor(int day) => flagsByDay[day] ?? const _DayFlags();
-
-  _DaySlice sliceFor(DateTime selected) {
-    if (!inMonth(selected, month)) return const _DaySlice.empty();
-
-    final due = dueByDay[selected.day] ?? const <LearningUnit>[];
-    final activity = activityByDay[selected.day] ?? const <LearningUnit>[];
-    final byId = <String, LearningUnit>{};
-    final reasons = <String, _DayUnitReason>{};
-
-    for (final u in due) {
-      byId[u.id] = u;
-      reasons[u.id] = _DayUnitReason.due;
-    }
-    for (final u in activity) {
-      byId[u.id] = u;
-      reasons[u.id] = reasons.containsKey(u.id)
-          ? _DayUnitReason.both
-          : _DayUnitReason.activity;
-    }
-
-    final list = byId.values.toList()
-      ..sort((a, b) {
-        // Incomplete first, then by title.
-        final ac = a.status == LearningUnitStatus.completed ? 1 : 0;
-        final bc = b.status == LearningUnitStatus.completed ? 1 : 0;
-        if (ac != bc) return ac.compareTo(bc);
-        return a.title.compareTo(b.title);
-      });
-
-    var rate = 0.0;
-    if (list.isNotEmpty) {
-      rate = list
-              .map((u) => u.progress.percent.clamp(0.0, 1.0))
-              .fold<double>(0, (a, b) => a + b) /
-          list.length;
-    }
-
-    return _DaySlice(units: list, reasons: reasons, completionRate: rate);
   }
 }
 
@@ -359,7 +208,7 @@ class _MonthGrid extends StatelessWidget {
 
   final DateTime month;
   final DateTime? selectedDay;
-  final _CalendarBoardIndex board;
+  final CalendarBoardIndex board;
   final ValueChanged<DateTime> onSelect;
 
   @override
@@ -456,11 +305,11 @@ class _MonthGrid extends StatelessWidget {
 }
 
 /// Distinct marker styles: due (amber diamond), activity (cyan circle),
-/// completed (green check-dot).
+/// completed (green check-dot). Combined due+activity = both markers.
 class _DayMarkers extends StatelessWidget {
   const _DayMarkers({required this.flags});
 
-  final _DayFlags flags;
+  final CalendarDayFlags flags;
 
   @override
   Widget build(BuildContext context) {
@@ -603,7 +452,7 @@ class _DayDetailHeader extends StatelessWidget {
   const _DayDetailHeader({required this.selected, required this.slice});
 
   final DateTime? selected;
-  final _DaySlice slice;
+  final CalendarDaySlice slice;
 
   @override
   Widget build(BuildContext context) {
@@ -661,16 +510,27 @@ class _CalendarUnitTile extends StatelessWidget {
   const _CalendarUnitTile({
     required this.unit,
     required this.onTap,
-    this.reason = _DayUnitReason.due,
+    this.reason = CalendarDayUnitReason.due,
+    this.onStartLearning,
   });
 
   final LearningUnit unit;
   final VoidCallback onTap;
-  final _DayUnitReason reason;
+  final CalendarDayUnitReason reason;
+  final VoidCallback? onStartLearning;
 
   @override
   Widget build(BuildContext context) {
     final pct = (unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0);
+    final relative = dueRelativeLabel(unit.schedule.dueDate);
+    final reasonLabel = calendarDayReasonLabel(reason);
+    final subtitleParts = <String>[
+      unit.status.labelZh,
+      '$pct%',
+      reasonLabel,
+      ?relative,
+    ];
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -687,49 +547,47 @@ class _CalendarUnitTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            '${unit.status.labelZh} · $pct% · ${_reasonLabel(reason)}',
+            subtitleParts.join(' · '),
             style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
-          trailing: Icon(
-            unit.status == LearningUnitStatus.completed
-                ? Icons.check_circle
-                : Icons.chevron_right,
-            color: unit.status == LearningUnitStatus.completed
-                ? Colors.greenAccent
-                : Colors.white38,
-          ),
+          trailing: onStartLearning != null
+              ? TextButton(
+                  onPressed: onStartLearning,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.lightBlueAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 36),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('开始学'),
+                )
+              : Icon(
+                  unit.status == LearningUnitStatus.completed
+                      ? Icons.check_circle
+                      : Icons.chevron_right,
+                  color: unit.status == LearningUnitStatus.completed
+                      ? Colors.greenAccent
+                      : Colors.white38,
+                ),
         ),
       ),
     );
   }
 
-  static Widget _reasonIcon(_DayUnitReason reason, LearningUnit unit) {
+  static Widget _reasonIcon(CalendarDayUnitReason reason, LearningUnit unit) {
     if (unit.status == LearningUnitStatus.completed) {
       return const Icon(Icons.check_box, color: Color(0xFF69F0AE), size: 22);
     }
     switch (reason) {
-      case _DayUnitReason.due:
+      case CalendarDayUnitReason.due:
         return const Icon(Icons.event, color: Color(0xFFFFB74D), size: 22);
-      case _DayUnitReason.activity:
+      case CalendarDayUnitReason.activity:
         return const Icon(Icons.school, color: Color(0xFF4FC3F7), size: 22);
-      case _DayUnitReason.both:
+      case CalendarDayUnitReason.both:
         return const Icon(Icons.event_available,
             color: Color(0xFFFFB74D), size: 22);
-      case _DayUnitReason.undated:
+      case CalendarDayUnitReason.undated:
         return const Icon(Icons.schedule, color: Colors.white38, size: 22);
-    }
-  }
-
-  static String _reasonLabel(_DayUnitReason reason) {
-    switch (reason) {
-      case _DayUnitReason.due:
-        return '截止';
-      case _DayUnitReason.activity:
-        return '学习活动';
-      case _DayUnitReason.both:
-        return '截止+学习';
-      case _DayUnitReason.undated:
-        return '未设截止';
     }
   }
 }
