@@ -47,6 +47,18 @@ class VideoItem {
   BilibiliVideoShot? bilibiliVideoShot;
   List<MediaChapter> chapters;
   bool hasProbedChapters;
+  /// Software display name; defaults to [title] when null.
+  String? displayName;
+  /// Filesystem basename; falls back to basename of [path] when null.
+  String? fileName;
+  /// Import time in epoch milliseconds.
+  int? importedAt;
+  /// Last playback touch in epoch milliseconds.
+  int? lastPlayedAt;
+  int? width;
+  int? height;
+  double? frameRate;
+  int? bitRate;
 
   VideoItem({
     required this.id,
@@ -89,6 +101,14 @@ class VideoItem {
     this.bilibiliVideoShot,
     this.chapters = const <MediaChapter>[],
     this.hasProbedChapters = false,
+    this.displayName,
+    this.fileName,
+    this.importedAt,
+    this.lastPlayedAt,
+    this.width,
+    this.height,
+    this.frameRate,
+    this.bitRate,
   });
 
   Map<String, dynamic> toJson() {
@@ -140,6 +160,14 @@ class VideoItem {
       'bilibiliVideoShot': bilibiliVideoShot?.toJson(),
       'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
       'hasProbedChapters': hasProbedChapters,
+      'displayName': displayName,
+      'fileName': fileName,
+      'importedAt': importedAt,
+      'lastPlayedAt': lastPlayedAt,
+      'width': width,
+      'height': height,
+      'frameRate': frameRate,
+      'bitRate': bitRate,
     };
   }
 
@@ -241,7 +269,30 @@ class VideoItem {
       hasProbedChapters:
           json['hasProbedChapters'] as bool? ??
           ((json['chapters'] as List<dynamic>?)?.isNotEmpty ?? false),
+      displayName: json['displayName'] as String?,
+      fileName: json['fileName'] as String?,
+      importedAt: json['importedAt'] as int?,
+      lastPlayedAt: json['lastPlayedAt'] as int?,
+      width: json['width'] as int?,
+      height: json['height'] as int?,
+      frameRate: (json['frameRate'] as num?)?.toDouble(),
+      bitRate: json['bitRate'] as int?,
     );
+  }
+
+
+  /// Effective display name for UI (displayName or title).
+  String get effectiveDisplayName {
+    final name = displayName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    return title;
+  }
+
+  /// Effective filesystem file name.
+  String get effectiveFileName {
+    final name = fileName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    return p.basename(path);
   }
 
   /// Subtitles downloaded and bound by Bilibili/yt-dlp import flows.

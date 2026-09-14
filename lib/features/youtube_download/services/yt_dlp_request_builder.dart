@@ -1,6 +1,6 @@
-import 'package:video_player_app/features/youtube_download/models/youtube_download_models.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_meta_parser.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_video_format_selector.dart';
+import 'package:fluent_learning/features/youtube_download/models/youtube_download_models.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_meta_parser.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_video_format_selector.dart';
 
 class YtDlpRequestBuilder {
   const YtDlpRequestBuilder();

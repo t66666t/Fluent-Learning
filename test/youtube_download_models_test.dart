@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/features/youtube_download/models/youtube_download_models.dart';
-import 'package:video_player_app/features/youtube_download/platform/yt_dlp_native_bridge.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
+import 'package:fluent_learning/features/youtube_download/models/youtube_download_models.dart';
+import 'package:fluent_learning/features/youtube_download/platform/yt_dlp_native_bridge.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
 
 void main() {
   group('youtube download models', () {

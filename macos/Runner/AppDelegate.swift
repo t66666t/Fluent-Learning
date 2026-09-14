@@ -15,9 +15,9 @@ private struct MacYtDlpChannelError: Error {
 @main
 class AppDelegate: FlutterAppDelegate {
   private let resolveTimeoutSeconds: TimeInterval = 90
-  private let ytDlpChannelName = "com.example.video_player_app/yt_dlp"
-  private let ytDlpEventChannelName = "com.example.video_player_app/yt_dlp_events"
-  private let ytDlpQueue = DispatchQueue(label: "com.example.video_player_app.macos.yt_dlp")
+  private let ytDlpChannelName = "com.fluentlearning.app/yt_dlp"
+  private let ytDlpEventChannelName = "com.fluentlearning.app/yt_dlp_events"
+  private let ytDlpQueue = DispatchQueue(label: "com.fluentlearning.app.macos.yt_dlp")
   fileprivate var ytDlpEventSink: FlutterEventSink?
   private var ytDlpTasks: [String: MacYtDlpTask] = [:]
   private var configuredYtDlpPath: String?
@@ -872,7 +872,7 @@ class AppDelegate: FlutterAppDelegate {
     let fileManager = FileManager.default
     let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
       ?? fileManager.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support", isDirectory: true)
-    return base.appendingPathComponent("video_player_app", isDirectory: true)
+    return base.appendingPathComponent("fluent_learning", isDirectory: true)
   }
 }
 

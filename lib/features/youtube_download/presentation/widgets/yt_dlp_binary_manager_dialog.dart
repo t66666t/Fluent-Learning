@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_location_store.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_updater.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_version.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_location_store.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_updater.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 
 class YtDlpBinaryManagerDialog extends StatefulWidget {
   final YtDlpDownloadService service;

@@ -1,11 +1,11 @@
 {
-    "name": "fluent_player",
-    "short_name": "fluent_player",
+    "name": "Fluent Learning",
+    "short_name": "Fluent Learning",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#000000",
-    "description": "A new Flutter project.",
+    "description": "Fluent Learning \u2014 media learning app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

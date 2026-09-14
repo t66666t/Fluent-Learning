@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/media_materialization_service.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/media_materialization_service.dart';
 
 class _FakeApi extends BilibiliApiService {
   BilibiliStreamInfo info;

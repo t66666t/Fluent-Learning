@@ -31,6 +31,7 @@ import '../widgets/mini_playback_card.dart';
 import '../widgets/playback_card_layout.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'recycle_bin_screen.dart';
+import 'package:fluent_learning/features/library/media_properties_page.dart';
 import '../widgets/video_action_buttons.dart';
 import '../widgets/responsive_icon_button.dart';
 import '../services/media_playback_service.dart';
@@ -2047,6 +2048,22 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 final vid = library.getVideo(id);
                                 final name = col?.name ?? vid?.title ?? "";
                                 _showRenameDialog(context, id, name);
+                              },
+                            ),
+                          if (_selectedIds.length == 1 &&
+                              library.getVideo(_selectedIds.first) != null)
+                            TextButton.icon(
+                              icon: const Icon(
+                                Icons.info_outline,
+                                color: Colors.tealAccent,
+                              ),
+                              label: const Text(
+                                "属性",
+                                style: TextStyle(color: Colors.tealAccent),
+                              ),
+                              onPressed: () {
+                                final id = _selectedIds.first;
+                                MediaPropertiesPage.open(context, id);
                               },
                             ),
                         ],

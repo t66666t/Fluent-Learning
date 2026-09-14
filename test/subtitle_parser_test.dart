@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/utils/pgs_parser.dart';
-import 'package:video_player_app/utils/subtitle_parser.dart';
-import 'package:video_player_app/utils/youtube_auto_caption_normalizer.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/utils/pgs_parser.dart';
+import 'package:fluent_learning/utils/subtitle_parser.dart';
+import 'package:fluent_learning/utils/youtube_auto_caption_normalizer.dart';
 
 List<int> _toUtf16LeBytes(String value, {bool withBom = false}) {
   final codeUnits = value.codeUnits;

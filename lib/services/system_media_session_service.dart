@@ -231,7 +231,7 @@ class SystemMediaSessionService {
         builder: _SystemMediaAudioHandler.new,
         config: audio_service.AudioServiceConfig(
           androidNotificationChannelId:
-              'com.example.video_player_app.media_playback',
+              'com.fluentlearning.app.media_playback',
           androidNotificationChannelName: '媒体播放',
           androidNotificationIcon: 'drawable/ic_notification_icon',
           androidShowNotificationBadge: false,

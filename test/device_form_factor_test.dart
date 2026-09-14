@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/device_form_factor.dart';
+import 'package:fluent_learning/utils/device_form_factor.dart';
 
 void main() {
   const portrait = <DeviceOrientation>[

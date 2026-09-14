@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/subtitle_translation_service.dart';
+import 'package:fluent_learning/services/subtitle_translation_service.dart';
 
 /// 360 翻译方向支持逻辑的单元测试（离线，不依赖网络）。
 void main() {

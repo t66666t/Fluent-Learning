@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/bilibili_streaming_service.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
-import 'package:video_player_app/services/playlist_manager.dart';
-import 'package:video_player_app/services/progress_tracker.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_streaming_service.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
+import 'package:fluent_learning/services/playlist_manager.dart';
+import 'package:fluent_learning/services/progress_tracker.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 class _QualityApiService extends BilibiliApiService {

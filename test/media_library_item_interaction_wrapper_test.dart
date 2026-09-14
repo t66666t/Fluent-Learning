@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/media_library_item_interaction_wrapper.dart';
+import 'package:fluent_learning/widgets/media_library_item_interaction_wrapper.dart';
 
 void main() {
   testWidgets('桌面端原地长按超过阈值时间后触发选中而不是点击', (tester) async {

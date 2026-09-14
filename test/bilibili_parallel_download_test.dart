@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/download_manager.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/download_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

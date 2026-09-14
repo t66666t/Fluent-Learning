@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/danmaku_model.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/utils/bilibili_danmaku_ass.dart';
-import 'package:video_player_app/utils/danmaku_ass_parser.dart';
+import 'package:fluent_learning/models/danmaku_model.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/utils/bilibili_danmaku_ass.dart';
+import 'package:fluent_learning/utils/danmaku_ass_parser.dart';
 
 void main() {
   test('decodes a deflate-compressed Bilibili XML response', () {

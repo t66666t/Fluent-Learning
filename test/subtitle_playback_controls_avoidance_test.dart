@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/subtitle_style.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/widgets/subtitle_overlay.dart';
+import 'package:fluent_learning/models/subtitle_style.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/widgets/subtitle_overlay.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

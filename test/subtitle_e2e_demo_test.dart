@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/subtitle_translation_service.dart';
+import 'package:fluent_learning/services/subtitle_translation_service.dart';
 
 /// 端到端演示：使用示例字幕文件（31 句英文）通过 Reverso 翻译为简体中文，
 /// 验证完整流程（解析 -> 逐条翻译 -> 写出 SRT）。

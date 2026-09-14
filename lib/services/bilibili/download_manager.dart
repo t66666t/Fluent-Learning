@@ -11,16 +11,16 @@ import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:ffmpeg_kit_flutter_new/media_information.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/media_chapter.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/download_integrity.dart';
-import 'package:video_player_app/services/bilibili/media_connection_pool.dart';
-import 'package:video_player_app/services/bilibili/media_probe_result.dart';
-import 'package:video_player_app/services/bilibili/post_process_task_queue.dart';
-import 'package:video_player_app/utils/subtitle_util.dart';
-import 'package:video_player_app/utils/ffmpeg_utils.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/media_chapter.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/download_integrity.dart';
+import 'package:fluent_learning/services/bilibili/media_connection_pool.dart';
+import 'package:fluent_learning/services/bilibili/media_probe_result.dart';
+import 'package:fluent_learning/services/bilibili/post_process_task_queue.dart';
+import 'package:fluent_learning/utils/subtitle_util.dart';
+import 'package:fluent_learning/utils/ffmpeg_utils.dart';
 import 'package:video_player/video_player.dart'; // Import video_player for validation
 
 class DownloadUrlExpiredException implements Exception {

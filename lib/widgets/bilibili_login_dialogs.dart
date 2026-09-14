@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/utils/app_toast.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/utils/app_toast.dart';
 
 Future<void> showBilibiliLoginDialog(
   BuildContext context, {

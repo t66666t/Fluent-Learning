@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/media_library_compact_app_bar.dart';
+import 'package:fluent_learning/widgets/media_library_compact_app_bar.dart';
 
 void main() {
   testWidgets('手机顶栏使用紧凑标题、按钮宽度和标题间距', (tester) async {

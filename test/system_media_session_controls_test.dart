@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/system_media_session_service.dart';
+import 'package:fluent_learning/services/system_media_session_service.dart';
 
 void main() {
   group('system media control layout', () {

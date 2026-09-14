@@ -8,14 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
-import 'package:video_player_app/features/youtube_download/models/youtube_download_models.dart';
-import 'package:video_player_app/features/youtube_download/presentation/widgets/yt_dlp_binary_manager_dialog.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_updater.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_input_url_extractor.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_meta_parser.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_version.dart';
-import 'package:video_player_app/utils/app_toast.dart';
+import 'package:fluent_learning/features/youtube_download/models/youtube_download_models.dart';
+import 'package:fluent_learning/features/youtube_download/presentation/widgets/yt_dlp_binary_manager_dialog.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_updater.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_input_url_extractor.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_meta_parser.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
+import 'package:fluent_learning/utils/app_toast.dart';
 
 class YtDlpDownloadScreen extends StatefulWidget {
   final String? initialInput;

@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/utils/app_toast.dart';
-import 'package:video_player_app/widgets/library_persistence_notification_bridge.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/utils/app_toast.dart';
+import 'package:fluent_learning/widgets/library_persistence_notification_bridge.dart';
 
 void main() {
   final service = LibraryService();

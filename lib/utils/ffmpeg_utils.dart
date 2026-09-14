@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_installer.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_installer.dart';
 
 class FFmpegUtils {
   static Future<String>? _ffmpegPathFuture;

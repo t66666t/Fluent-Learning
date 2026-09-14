@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/services/app_haptics.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/services/app_haptics.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/playback_orientation_transition.dart';
+import 'package:fluent_learning/services/playback_orientation_transition.dart';
 
 void main() {
   test('classifies the real viewport by width and height', () {

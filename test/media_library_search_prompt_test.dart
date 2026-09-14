@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/media_library_search_prompt.dart';
+import 'package:fluent_learning/widgets/media_library_search_prompt.dart';
 
 void main() {
   testWidgets('搜索框提交去除首尾空白后的文字', (tester) async {

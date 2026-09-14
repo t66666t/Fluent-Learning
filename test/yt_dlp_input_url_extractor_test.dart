@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_input_url_extractor.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_input_url_extractor.dart';
 
 void main() {
   group('YtDlpInputUrlExtractor', () {

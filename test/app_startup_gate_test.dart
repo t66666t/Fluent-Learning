@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/main.dart';
+import 'package:fluent_learning/main.dart';
 
 void main() {
   testWidgets('startup work waits until the lightweight first frame', (

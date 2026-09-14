@@ -65,7 +65,14 @@ class VideoPickerTree {
     this.totalCount = 0,
   }) : roots = roots ?? [];
 
-  void updateSelection(VideoPickerTreeNode node, bool selected) {
+  void updateSelection(
+    VideoPickerTreeNode node,
+    bool selected, {
+    bool multiSelect = true,
+  }) {
+    if (!multiSelect && selected) {
+      clearAllSelections();
+    }
     if (node.isFolder) {
       _setFolderSelection(node, selected);
     } else {
@@ -74,6 +81,21 @@ class VideoPickerTree {
     }
     _bubbleUpIndeterminate(node);
     recalculateCounts();
+  }
+
+  void clearAllSelections() {
+    for (final root in roots) {
+      _clearNode(root);
+    }
+    selectedCount = 0;
+  }
+
+  void _clearNode(VideoPickerTreeNode node) {
+    node.isSelected = false;
+    node.isIndeterminate = false;
+    for (final child in node.children) {
+      _clearNode(child);
+    }
   }
 
   void _setFolderSelection(VideoPickerTreeNode folder, bool selected) {
@@ -178,6 +200,27 @@ class VideoPickerTree {
     }
     for (final child in node.children) {
       _collectSelectedLeaves(child, result);
+    }
+  }
+
+  /// Fully-selected folders (not indeterminate) the user checked.
+  List<VideoPickerTreeNode> getSelectedFolders() {
+    final result = <VideoPickerTreeNode>[];
+    for (final root in roots) {
+      _collectSelectedFolders(root, result);
+    }
+    return result;
+  }
+
+  void _collectSelectedFolders(
+    VideoPickerTreeNode node,
+    List<VideoPickerTreeNode> result,
+  ) {
+    if (node.isFolder && node.isSelected && !node.isIndeterminate) {
+      result.add(node);
+    }
+    for (final child in node.children) {
+      _collectSelectedFolders(child, result);
     }
   }
 }

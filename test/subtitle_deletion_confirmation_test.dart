@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/subtitle_management_sheet.dart';
+import 'package:fluent_learning/widgets/subtitle_management_sheet.dart';
 
 void main() {
   testWidgets('task subtitle delete confirmation appears on the next frame', (

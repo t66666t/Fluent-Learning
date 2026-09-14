@@ -2,8 +2,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as im;
-import 'package:video_player_app/models/ocr_subtitle_models.dart';
-import 'package:video_player_app/widgets/ocr_region_preview.dart';
+import 'package:fluent_learning/models/ocr_subtitle_models.dart';
+import 'package:fluent_learning/widgets/ocr_region_preview.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

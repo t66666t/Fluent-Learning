@@ -8,20 +8,20 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/video_collection.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/screens/bilibili_download_list_projection.dart';
-import 'package:video_player_app/services/app_haptics.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/playback_navigation_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/utils/subtitle_util.dart';
-import 'package:video_player_app/utils/app_toast.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/video_collection.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/screens/bilibili_download_list_projection.dart';
+import 'package:fluent_learning/services/app_haptics.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/playback_navigation_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/utils/subtitle_util.dart';
+import 'package:fluent_learning/utils/app_toast.dart';
 
-import 'package:video_player_app/widgets/bilibili_login_dialogs.dart';
+import 'package:fluent_learning/widgets/bilibili_login_dialogs.dart';
 
 class BilibiliDownloadScreen extends StatefulWidget {
   final String? initialInput;

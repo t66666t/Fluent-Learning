@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/services/bilibili/download_integrity.dart';
-import 'package:video_player_app/services/bilibili/media_connection_pool.dart';
-import 'package:video_player_app/services/bilibili/post_process_task_queue.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/services/bilibili/download_integrity.dart';
+import 'package:fluent_learning/services/bilibili/media_connection_pool.dart';
+import 'package:fluent_learning/services/bilibili/post_process_task_queue.dart';
 
 void main() {
   group('SerialPostProcessQueue', () {

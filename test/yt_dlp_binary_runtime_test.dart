@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/features/youtube_download/platform/yt_dlp_native_bridge.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_installer.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_location_store.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_updater.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_platform_asset.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_runtime_abi.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_version.dart';
+import 'package:fluent_learning/features/youtube_download/platform/yt_dlp_native_bridge.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_installer.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_location_store.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_updater.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_platform_asset.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_runtime_abi.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +81,7 @@ void main() {
     );
 
     test('native bridge sends the managed binary paths', () async {
-      const channel = MethodChannel('com.example.video_player_app/yt_dlp');
+      const channel = MethodChannel('com.fluentlearning.app/yt_dlp');
       MethodCall? capturedCall;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
@@ -112,7 +112,7 @@ void main() {
     });
 
     test('Android runtime reload sends the verified archive path', () async {
-      const channel = MethodChannel('com.example.video_player_app/yt_dlp');
+      const channel = MethodChannel('com.fluentlearning.app/yt_dlp');
       MethodCall? capturedCall;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {

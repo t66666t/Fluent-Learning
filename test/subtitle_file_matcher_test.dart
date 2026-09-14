@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/subtitle_file_matcher.dart';
+import 'package:fluent_learning/utils/subtitle_file_matcher.dart';
 
 void main() {
   SubtitleFileNameAnalysis check(String videoStem, String subtitleStem) {

@@ -1,8 +1,8 @@
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/temporary_storage_cleanup_models.dart';
-import 'package:video_player_app/services/transcription_manager.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/temporary_storage_cleanup_models.dart';
+import 'package:fluent_learning/services/transcription_manager.dart';
 
 class TemporaryStorageCleanupService {
   final TranscriptionManager transcriptionManager;

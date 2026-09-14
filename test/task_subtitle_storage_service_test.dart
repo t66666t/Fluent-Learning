@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/services/task_subtitle_storage_service.dart';
+import 'package:fluent_learning/services/task_subtitle_storage_service.dart';
 
 void main() {
   group('TaskSubtitleStorageService', () {

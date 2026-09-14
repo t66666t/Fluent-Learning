@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/video_item.dart';
+import 'package:fluent_learning/models/video_item.dart';
 
 void main() {
   test('persists Bilibili danmaku association in the library model', () {

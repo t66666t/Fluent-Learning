@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/desktop_player_shortcuts.dart';
+import 'package:fluent_learning/utils/desktop_player_shortcuts.dart';
 
 void main() {
   group('DesktopPlayerShortcuts', () {

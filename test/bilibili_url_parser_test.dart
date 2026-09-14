@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/bilibili_url_parser.dart';
+import 'package:fluent_learning/utils/bilibili_url_parser.dart';
 
 void main() {
   group('BilibiliUrlParser', () {

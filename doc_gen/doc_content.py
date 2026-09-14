@@ -71,7 +71,7 @@ BLOCKS = [
 ("table", ["项目", "数值", "说明"],
  [
   ["应用名", "Fluent Player", "代码里 MaterialApp 的 title 是 Fluent_Player"],
-  ["Dart 包名", "video_player_app", "工程文件夹名，用于区分包"],
+  ["Dart 包名", "fluent_learning", "工程文件夹名，用于区分包"],
   ["版本号", "1.0.0+2", "主版本.次版本.修订+构建号"],
   ["Dart SDK", "^3.8.1", "编程语言版本"],
   ["代码规模", "176 个 Dart 文件，约 12 万行", "最大文件 library_service.dart 约 5850 行"],

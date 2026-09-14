@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/imported_media_title.dart';
+import 'package:fluent_learning/utils/imported_media_title.dart';
 
 void main() {
   group('resolveImportedMediaTitle', () {

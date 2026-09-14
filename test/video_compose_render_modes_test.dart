@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
-import 'package:video_player_app/models/subtitle_style.dart';
-import 'package:video_player_app/models/video_compose_models.dart';
-import 'package:video_player_app/services/video_compose/video_compose_ass_renderer.dart';
-import 'package:video_player_app/services/video_compose/video_compose_font_service.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
+import 'package:fluent_learning/models/subtitle_style.dart';
+import 'package:fluent_learning/models/video_compose_models.dart';
+import 'package:fluent_learning/services/video_compose/video_compose_ass_renderer.dart';
+import 'package:fluent_learning/services/video_compose/video_compose_font_service.dart';
 
 VideoComposeRequest _request({
   VideoComposeRenderMode mode = VideoComposeRenderMode.precise,

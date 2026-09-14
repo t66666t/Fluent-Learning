@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/platform/windows_video_player_media_kit.dart';
-import 'package:video_player_app/platform/local_playback_backend_policy.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/platform/windows_video_player_media_kit.dart';
+import 'package:fluent_learning/platform/local_playback_backend_policy.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart'
     show DataSourceType;
 

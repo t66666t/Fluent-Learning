@@ -9,12 +9,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:window_manager/window_manager.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_download_service.dart';
-import 'package:video_player_app/platform/windows_video_player_media_kit.dart';
-import 'screens/home_screen.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
+import 'package:fluent_learning/platform/windows_video_player_media_kit.dart';
+import 'package:fluent_learning/app/main_shell.dart';
 import 'services/library_service.dart';
 import 'services/settings_service.dart';
 import 'services/transcription_manager.dart';
+import 'package:fluent_learning/system/model_center/model_center.dart';
+import 'package:fluent_learning/system/processing_center/processing_center.dart';
+import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
 import 'services/media_materialization_service.dart';
 import 'services/batch_import_service.dart';
 import 'services/embedded_subtitle_service.dart';
@@ -46,6 +49,14 @@ void main() async {
 
   // Register Services
   final transcriptionManager = TranscriptionManager();
+  final modelCenter = ModelCenter();
+  final processingCenter = ProcessingCenter(
+    transcriptionManager: transcriptionManager,
+    libraryService: library,
+    settingsService: settings,
+  );
+  bindProcessingCenter(processingCenter);
+  final learningUnitRepository = LearningUnitRepository(libraryService: library);
   final embeddedSubtitleService = EmbeddedSubtitleService();
   final bilibiliService = BilibiliDownloadService();
   library.attachBilibiliStreamingService(bilibiliService.streamingService);
@@ -120,6 +131,9 @@ void main() async {
             ChangeNotifierProvider.value(value: settings),
             ChangeNotifierProvider.value(value: library),
             ChangeNotifierProvider.value(value: transcriptionManager),
+            ChangeNotifierProvider.value(value: modelCenter),
+            ChangeNotifierProvider.value(value: processingCenter),
+            ChangeNotifierProvider.value(value: learningUnitRepository),
             ChangeNotifierProvider.value(value: batch),
             ChangeNotifierProvider.value(value: embeddedSubtitleService),
             ChangeNotifierProvider.value(value: bilibiliService),
@@ -144,11 +158,13 @@ void main() async {
                   library: library,
                   batch: batch,
                   transcriptionManager: transcriptionManager,
+                  modelCenter: modelCenter,
                   ocrSubtitleManager: ocrSubtitleManager,
                   bilibiliService: bilibiliService,
                   ytDlpService: ytDlpService,
                   mediaPlaybackService: mediaPlaybackService,
                   playlistManager: playlistManager,
+                  learningUnitRepository: learningUnitRepository,
                 ).whenComplete(() {
                   if (!deferredServicesReady.isCompleted) {
                     deferredServicesReady.complete();
@@ -319,7 +335,7 @@ class _StartupSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fluent Player',
+      title: 'Fluent Learning',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -330,7 +346,7 @@ class _StartupSurface extends StatelessWidget {
         body: Center(
           child: Semantics(
             image: true,
-            label: 'Fluent Player',
+            label: 'Fluent Learning',
             child: Image.asset(
               'android/app/src/main/res/mipmap-xxxhdpi/launcher_icon.png',
               key: const ValueKey<String>('startup-cover'),
@@ -351,11 +367,13 @@ Future<void> _initializeDeferredServices({
   required LibraryService library,
   required BatchImportService batch,
   required TranscriptionManager transcriptionManager,
+  required ModelCenter modelCenter,
   required OcrSubtitleManager ocrSubtitleManager,
   required BilibiliDownloadService bilibiliService,
   required YtDlpDownloadService ytDlpService,
   required MediaPlaybackService mediaPlaybackService,
   required PlaylistManager playlistManager,
+  required LearningUnitRepository learningUnitRepository,
 }) async {
   Future<void> safely(String name, Future<void> Function() operation) async {
     try {
@@ -386,6 +404,8 @@ Future<void> _initializeDeferredServices({
 
   unawaited(safely('BatchImportService', batch.init));
   unawaited(safely('TranscriptionManager', transcriptionManager.initialize));
+  unawaited(safely('ModelCenter', modelCenter.initialize));
+  unawaited(safely('LearningUnitRepository', learningUnitRepository.initialize));
   unawaited(safely('OcrSubtitleManager', ocrSubtitleManager.initialize));
   unawaited(safely('BilibiliDownloadService', bilibiliService.init));
   unawaited(safely('YtDlpDownloadService', ytDlpService.init));
@@ -672,7 +692,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ),
           },
           child: MaterialApp(
-            title: 'Fluent_Player',
+            title: 'Fluent Learning',
             debugShowCheckedModeBanner: false,
             navigatorKey: AppToast.navigatorKey,
             navigatorObservers: [
@@ -750,7 +770,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 elevation: 0,
               ),
             ),
-            home: const HomeScreen(),
+            home: const MainShell(initialIndex: 1),
           ),
         ),
       ),

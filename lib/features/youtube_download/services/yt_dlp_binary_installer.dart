@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_location_store.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_platform_asset.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_version.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_location_store.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_platform_asset.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 
 class YtDlpBinaryInstaller {
   static const String _windowsFfmpegVersion = 'windows-runner-bundled';
@@ -362,7 +362,7 @@ class YtDlpBinaryInstaller {
           executableDirectory,
           '..',
           'lib',
-          'video_player_app',
+          'fluent_learning',
           'resources',
           relativePath,
         ),

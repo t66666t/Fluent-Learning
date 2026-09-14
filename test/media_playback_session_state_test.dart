@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
 
 SubtitleItem _subtitle(String text) {
   return SubtitleItem(

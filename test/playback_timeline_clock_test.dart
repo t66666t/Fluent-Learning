@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/playback_timeline_clock.dart';
+import 'package:fluent_learning/services/playback_timeline_clock.dart';
 
 void main() {
   test('rate changes alter slope without changing position', () {

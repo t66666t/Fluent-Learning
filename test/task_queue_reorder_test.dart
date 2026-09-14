@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/batch_subtitle_task_view.dart';
-import 'package:video_player_app/models/transcription_status.dart';
-import 'package:video_player_app/services/transcription_manager.dart';
-import 'package:video_player_app/widgets/task_queue_table.dart';
+import 'package:fluent_learning/models/batch_subtitle_task_view.dart';
+import 'package:fluent_learning/models/transcription_status.dart';
+import 'package:fluent_learning/services/transcription_manager.dart';
+import 'package:fluent_learning/widgets/task_queue_table.dart';
 
 void main() {
   group('batch subtitle queue index conversion', () {

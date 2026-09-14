@@ -3,10 +3,10 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterStreamHandler {
-  private let shareChannelName = "com.example.video_player_app/share_intent"
-  private let shareEventChannelName = "com.example.video_player_app/share_intent_events"
-  private let ytDlpChannelName = "com.example.video_player_app/yt_dlp"
-  private let ytDlpEventChannelName = "com.example.video_player_app/yt_dlp_events"
+  private let shareChannelName = "com.fluentlearning.app/share_intent"
+  private let shareEventChannelName = "com.fluentlearning.app/share_intent_events"
+  private let ytDlpChannelName = "com.fluentlearning.app/yt_dlp"
+  private let ytDlpEventChannelName = "com.fluentlearning.app/yt_dlp_events"
   private var pendingSharedItems: [Any] = []
   private var shareEventSink: FlutterEventSink?
   fileprivate var ytDlpEventSink: FlutterEventSink?

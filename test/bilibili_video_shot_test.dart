@@ -4,12 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/bilibili_video_shot.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/bilibili/bilibili_video_shot_service.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/models/bilibili_video_shot.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_video_shot_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player_app/features/youtube_download/models/youtube_download_models.dart';
+import 'package:fluent_learning/features/youtube_download/models/youtube_download_models.dart';
 
 class YtDlpBinaryStatus {
   final bool ytDlpReady;
@@ -91,10 +91,10 @@ class YtDlpPauseResult {
 
 class YtDlpNativeBridge {
   static const MethodChannel _methodChannel = MethodChannel(
-    'com.example.video_player_app/yt_dlp',
+    'com.fluentlearning.app/yt_dlp',
   );
   static const EventChannel _eventChannel = EventChannel(
-    'com.example.video_player_app/yt_dlp_events',
+    'com.fluentlearning.app/yt_dlp_events',
   );
 
   static const String resolveYoutubeMetaMethod = 'resolveYoutubeMeta';

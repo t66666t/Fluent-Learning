@@ -16,7 +16,7 @@
     <application
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
-        android:label="Fluent_Player"
+        android:label="Fluent Learning"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <provider

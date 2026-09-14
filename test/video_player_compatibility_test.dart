@@ -7,8 +7,8 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
-import 'package:video_player_app/utils/subtitle_parser.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
+import 'package:fluent_learning/utils/subtitle_parser.dart';
 
 void main() {
   group('VideoPlayerController API 兼容性测试', () {

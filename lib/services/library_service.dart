@@ -16,7 +16,7 @@ import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_installer.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_installer.dart';
 import '../models/media_source_ref.dart';
 import '../models/video_collection.dart';
 import '../utils/media_library_search_query.dart';
@@ -678,7 +678,8 @@ class LibraryService extends ChangeNotifier {
   /// 版本 0 = 旧版（无 schemaVersion 字段），需要执行比例迁移。
   /// 版本 1 = 已执行竖屏比例 1:1 修复迁移。
   /// 版本 2 = 应用管理的字幕按 VideoItem.id 隔离到任务目录。
-  static const int _currentLibrarySchemaVersion = 2;
+  /// 版本 3 = 媒体属性字段（displayName/fileName/importedAt/lastPlayedAt/技术属性）。
+  static const int _currentLibrarySchemaVersion = 3;
   bool _needsPostLoadSave = false;
 
   static const List<Duration> _saveRetryDelays = <Duration>[
@@ -1281,6 +1282,7 @@ class LibraryService extends ChangeNotifier {
     if (savedSchemaVersion < _currentLibrarySchemaVersion) {
       await _migratePortraitAspectRatioIfNeeded(savedSchemaVersion);
       await _migrateTaskSubtitleAssetsIfNeeded(savedSchemaVersion);
+      _migrateMediaPropertiesIfNeeded(savedSchemaVersion);
     }
   }
 
@@ -1311,6 +1313,38 @@ class LibraryService extends ChangeNotifier {
       item.portraitDisplayAspectRatio = null;
       item.hasPortraitAspectPreferenceInitialized = false;
       changed = true;
+    }
+
+    if (changed) {
+      _needsPostLoadSave = true;
+    }
+  }
+
+
+  /// Schema v3: fill nullable media-property defaults for older library rows.
+  /// Missing keys remain tolerated by VideoItem.fromJson; this only backfills
+  /// displayName / fileName / importedAt so the properties UI is useful.
+  void _migrateMediaPropertiesIfNeeded(int savedVersion) {
+    if (savedVersion >= 3) return;
+
+    bool changed = false;
+    for (final item in _videos.values) {
+      if (item.displayName == null || item.displayName!.trim().isEmpty) {
+        item.displayName = item.title;
+        changed = true;
+      }
+      if (item.fileName == null || item.fileName!.trim().isEmpty) {
+        item.fileName = p.basename(item.path);
+        changed = true;
+      }
+      if (item.importedAt == null || item.importedAt! <= 0) {
+        item.importedAt = item.lastUpdated > 0
+            ? item.lastUpdated
+            : DateTime.now().millisecondsSinceEpoch;
+        changed = true;
+      }
+      // lastPlayedAt / width / height / frameRate / bitRate stay null until
+      // playback or probe fills them.
     }
 
     if (changed) {
@@ -2139,13 +2173,17 @@ class LibraryService extends ChangeNotifier {
     final durationMs = probeDuration
         ? await _probeMediaDurationMs(effectivePath)
         : 0;
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
     final item = VideoItem(
       id: id,
       path: effectivePath,
       title: originalTitle,
+      displayName: originalTitle,
+      fileName: p.basename(effectivePath),
+      importedAt: nowMs,
       thumbnailPath: null,
       durationMs: durationMs,
-      lastUpdated: DateTime.now().millisecondsSinceEpoch,
+      lastUpdated: nowMs,
       parentId: parentId,
       type: _detectMediaType(effectivePath),
       sourceFingerprint: sourceFingerprint,
@@ -2962,13 +3000,17 @@ class LibraryService extends ChangeNotifier {
         }
 
         final durationMs = await _probeMediaDurationMs(path);
+        final nowMs = DateTime.now().millisecondsSinceEpoch;
         final item = VideoItem(
           id: id,
           path: path,
           title: originalTitle,
+          displayName: originalTitle,
+          fileName: p.basename(path),
+          importedAt: nowMs,
           thumbnailPath: null,
           durationMs: durationMs,
-          lastUpdated: DateTime.now().millisecondsSinceEpoch,
+          lastUpdated: nowMs,
           parentId: parentId,
           type: _detectMediaType(path),
           sourceFingerprint: sourceFingerprint,
@@ -4155,7 +4197,10 @@ class LibraryService extends ChangeNotifier {
     final item = _videos[id];
     if (item != null) {
       item.lastPositionMs = positionMs;
-      item.lastUpdated = DateTime.now().millisecondsSinceEpoch;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      item.lastUpdated = now;
+      // Minimal Phase 5 hook: stamp lastPlayedAt on progress writes.
+      item.lastPlayedAt = now;
       _scheduleDebouncedSave();
     }
   }
@@ -5365,7 +5410,10 @@ class LibraryService extends ChangeNotifier {
     if (_collections.containsKey(id)) {
       _collections[id]!.name = newName;
     } else if (_videos.containsKey(id)) {
-      _videos[id]!.title = newName;
+      final video = _videos[id]!;
+      video.title = newName;
+      video.displayName = newName;
+      video.lastUpdated = DateTime.now().millisecondsSinceEpoch;
     }
     await _saveLibrary();
     notifyListeners();

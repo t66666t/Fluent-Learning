@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
 
 void main() {
   test('headless background video is playback-ready without a UI texture', () {

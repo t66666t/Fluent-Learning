@@ -1,4 +1,4 @@
-package com.example.video_player_app
+package com.fluentlearning.app
 
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -42,11 +42,11 @@ class MainActivity : AudioServiceFragmentActivity() {
 
     private val YTDLP_BEFORE_DL_MARKER = "__YTDLP_BEFORE_DL__:"
     private val YTDLP_AFTER_MOVE_MARKER = "__YTDLP_AFTER_MOVE__:"
-    private val CHANNEL = "com.example.video_player_app/file_manager"
-    private val SHARE_CHANNEL = "com.example.video_player_app/share_intent"
-    private val SHARE_EVENT_CHANNEL = "com.example.video_player_app/share_intent_events"
-    private val YT_DLP_CHANNEL = "com.example.video_player_app/yt_dlp"
-    private val YT_DLP_EVENT_CHANNEL = "com.example.video_player_app/yt_dlp_events"
+    private val CHANNEL = "com.fluentlearning.app/file_manager"
+    private val SHARE_CHANNEL = "com.fluentlearning.app/share_intent"
+    private val SHARE_EVENT_CHANNEL = "com.fluentlearning.app/share_intent_events"
+    private val YT_DLP_CHANNEL = "com.fluentlearning.app/yt_dlp"
+    private val YT_DLP_EVENT_CHANNEL = "com.fluentlearning.app/yt_dlp_events"
     private val REQUEST_CODE_PICK_FILES = 4101
     private var pendingResult: MethodChannel.Result? = null
     private var pendingPickerMode: PickerMode? = null

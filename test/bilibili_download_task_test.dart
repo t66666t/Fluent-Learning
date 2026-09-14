@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/media_chapter.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/utils/bilibili_url_parser.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/media_chapter.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/utils/bilibili_url_parser.dart';
 
 void main() {
   group('BilibiliDownloadTask', () {

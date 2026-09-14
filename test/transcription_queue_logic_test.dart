@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:video_player_app/models/transcription_status.dart';
-import 'package:video_player_app/services/bcut_asr_service.dart';
-import 'package:video_player_app/services/transcription_manager.dart';
+import 'package:fluent_learning/models/transcription_status.dart';
+import 'package:fluent_learning/services/bcut_asr_service.dart';
+import 'package:fluent_learning/services/transcription_manager.dart';
 
 void main() {
   test(

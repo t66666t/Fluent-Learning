@@ -22,9 +22,9 @@
 
 namespace {
 
-constexpr char kYtDlpChannelName[] = "com.example.video_player_app/yt_dlp";
+constexpr char kYtDlpChannelName[] = "com.fluentlearning.app/yt_dlp";
 constexpr char kYtDlpEventChannelName[] =
-    "com.example.video_player_app/yt_dlp_events";
+    "com.fluentlearning.app/yt_dlp_events";
 constexpr UINT kExecuteUiTasksMessage = WM_APP + 101;
 constexpr DWORD kResolveTimeoutMs = 90000;
 

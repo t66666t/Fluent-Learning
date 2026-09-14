@@ -20,7 +20,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.video_player_app"
+    namespace = "com.fluentlearning.app"
     compileSdk = 36
     ndkVersion = "28.2.13676358"
 
@@ -34,7 +34,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.video_player_app"
+        applicationId = "com.fluentlearning.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24
@@ -85,7 +85,13 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.11"
-        buildPython("py", "-3.11")
+        // Windows: py -3.11 launcher. Linux CI: standalone CPython 3.11.
+        val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+        if (isWindows) {
+            buildPython("py", "-3.11")
+        } else {
+            buildPython("/home/box/python311/python/bin/python3.11")
+        }
         pip {
             // Keep the embedded Android runtime reproducible and in sync with
             // YtDlpVersions.androidBundled in Dart.

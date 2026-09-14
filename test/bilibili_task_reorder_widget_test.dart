@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/screens/bilibili_download_screen.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/screens/bilibili_download_screen.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 
 BilibiliDownloadTask _task(
   String bvid,

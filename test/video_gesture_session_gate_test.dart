@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/video_gesture_session_gate.dart';
+import 'package:fluent_learning/utils/video_gesture_session_gate.dart';
 
 void main() {
   group('VideoGestureSessionGate', () {

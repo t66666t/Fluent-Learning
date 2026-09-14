@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/subtitle_classification.dart';
-import 'package:video_player_app/models/video_item.dart';
+import 'package:fluent_learning/models/subtitle_classification.dart';
+import 'package:fluent_learning/models/video_item.dart';
 
 void main() {
   group('VideoItem subtitle origin migration', () {

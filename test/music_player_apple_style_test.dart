@@ -6,15 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as image_lib;
 import 'package:provider/provider.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
-import 'package:video_player_app/screens/music_player_screen.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
-import 'package:video_player_app/services/music_artwork_backdrop_cache.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/widgets/music_album_cover.dart';
-import 'package:video_player_app/widgets/music_lyric_view.dart';
-import 'package:video_player_app/widgets/music_text_optical_alignment.dart';
-import 'package:video_player_app/widgets/music_playback_controls.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
+import 'package:fluent_learning/screens/music_player_screen.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
+import 'package:fluent_learning/services/music_artwork_backdrop_cache.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/widgets/music_album_cover.dart';
+import 'package:fluent_learning/widgets/music_lyric_view.dart';
+import 'package:fluent_learning/widgets/music_text_optical_alignment.dart';
+import 'package:fluent_learning/widgets/music_playback_controls.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

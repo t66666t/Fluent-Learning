@@ -1,4 +1,4 @@
-package com.example.video_player_app
+package com.fluentlearning.app
 
 import android.app.Service
 import android.content.Intent
@@ -20,15 +20,15 @@ import kotlin.concurrent.thread
  */
 class YtDlpWorkerService : Service() {
     companion object {
-        const val ACTION_START = "com.example.video_player_app.ytdlp.START"
-        const val ACTION_PAUSE = "com.example.video_player_app.ytdlp.PAUSE"
-        const val ACTION_CANCEL = "com.example.video_player_app.ytdlp.CANCEL"
-        const val ACTION_OUTPUT = "com.example.video_player_app.ytdlp.OUTPUT"
-        const val ACTION_PROGRESS = "com.example.video_player_app.ytdlp.PROGRESS"
-        const val ACTION_RESULT = "com.example.video_player_app.ytdlp.RESULT"
-        const val ACTION_ERROR = "com.example.video_player_app.ytdlp.ERROR"
-        const val ACTION_PAUSED = "com.example.video_player_app.ytdlp.PAUSED"
-        const val ACTION_CANCELLED = "com.example.video_player_app.ytdlp.CANCELLED"
+        const val ACTION_START = "com.fluentlearning.app.ytdlp.START"
+        const val ACTION_PAUSE = "com.fluentlearning.app.ytdlp.PAUSE"
+        const val ACTION_CANCEL = "com.fluentlearning.app.ytdlp.CANCEL"
+        const val ACTION_OUTPUT = "com.fluentlearning.app.ytdlp.OUTPUT"
+        const val ACTION_PROGRESS = "com.fluentlearning.app.ytdlp.PROGRESS"
+        const val ACTION_RESULT = "com.fluentlearning.app.ytdlp.RESULT"
+        const val ACTION_ERROR = "com.fluentlearning.app.ytdlp.ERROR"
+        const val ACTION_PAUSED = "com.fluentlearning.app.ytdlp.PAUSED"
+        const val ACTION_CANCELLED = "com.fluentlearning.app.ytdlp.CANCELLED"
 
         const val EXTRA_TASK_ID = "taskId"
         const val EXTRA_REQUEST_JSON = "requestJson"

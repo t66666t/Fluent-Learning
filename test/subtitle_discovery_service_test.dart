@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/models/subtitle_source_type.dart';
-import 'package:video_player_app/services/subtitle_discovery_service.dart';
-import 'package:video_player_app/utils/subtitle_file_matcher.dart';
+import 'package:fluent_learning/models/subtitle_source_type.dart';
+import 'package:fluent_learning/services/subtitle_discovery_service.dart';
+import 'package:fluent_learning/utils/subtitle_file_matcher.dart';
 
 void main() {
   test(

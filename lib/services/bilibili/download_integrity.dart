@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:video_player_app/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
 
 class DownloadIntegrityException implements Exception {
   const DownloadIntegrityException(this.message);

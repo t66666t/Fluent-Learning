@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:video_player_app/models/media_source_ref.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
 
 const Object _unset = Object();
 

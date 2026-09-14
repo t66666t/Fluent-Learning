@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as im;
-import 'package:video_player_app/models/ocr_subtitle_models.dart';
-import 'package:video_player_app/services/ocr_model_manager.dart';
-import 'package:video_player_app/services/ocr_inference_engine.dart';
-import 'package:video_player_app/services/ocr_processing_worker.dart';
-import 'package:video_player_app/services/ocr_subtitle_manager.dart';
+import 'package:fluent_learning/models/ocr_subtitle_models.dart';
+import 'package:fluent_learning/services/ocr_model_manager.dart';
+import 'package:fluent_learning/services/ocr_inference_engine.dart';
+import 'package:fluent_learning/services/ocr_processing_worker.dart';
+import 'package:fluent_learning/services/ocr_subtitle_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
 
 void main() {
   group('Bilibili login status classification', () {

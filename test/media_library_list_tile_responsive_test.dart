@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player_app/models/video_collection.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
-import 'package:video_player_app/widgets/media_list_layout_metrics.dart';
-import 'package:video_player_app/widgets/media_library_list_tile.dart';
+import 'package:fluent_learning/models/video_collection.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
+import 'package:fluent_learning/widgets/media_list_layout_metrics.dart';
+import 'package:fluent_learning/widgets/media_library_list_tile.dart';
 
 void main() {
   testWidgets('极窄紧凑列表项同时保留标题、缩略图和元信息', (tester) async {

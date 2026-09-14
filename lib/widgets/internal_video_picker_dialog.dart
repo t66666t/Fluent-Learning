@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import '../models/video_picker_tree_node.dart';
-import '../models/video_collection.dart';
-import '../models/video_item.dart';
-import '../services/library_service.dart';
-import '../services/transcription_manager.dart';
 
+import 'package:fluent_learning/models/video_collection.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/models/video_picker_tree_node.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/system/media_picker/media_picker_request.dart';
+import 'package:fluent_learning/system/media_picker/media_picker_result.dart';
+
+/// App-wide media library picker UI (Phase 2 system Media Picker).
+///
+/// Prefer [showAppMediaPicker] over constructing this dialog directly.
 class InternalVideoPickerDialog extends StatefulWidget {
   final LibraryService libraryService;
-  final TranscriptionManager transcriptionManager;
-  final String? defaultCollectionId;
-  final void Function(List<VideoPickerTreeNode> selectedNodes) onConfirm;
+  final MediaPickerRequest request;
 
   const InternalVideoPickerDialog({
     super.key,
     required this.libraryService,
-    required this.transcriptionManager,
-    this.defaultCollectionId,
-    required this.onConfirm,
+    this.request = const MediaPickerRequest(),
   });
 
   @override
@@ -29,6 +30,8 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
   final Set<String> _expandedFolders = {};
   bool _isLoading = true;
 
+  MediaPickerRequest get _request => widget.request;
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +43,18 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
     setState(() => _isLoading = true);
     final roots = _buildNodes(null);
     _tree = VideoPickerTree(roots: roots);
-    if (widget.defaultCollectionId != null) {
-      _expandedFolders.add(widget.defaultCollectionId!);
+    final initial = _request.initialFolderId;
+    if (initial != null) {
+      _expandedFolders.add(initial);
     }
     _tree.recalculateCounts();
     setState(() => _isLoading = false);
+  }
+
+  bool _passesTypeFilter(VideoItem item) {
+    final filter = _request.typeFilter;
+    if (filter == null || filter.isEmpty) return true;
+    return filter.contains(item.type);
   }
 
   List<VideoPickerTreeNode> _buildNodes(String? parentId) {
@@ -54,6 +64,12 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
     for (final item in contents) {
       if (item is VideoCollection) {
         final children = _buildNodes(item.id);
+        // Prune empty folders when a type filter removed all leaves.
+        if ((_request.typeFilter != null &&
+                _request.typeFilter!.isNotEmpty) &&
+            children.isEmpty) {
+          continue;
+        }
         nodes.add(
           VideoPickerTreeNode(
             nodeId: item.id,
@@ -64,15 +80,8 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
           ),
         );
       } else if (item is VideoItem) {
-        final isQueued =
-            widget.transcriptionManager.isVideoQueued(
-              item.path,
-              videoId: item.id,
-            ) ||
-            widget.transcriptionManager.isVideoRunning(
-              item.path,
-              videoId: item.id,
-            );
+        if (!_passesTypeFilter(item)) continue;
+        final excluded = _request.excludeIds.contains(item.id);
         final duration = _formatDuration(item.durationMs);
         nodes.add(
           VideoPickerTreeNode(
@@ -83,7 +92,7 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
             videoId: item.id,
             videoPath: item.path,
             videoDuration: duration,
-            isAlreadyInQueue: isQueued,
+            isAlreadyInQueue: excluded,
           ),
         );
       }
@@ -103,13 +112,29 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  MediaPickerResult _buildResult() {
+    final leaves = _tree.getSelectedLeaves();
+    final folders = _request.allowFolders
+        ? _tree.getSelectedFolders()
+        : const <VideoPickerTreeNode>[];
+    return MediaPickerResult(
+      mediaIds: leaves
+          .map((n) => n.videoId)
+          .whereType<String>()
+          .toList(growable: false),
+      folderIds: folders.map((n) => n.nodeId).toList(growable: false),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedLeaves = _tree.getSelectedLeaves();
     final canConfirm = selectedLeaves.isNotEmpty;
+    final title = _request.title ?? '选择媒体';
+    final confirmLabel = _request.confirmLabel ?? '确认';
 
     return AlertDialog(
-      title: const Text('选择内部视频'),
+      title: Text(title),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.85,
         height: MediaQuery.of(context).size.height * 0.65,
@@ -131,28 +156,30 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const Spacer(),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              for (final root in _tree.roots) {
-                                _selectAll(root, true);
-                              }
-                              _tree.recalculateCounts();
-                            });
-                          },
-                          child: const Text('全选'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              for (final root in _tree.roots) {
-                                _selectAll(root, false);
-                              }
-                              _tree.recalculateCounts();
-                            });
-                          },
-                          child: const Text('取消全选'),
-                        ),
+                        if (_request.multiSelect) ...[
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                for (final root in _tree.roots) {
+                                  _selectAll(root, true);
+                                }
+                                _tree.recalculateCounts();
+                              });
+                            },
+                            child: const Text('全选'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                for (final root in _tree.roots) {
+                                  _selectAll(root, false);
+                                }
+                                _tree.recalculateCounts();
+                              });
+                            },
+                            child: const Text('取消全选'),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -175,12 +202,9 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
         ),
         FilledButton(
           onPressed: canConfirm
-              ? () {
-                  widget.onConfirm(selectedLeaves);
-                  Navigator.pop(context);
-                }
+              ? () => Navigator.pop(context, _buildResult())
               : null,
-          child: Text('确认 (${selectedLeaves.length})'),
+          child: Text('$confirmLabel (${selectedLeaves.length})'),
         ),
       ],
     );
@@ -189,7 +213,7 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
   void _selectAll(VideoPickerTreeNode node, bool selected) {
     if (node.isAlreadyInQueue && !node.isFolder) return;
     if (node.isFolder) {
-      node.isSelected = false;
+      node.isSelected = selected && _request.allowFolders;
       node.isIndeterminate = false;
       for (final child in node.children) {
         _selectAll(child, selected);
@@ -215,20 +239,46 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
     return _buildNodeRow(node, depth);
   }
 
+  bool _canToggle(VideoPickerTreeNode node) {
+    if (node.isAlreadyInQueue) return false;
+    if (node.isFolder && (!_request.allowFolders || !_request.multiSelect)) {
+      return false;
+    }
+    return true;
+  }
+
+  void _toggleNode(VideoPickerTreeNode node) {
+    if (!_canToggle(node)) {
+      if (node.isFolder) {
+        setState(() {
+          if (_expandedFolders.contains(node.nodeId)) {
+            _expandedFolders.remove(node.nodeId);
+          } else {
+            _expandedFolders.add(node.nodeId);
+          }
+        });
+      }
+      return;
+    }
+    setState(() {
+      _tree.updateSelection(
+        node,
+        !node.isSelected,
+        multiSelect: _request.multiSelect,
+      );
+    });
+  }
+
   Widget _buildNodeRow(VideoPickerTreeNode node, int depth) {
     final checkboxValue = node.isSelected
         ? true
         : node.isIndeterminate
         ? null
         : false;
+    final showCheckbox = !node.isFolder || (_request.allowFolders && _request.multiSelect);
 
     return InkWell(
-      onTap: () {
-        if (node.isAlreadyInQueue) return;
-        setState(() {
-          _tree.updateSelection(node, !node.isSelected);
-        });
-      },
+      onTap: () => _toggleNode(node),
       child: Padding(
         padding: EdgeInsets.only(left: depth * 24.0 + 8.0),
         child: Row(
@@ -253,17 +303,24 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
               ),
-            Checkbox(
-              value: checkboxValue,
-              tristate: true,
-              onChanged: node.isAlreadyInQueue
-                  ? null
-                  : (v) {
-                      setState(() {
-                        _tree.updateSelection(node, v ?? false);
-                      });
-                    },
-            ),
+            if (showCheckbox)
+              Checkbox(
+                value: checkboxValue,
+                tristate: true,
+                onChanged: !_canToggle(node)
+                    ? null
+                    : (v) {
+                        setState(() {
+                          _tree.updateSelection(
+                            node,
+                            v ?? false,
+                            multiSelect: _request.multiSelect,
+                          );
+                        });
+                      },
+              )
+            else
+              const SizedBox(width: 48),
             Icon(
               node.isFolder ? Icons.folder : Icons.play_circle_outline,
               size: 18,
@@ -302,7 +359,7 @@ class _InternalVideoPickerDialogState extends State<InternalVideoPickerDialog> {
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Text(
-                  '已在队列',
+                  '不可选',
                   style: TextStyle(
                     fontSize: 11,
                     color: Theme.of(context).colorScheme.error,

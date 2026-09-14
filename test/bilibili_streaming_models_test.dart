@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/media_source_ref.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/bilibili_streaming_service.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/media_source_ref.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_streaming_service.dart';
 
 class _FakeBilibiliApiService extends BilibiliApiService {
   final Uri? mediaOrigin;

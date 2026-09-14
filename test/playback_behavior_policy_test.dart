@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/playback_behavior_policy.dart';
+import 'package:fluent_learning/services/playback_behavior_policy.dart';
 
 void main() {
   group('PlaybackBehaviorPolicy.normalizeEpisodeStartPosition', () {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/bilibili/media_probe_result.dart';
+import 'package:fluent_learning/services/bilibili/media_probe_result.dart';
 
 void main() {
   group('BilibiliMediaProbeResult', () {

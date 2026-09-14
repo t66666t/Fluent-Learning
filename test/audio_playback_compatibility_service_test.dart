@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/audio_playback_compatibility_service.dart';
-import 'package:video_player_app/models/video_item.dart';
-import 'package:video_player_app/platform/local_playback_backend_policy.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/audio_playback_compatibility_service.dart';
+import 'package:fluent_learning/models/video_item.dart';
+import 'package:fluent_learning/platform/local_playback_backend_policy.dart';
 
 void main() {
   test('native builds use the wide-codec backend without transcoding', () {
@@ -16,7 +16,7 @@ void main() {
 
   test('WAV resolves to the original file without a lossy AAC copy', () async {
     final directory = await Directory.systemTemp.createTemp(
-      'fluent_player_wav_test_',
+      'fluent_learning_wav_test_',
     );
     addTearDown(() => directory.delete(recursive: true));
     final source = File('${directory.path}${Platform.pathSeparator}tone.wav');

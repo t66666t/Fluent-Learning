@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/player_control_metrics.dart';
+import 'package:fluent_learning/widgets/player_control_metrics.dart';
 
 void main() {
   group('PlayerControlMetrics', () {

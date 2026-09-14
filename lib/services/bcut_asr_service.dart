@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
 
 class BcutAsrService {
   static const String _baseUrl =

@@ -13,9 +13,11 @@ import '../services/playback_navigation_service.dart';
 import '../services/transcription_manager.dart';
 import '../services/settings_service.dart';
 import '../services/library_service.dart';
+import '../models/video_collection.dart';
+import '../models/video_item.dart';
 import '../utils/app_toast.dart';
 import '../utils/media_folder_scanner.dart';
-import '../widgets/internal_video_picker_dialog.dart';
+import 'package:fluent_learning/system/media_picker/media_picker.dart';
 import '../widgets/task_queue_table.dart';
 
 class BatchSubtitleScreen extends StatefulWidget {
@@ -1225,34 +1227,74 @@ class _BatchSubtitleScreenState extends State<BatchSubtitleScreen> {
     return '$result$ext';
   }
 
-  void _showInternalVideoPicker(BuildContext context) {
+  Future<void> _showInternalVideoPicker(BuildContext context) async {
     final library = context.read<LibraryService>();
     final manager = context.read<TranscriptionManager>();
-    showDialog(
-      context: context,
-      builder: (ctx) => InternalVideoPickerDialog(
-        libraryService: library,
-        transcriptionManager: manager,
-        defaultCollectionId: widget.collectionId,
-        onConfirm: (selectedNodes) {
-          for (final node in selectedNodes) {
-            if (node.videoPath != null) {
-              manager.startTranscription(
-                node.videoPath!,
-                videoId: node.videoId,
-                videoTitle: node.name,
-                videoDuration: node.videoDuration,
-                libraryService: library,
-                autoCache: context.read<SettingsService>().autoCacheSubtitles,
-              );
-            }
-          }
-          if (selectedNodes.isNotEmpty) {
-            AppToast.show('已添加 ${selectedNodes.length} 个任务到队列');
-          }
-        },
+    final excludeIds = _collectQueuedMediaIds(library, manager);
+
+    final result = await showAppMediaPicker(
+      context,
+      MediaPickerRequest(
+        multiSelect: true,
+        allowFolders: true,
+        excludeIds: excludeIds,
+        title: '选择内部视频',
+        confirmLabel: '确认',
+        initialFolderId: widget.collectionId,
       ),
     );
+    if (result == null || !context.mounted) return;
+
+    final autoCache = context.read<SettingsService>().autoCacheSubtitles;
+    var added = 0;
+    for (final id in result.mediaIds) {
+      final video = library.getVideo(id);
+      if (video == null) continue;
+      manager.startTranscription(
+        video.path,
+        videoId: video.id,
+        videoTitle: video.title,
+        videoDuration: _formatPickerDuration(video.durationMs),
+        libraryService: library,
+        autoCache: autoCache,
+      );
+      added++;
+    }
+    if (added > 0) {
+      AppToast.show('已添加 $added 个任务到队列');
+    }
+  }
+
+  Set<String> _collectQueuedMediaIds(
+    LibraryService library,
+    TranscriptionManager manager,
+  ) {
+    final exclude = <String>{};
+    void walk(String? parentId) {
+      for (final item in library.getContents(parentId)) {
+        if (item is VideoCollection) {
+          walk(item.id);
+        } else if (item is VideoItem) {
+          if (manager.isVideoQueued(item.path, videoId: item.id) ||
+              manager.isVideoRunning(item.path, videoId: item.id)) {
+            exclude.add(item.id);
+          }
+        }
+      }
+    }
+    walk(null);
+    return exclude;
+  }
+
+  String _formatPickerDuration(int ms) {
+    if (ms <= 0) return '';
+    final h = ms ~/ 3600000;
+    final m = (ms % 3600000) ~/ 60000;
+    final s = (ms % 60000) ~/ 1000;
+    if (h > 0) {
+      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    }
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   Future<void> _pickExternalFiles(BuildContext context) async {

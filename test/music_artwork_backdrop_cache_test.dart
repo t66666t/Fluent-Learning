@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as image_lib;
-import 'package:video_player_app/services/music_artwork_backdrop_cache.dart';
+import 'package:fluent_learning/services/music_artwork_backdrop_cache.dart';
 
 void main() {
   test('backdrop is blurred off-thread and reused from memory', () async {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/models/subtitle_model.dart';
-import 'package:video_player_app/services/subtitle_timeline_resolver.dart';
+import 'package:fluent_learning/models/subtitle_model.dart';
+import 'package:fluent_learning/services/subtitle_timeline_resolver.dart';
 
 SubtitleItem _subtitle(int index, int startMs, int endMs, String text) {
   return SubtitleItem(

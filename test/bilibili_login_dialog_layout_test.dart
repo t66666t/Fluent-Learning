@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/services/bilibili/bilibili_api_service.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/widgets/bilibili_login_dialogs.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_api_service.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/widgets/bilibili_login_dialogs.dart';
 
 class _LoginApi extends BilibiliApiService {
   @override

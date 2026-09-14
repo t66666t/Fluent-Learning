@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/playback_card_layout.dart';
+import 'package:fluent_learning/widgets/playback_card_layout.dart';
 
 void main() {
   group('PlaybackCardOverlayLayout', () {

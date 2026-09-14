@@ -4,8 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as im;
-import 'package:video_player_app/models/ocr_subtitle_models.dart';
-import 'package:video_player_app/widgets/ocr_region_editor.dart';
+import 'package:fluent_learning/models/ocr_subtitle_models.dart';
+import 'package:fluent_learning/widgets/ocr_region_editor.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

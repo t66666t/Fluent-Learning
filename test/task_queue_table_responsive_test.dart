@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player_app/models/batch_subtitle_task_view.dart';
-import 'package:video_player_app/models/transcription_status.dart';
-import 'package:video_player_app/screens/batch_subtitle_screen.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/services/transcription_manager.dart';
-import 'package:video_player_app/widgets/task_queue_table.dart';
+import 'package:fluent_learning/models/batch_subtitle_task_view.dart';
+import 'package:fluent_learning/models/transcription_status.dart';
+import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/services/transcription_manager.dart';
+import 'package:fluent_learning/widgets/task_queue_table.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/app_toast.dart';
+import 'package:fluent_learning/utils/app_toast.dart';
 
 void main() {
   Future<void> pumpToastHost(WidgetTester tester) async {

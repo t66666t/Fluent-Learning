@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/serial_task_queue.dart';
+import 'package:fluent_learning/utils/serial_task_queue.dart';
 
 void main() {
   test('queued callers complete only after their own task has run', () async {

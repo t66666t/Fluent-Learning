@@ -2,7 +2,7 @@
 // 用法: dart run tool/bcut_probe.dart <audio.m4a>
 import 'dart:io';
 
-import 'package:video_player_app/services/bcut_asr_service.dart';
+import 'package:fluent_learning/services/bcut_asr_service.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {

@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

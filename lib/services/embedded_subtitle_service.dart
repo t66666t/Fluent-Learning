@@ -7,7 +7,7 @@ import 'package:ffmpeg_kit_flutter_new/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/utils/ffmpeg_utils.dart';
+import 'package:fluent_learning/utils/ffmpeg_utils.dart';
 
 class EmbeddedSubtitleTrack {
   final int index;

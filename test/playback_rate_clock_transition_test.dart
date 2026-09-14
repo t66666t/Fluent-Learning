@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/platform/pitch_preserving_audio_pipeline.dart';
+import 'package:fluent_learning/platform/pitch_preserving_audio_pipeline.dart';
 
 void main() {
   group('audio-master rate-boundary clock', () {

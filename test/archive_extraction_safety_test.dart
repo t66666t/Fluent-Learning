@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/services/library_service.dart';
+import 'package:fluent_learning/services/library_service.dart';
 
 void main() {
   test('archive extraction ignores symbolic links and stays inside root', () {

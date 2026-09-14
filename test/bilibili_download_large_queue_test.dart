@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/screens/bilibili_download_list_projection.dart';
-import 'package:video_player_app/services/bilibili/bilibili_download_service.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/screens/bilibili_download_list_projection.dart';
+import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
 
 BilibiliVideoItem _video(String bvid, int episodeCount) {
   final pages = List.generate(

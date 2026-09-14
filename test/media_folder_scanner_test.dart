@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/utils/media_folder_scanner.dart';
+import 'package:fluent_learning/utils/media_folder_scanner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player_app/services/library_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/services/transcription_manager.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/services/transcription_manager.dart';
+import 'package:fluent_learning/system/model_center/model_center.dart';
+import 'package:fluent_learning/system/processing_center/processing_center.dart';
 import '../models/transcription_status.dart';
 
 class AiTranscriptionPanel extends StatefulWidget {
@@ -70,9 +71,9 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
   }
 
   Future<void> _startTranscription() async {
-    final manager = Provider.of<TranscriptionManager>(context, listen: false);
     final settings = Provider.of<SettingsService>(context, listen: false);
-    final library = Provider.of<LibraryService>(context, listen: false);
+    final processing = Provider.of<ProcessingCenter>(context, listen: false);
+    final modelCenter = Provider.of<ModelCenter>(context, listen: false);
 
     try {
       if (mounted) {
@@ -82,12 +83,27 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
           _terminalMessageForCurrentVideo = "";
         });
       }
-      await manager.startTranscription(
-        widget.videoPath,
-        videoId: widget.videoId,
-        libraryService: library,
-        autoCache: settings.autoCacheSubtitles,
-        autoStart: true,
+      // Prefer Model Center resolve; do not hardcode BcutAsr in features.
+      final active = modelCenter.resolve(ModelKind.transcription);
+      if (active == null) {
+        throw StateError('模型中心未配置可用转录模型');
+      }
+      // TODO(phase3+): route through ModelRouter runner instead of only
+      // validating active selection before Processing Center enqueue.
+      final mediaIds = <String>[
+        if (widget.videoId != null && widget.videoId!.trim().isNotEmpty)
+          widget.videoId!.trim(),
+      ];
+      await processing.enqueueProcessingJob(
+        type: ProcessingJobType.transcription,
+        mediaIds: mediaIds,
+        params: <String, dynamic>{
+          'videoPath': widget.videoPath,
+          if (widget.videoId != null) 'videoId': widget.videoId,
+          'autoCache': settings.autoCacheSubtitles,
+          'autoStart': true,
+          'modelId': active.id,
+        },
       );
     } catch (e) {
       if (mounted) {

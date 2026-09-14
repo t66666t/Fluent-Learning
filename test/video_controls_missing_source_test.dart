@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player_app/models/subtitle_style.dart';
-import 'package:video_player_app/services/media_playback_service.dart';
-import 'package:video_player_app/services/settings_service.dart';
-import 'package:video_player_app/screens/video_player_screen.dart';
-import 'package:video_player_app/widgets/video_controls_overlay.dart';
+import 'package:fluent_learning/models/subtitle_style.dart';
+import 'package:fluent_learning/services/media_playback_service.dart';
+import 'package:fluent_learning/services/settings_service.dart';
+import 'package:fluent_learning/screens/video_player_screen.dart';
+import 'package:fluent_learning/widgets/video_controls_overlay.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

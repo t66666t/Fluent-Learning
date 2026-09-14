@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player_app/features/youtube_download/presentation/pages/yt_dlp_download_screen.dart';
+import 'package:fluent_learning/features/centers/download_center_page.dart';
+import 'package:fluent_learning/features/centers/processing_center_page.dart';
 
 import '../services/library_service.dart';
 import '../services/settings_service.dart';
@@ -19,7 +20,6 @@ import '../services/temporary_storage_cleanup_service.dart';
 import '../services/transcription_manager.dart';
 import '../screens/batch_import_screen.dart';
 import '../screens/bilibili_download_screen.dart';
-import '../screens/batch_subtitle_screen.dart';
 import '../utils/app_toast.dart';
 
 class VideoActionButtons extends StatefulWidget {
@@ -29,7 +29,7 @@ class VideoActionButtons extends StatefulWidget {
   isHorizontal; // For empty state usage if needed, though mostly for FAB
 
   static const MethodChannel _fileManagerChannel = MethodChannel(
-    'com.example.video_player_app/file_manager',
+    'com.fluentlearning.app/file_manager',
   );
 
   static String _cleanImportedTitle(String path) {
@@ -935,8 +935,8 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
                 context,
                 MaterialPageRoute(
                   builder: (_) =>
-                      BatchSubtitleScreen(collectionId: widget.collectionId),
-                  settings: const RouteSettings(name: '/batch_subtitle'),
+                      ProcessingCenterPage(collectionId: widget.collectionId),
+                  settings: const RouteSettings(name: '/processing_center'),
                 ),
               );
             },
@@ -944,7 +944,7 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
             ),
-            child: const Text("批量字幕生成"),
+            child: const Text("处理中心"),
           ),
           const SizedBox(width: 16),
           ElevatedButton(
@@ -974,10 +974,10 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => BilibiliDownloadScreen(
+                  builder: (_) => DownloadCenterPage(
                     targetFolderId: widget.collectionId,
                   ),
-                  settings: const RouteSettings(name: '/bilibili_download'),
+                  settings: const RouteSettings(name: '/download_center'),
                 ),
               );
             },
@@ -985,22 +985,7 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
               backgroundColor: const Color(0xFFFB7299),
               foregroundColor: Colors.white,
             ),
-            child: const Text("B站下载"),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const YtDlpDownloadScreen(),
-                settings: const RouteSettings(name: '/yt_dlp_download'),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF4040),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text("YT-DLP下载"),
+            child: const Text("下载中心"),
           ),
         ],
       );
@@ -1042,24 +1027,24 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           FloatingActionButton(
-                            heroTag: "batch_subtitle_${widget.collectionId}",
+                            heroTag: "processing_center_${widget.collectionId}",
                             onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => BatchSubtitleScreen(
+                                  builder: (_) => ProcessingCenterPage(
                                     collectionId: widget.collectionId,
                                   ),
                                   settings: const RouteSettings(
-                                    name: '/batch_subtitle',
+                                    name: '/processing_center',
                                   ),
                                 ),
                               );
                             },
-                            tooltip: "批量字幕生成",
+                            tooltip: "处理中心",
                             backgroundColor: Colors.teal,
                             child: const Icon(
-                              Icons.closed_caption,
+                              Icons.tune,
                               color: Colors.white,
                             ),
                           ),
@@ -1083,44 +1068,23 @@ class _VideoActionButtonsState extends State<VideoActionButtons> {
                           ),
                           const SizedBox(height: 16),
                           FloatingActionButton(
-                            heroTag: "bbdown_download_${widget.collectionId}",
+                            heroTag: "download_center_${widget.collectionId}",
                             onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => BilibiliDownloadScreen(
+                                  builder: (_) => DownloadCenterPage(
                                     targetFolderId: widget.collectionId,
                                   ),
                                   settings: const RouteSettings(
-                                    name: '/bilibili_download',
+                                    name: '/download_center',
                                   ),
                                 ),
                               );
                             },
-                            tooltip: "B站视频下载",
+                            tooltip: "下载中心",
                             backgroundColor: const Color(0xFFFB7299),
-                            child: const Icon(Icons.tv, color: Colors.white),
-                          ),
-                          const SizedBox(height: 16),
-                          FloatingActionButton(
-                            heroTag: "yt_dlp_download_${widget.collectionId}",
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const YtDlpDownloadScreen(),
-                                  settings: const RouteSettings(
-                                    name: '/yt_dlp_download',
-                                  ),
-                                ),
-                              );
-                            },
-                            tooltip: "YT-DLP 视频下载",
-                            backgroundColor: const Color(0xFFFF4040),
-                            child: const Icon(
-                              Icons.ondemand_video,
-                              color: Colors.white,
-                            ),
+                            child: const Icon(Icons.download, color: Colors.white),
                           ),
                           const SizedBox(height: 16),
                           Consumer<BatchImportService>(

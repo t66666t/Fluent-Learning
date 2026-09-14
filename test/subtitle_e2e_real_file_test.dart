@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/subtitle_translation_service.dart';
+import 'package:fluent_learning/services/subtitle_translation_service.dart';
 
 /// 端到端验证：用用户提供的真实字幕文件翻译。
 /// 1. MyMemory 批量翻译（原字幕是中文，翻译成英文）

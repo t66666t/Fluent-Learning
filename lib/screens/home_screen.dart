@@ -13,6 +13,7 @@ import '../services/settings_service.dart';
 import '../services/app_haptics.dart';
 import 'collection_screen.dart';
 import 'recycle_bin_screen.dart';
+import 'package:fluent_learning/features/library/media_properties_page.dart';
 import '../models/video_collection.dart';
 import '../models/video_item.dart';
 import '../widgets/folder_drop_target.dart';
@@ -29,8 +30,8 @@ import '../services/bilibili/bilibili_download_service.dart';
 import '../models/bilibili_download_task.dart';
 import '../models/bilibili_models.dart';
 
-import 'bilibili_download_screen.dart';
-import 'package:video_player_app/widgets/bilibili_login_dialogs.dart';
+import 'package:fluent_learning/widgets/bilibili_login_dialogs.dart';
+import 'package:fluent_learning/features/centers/download_center_page.dart';
 import '../widgets/mini_playback_card.dart';
 import '../widgets/playback_card_layout.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -117,10 +118,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   static const MethodChannel _shareIntentChannel = MethodChannel(
-    'com.example.video_player_app/share_intent',
+    'com.fluentlearning.app/share_intent',
   );
   static const EventChannel _shareIntentEventChannel = EventChannel(
-    'com.example.video_player_app/share_intent_events',
+    'com.fluentlearning.app/share_intent_events',
   );
   bool _isSelectionMode = false;
   final Set<String> _selectedIds = {};
@@ -1606,20 +1607,24 @@ class _HomeScreenState extends State<HomeScreen>
                   await playbackService.pause();
                 }
                 if (!mounted || !navigator.mounted) return;
-                const routeName = '/bilibili_download';
+                const routeName = '/download_center';
                 if (AppToast.isCurrentRoute(routeName)) {
                   navigator.pushReplacement(
                     MaterialPageRoute(
-                      builder: (_) =>
-                          BilibiliDownloadScreen(initialInput: content),
+                      builder: (_) => DownloadCenterPage(
+                        initialBilibiliInput: content,
+                        openBilibiliOnLaunch: true,
+                      ),
                       settings: const RouteSettings(name: routeName),
                     ),
                   );
                 } else {
                   navigator.push(
                     MaterialPageRoute(
-                      builder: (_) =>
-                          BilibiliDownloadScreen(initialInput: content),
+                      builder: (_) => DownloadCenterPage(
+                        initialBilibiliInput: content,
+                        openBilibiliOnLaunch: true,
+                      ),
                       settings: const RouteSettings(name: routeName),
                     ),
                   );
@@ -2620,6 +2625,32 @@ class _HomeScreenState extends State<HomeScreen>
                           final name = col?.name ?? vid?.title ?? "";
 
                           _showRenameDialog(context, id, name);
+                        },
+                      ),
+                    if (_selectedIds.length == 1)
+                      Builder(
+                        builder: (context) {
+                          final library = Provider.of<LibraryService>(
+                            context,
+                            listen: false,
+                          );
+                          final id = _selectedIds.first;
+                          if (library.getVideo(id) == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return TextButton.icon(
+                            icon: const Icon(
+                              Icons.info_outline,
+                              color: Colors.tealAccent,
+                            ),
+                            label: const Text(
+                              "属性",
+                              style: TextStyle(color: Colors.tealAccent),
+                            ),
+                            onPressed: () {
+                              MediaPropertiesPage.open(context, id);
+                            },
+                          );
                         },
                       ),
                   ],

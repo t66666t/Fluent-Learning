@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/video_compose/video_compose_artifact_cleaner.dart';
+import 'package:fluent_learning/services/video_compose/video_compose_artifact_cleaner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

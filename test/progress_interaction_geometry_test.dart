@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/widgets/progress_interaction_geometry.dart';
+import 'package:fluent_learning/widgets/progress_interaction_geometry.dart';
 
 void main() {
   group('progress interaction geometry', () {

@@ -5,10 +5,10 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_binary_installer.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_platform_asset.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_runtime_abi.dart';
-import 'package:video_player_app/features/youtube_download/services/yt_dlp_version.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_binary_installer.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_platform_asset.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_runtime_abi.dart';
+import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 
 class YtDlpBinaryReleaseInfo {
   final String version;
@@ -46,7 +46,7 @@ class YtDlpBinaryUpdater {
   static const String _latestReleaseApiUrl =
       'https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest';
   static const String _githubApiAccept = 'application/vnd.github+json';
-  static const String _userAgent = 'video_player_app/yt-dlp-updater';
+  static const String _userAgent = 'fluent_learning/yt-dlp-updater';
   static const String _checksumAssetName = 'SHA2-256SUMS';
 
   const YtDlpBinaryUpdater();

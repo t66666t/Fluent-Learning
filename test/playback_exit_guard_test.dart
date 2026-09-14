@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/services/playback_exit_guard.dart';
+import 'package:fluent_learning/services/playback_exit_guard.dart';
 
 void main() {
   test('accepts only the first playback exit request', () {

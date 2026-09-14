@@ -5,11 +5,11 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io' show ZLibDecoder, gzip;
-import 'package:video_player_app/models/bilibili_models.dart';
-import 'package:video_player_app/models/bilibili_download_task.dart';
-import 'package:video_player_app/models/media_chapter.dart';
-import 'package:video_player_app/services/bilibili/wbi_signer.dart';
-import 'package:video_player_app/utils/subtitle_util.dart';
+import 'package:fluent_learning/models/bilibili_models.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/media_chapter.dart';
+import 'package:fluent_learning/services/bilibili/wbi_signer.dart';
+import 'package:fluent_learning/utils/subtitle_util.dart';
 
 enum BilibiliLoginStatus { loggedIn, loggedOut, unavailable }
 

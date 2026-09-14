@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:video_player_app/utils/media_library_search_query.dart';
+import 'package:fluent_learning/utils/media_library_search_query.dart';
 
 void main() {
   test('只匹配卡片自己的标题', () {

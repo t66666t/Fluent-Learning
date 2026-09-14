@@ -1,4 +1,4 @@
-import 'package:video_player_app/models/bilibili_download_task.dart';
+import 'package:fluent_learning/models/bilibili_download_task.dart';
 
 sealed class BilibiliDownloadListRow {
   const BilibiliDownloadListRow(this.task, {required this.isLastInTask});
