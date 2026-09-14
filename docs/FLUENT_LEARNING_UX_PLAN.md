@@ -4,7 +4,7 @@
 > 工程：`/workspace/fluent-learning/repo` → https://github.com/t66666t/Fluent-Learning  
 > 基线：Phase 18 收口于 `e9662ab` 之上（含 Phase 14–17）  
 > 前置：Phase 0–13 已合入；本轮聚焦「对照最初提示词补齐 + 体验做到最好」  
-> 交付：每阶段验收后推 `main`（不打 APK）；**Phase 18 本机收口不自动 push**（由调试助手签收后再推）
+> 交付：每阶段验收后推 `main`（不打 APK）；Phase 14–18 已推 `main` @ `609cfdb`（文档校对另补提交）
 
 ---
 
@@ -78,16 +78,16 @@
 
 ## Phase 18 — 对照收口
 
-**状态：✅ 本机收口**（相对 `e9662ab`；**未 commit/push**）
+**状态：✅ 已合入并冒烟签收**（`main` @ `609cfdb`）
 
 **要做 / 已做**：
 1. ✅ 更新本文件顶部对照表与 Phase 14–18 状态
 2. ✅ 冒烟（代码路径核对）：冷启首页、选片、建单元、播+进度回写、入队、下载入口、属性、日历「开始学」、Mine metadata 导出
 3. ✅ 小补丁：`VideoItem.publishedAt`（nullable、JSON 兼容）+ `MediaPropertiesPage`「发布时间」
 4. ✅ 记债：weekday 日程高级能力 / 统一下载队列 / OCR enqueue 门面（本阶段不实现）
-5. ⏭ 推 GitHub：由调试助手签收后再推（本轮约束不 commit/push）
+5. ✅ 已推 GitHub：`609cfdb`；冒烟签收通过
 
-**验收**：调试助手签收；群里贴最终 SHA。
+**验收**：✅ 调试助手冒烟签收通过；最终 SHA `609cfdb`。
 
 ---
 
