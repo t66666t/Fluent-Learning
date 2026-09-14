@@ -84,6 +84,14 @@ class LearningUnitDetailPage extends StatelessWidget {
                         unitId,
                         LearningUnitStatus.completed,
                       );
+                    case _UnitAction.editDue:
+                      await _editDueDate(context, repo, unit);
+                    case _UnitAction.clearDue:
+                      await repo.update(
+                        unit.copyWith(
+                          schedule: unit.schedule.copyWith(clearDueDate: true),
+                        ),
+                      );
                     case _UnitAction.archive:
                       await repo.softDelete(unitId);
                       if (context.mounted) Navigator.of(context).pop();
@@ -105,6 +113,17 @@ class LearningUnitDetailPage extends StatelessWidget {
                     const PopupMenuItem(
                       value: _UnitAction.complete,
                       child: Text('标记完成'),
+                    ),
+                  PopupMenuItem(
+                    value: _UnitAction.editDue,
+                    child: Text(
+                      unit.schedule.dueDate == null ? '设置截止日期' : '修改截止日期',
+                    ),
+                  ),
+                  if (unit.schedule.dueDate != null)
+                    const PopupMenuItem(
+                      value: _UnitAction.clearDue,
+                      child: Text('清除截止日期'),
                     ),
                   const PopupMenuItem(
                     value: _UnitAction.archive,
@@ -135,16 +154,43 @@ class LearningUnitDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (unit.schedule.dueDate != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        '截止 ${_fmtDate(unit.schedule.dueDate!)}',
-                        style: TextStyle(
-                          color: _dueColor(unit.schedule.dueDate!),
-                          fontSize: 13,
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () => _editDueDate(context, repo, unit),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.event,
+                              size: 16,
+                              color: unit.schedule.dueDate == null
+                                  ? Colors.white38
+                                  : _dueColor(unit.schedule.dueDate!),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              unit.schedule.dueDate == null
+                                  ? '点击设置截止日期'
+                                  : '截止 ${_fmtDate(unit.schedule.dueDate!)}',
+                              style: TextStyle(
+                                color: unit.schedule.dueDate == null
+                                    ? Colors.white38
+                                    : _dueColor(unit.schedule.dueDate!),
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.edit,
+                              size: 14,
+                              color: Colors.white24,
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                     if (unit.notes != null && unit.notes!.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
@@ -306,6 +352,43 @@ class LearningUnitDetailPage extends StatelessWidget {
     );
   }
 
+  Future<void> _editDueDate(
+    BuildContext context,
+    LearningUnitRepository repo,
+    LearningUnit unit,
+  ) async {
+    final now = DateTime.now();
+    final current = unit.schedule.dueDate;
+    final initial = current ?? now.add(const Duration(days: 7));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isBefore(DateTime(now.year - 1))
+          ? now
+          : initial,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 5),
+      helpText: '选择截止日期',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.blue,
+              surface: Color(0xFF1E1E1E),
+            ),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+    if (!context.mounted || picked == null) return;
+    final due = DateTime(picked.year, picked.month, picked.day, 23, 59);
+    await repo.update(
+      unit.copyWith(
+        schedule: unit.schedule.copyWith(dueDate: due),
+      ),
+    );
+  }
+
   static String _fmtDate(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -332,7 +415,7 @@ class LearningUnitDetailPage extends StatelessWidget {
   }
 }
 
-enum _UnitAction { pause, resume, complete, archive }
+enum _UnitAction { pause, resume, complete, editDue, clearDue, archive }
 
 class _StatusChip extends StatelessWidget {
   const _StatusChip({required this.status});
