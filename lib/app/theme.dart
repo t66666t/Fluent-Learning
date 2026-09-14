@@ -1,7 +1,7 @@
-/// App-level ThemeData builder (Phase 9).
+/// App-level ThemeData builder (Phase 9 / beautify U1).
 ///
-/// Tokens live in [AppRadii] / [AppMotion]; this file wires them into
-/// MaterialApp so interactive surfaces share radius 8–12 and short motion.
+/// Tokens live in [AppColors] / [AppRadii] / [AppMotion]; this file wires them
+/// into MaterialApp so interactive surfaces share radius 8–12 and short motion.
 library;
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +11,27 @@ import 'package:flutter/material.dart';
 import 'package:fluent_learning/core/theme_tokens.dart';
 
 export 'package:fluent_learning/core/theme_tokens.dart';
+
+ColorScheme _appDarkColorScheme() {
+  return const ColorScheme.dark(
+    primary: AppColors.primary,
+    onPrimary: AppColors.onPrimary,
+    secondary: AppColors.primary,
+    onSecondary: AppColors.onPrimary,
+    surface: AppColors.surface,
+    onSurface: AppColors.onSurface,
+    onSurfaceVariant: AppColors.onSurfaceVariant,
+    surfaceContainerLowest: AppColors.scaffold,
+    surfaceContainerLow: AppColors.surface,
+    surfaceContainer: AppColors.surfaceContainer,
+    surfaceContainerHigh: AppColors.elevated,
+    surfaceContainerHighest: AppColors.elevated,
+    error: AppColors.error,
+    onError: AppColors.onError,
+    outline: AppColors.outline,
+    outlineVariant: AppColors.outlineVariant,
+  );
+}
 
 /// Builds the shared dark [ThemeData] used by MaterialApp.
 ThemeData buildAppDarkTheme({
@@ -23,18 +44,22 @@ ThemeData buildAppDarkTheme({
   bool isIOS = false,
 }) {
   final resolvedDisplay = displayFontFamily ?? fontFamily;
+  final colorScheme = _appDarkColorScheme();
+  final onSurface = AppColors.onSurface;
+
   return ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    scaffoldBackgroundColor: AppColors.scaffold,
+    colorScheme: colorScheme,
     typography: Typography.material2021(
       platform: isIOS ? TargetPlatform.iOS : defaultTargetPlatform,
     ),
     fontFamily: fontFamily,
     textTheme: baseTextTheme
         .apply(
-          bodyColor: Colors.white,
-          displayColor: Colors.white,
+          bodyColor: onSurface,
+          displayColor: onSurface,
           fontFamily: fontFamily,
         )
         .copyWith(
@@ -50,79 +75,130 @@ ThemeData buildAppDarkTheme({
               ?.copyWith(fontFamily: resolvedDisplay),
           headlineSmall: baseTextTheme.headlineSmall
               ?.copyWith(fontFamily: resolvedDisplay),
-          bodyLarge: TextStyle(fontWeight: bodyFontWeight),
-          bodyMedium: TextStyle(fontWeight: bodyFontWeight),
-          bodySmall: TextStyle(fontWeight: bodyFontWeight),
+          bodyLarge: TextStyle(fontWeight: bodyFontWeight, color: onSurface),
+          bodyMedium: TextStyle(fontWeight: bodyFontWeight, color: onSurface),
+          bodySmall: TextStyle(
+            fontWeight: bodyFontWeight,
+            color: AppColors.onSurfaceVariant,
+          ),
           titleLarge: TextStyle(
             fontWeight: titleFontWeight,
             fontFamily: resolvedDisplay,
+            color: onSurface,
           ),
           titleMedium: TextStyle(
             fontWeight: titleFontWeight,
             fontFamily: resolvedDisplay,
+            color: onSurface,
           ),
           titleSmall: TextStyle(
             fontWeight: titleFontWeight,
             fontFamily: resolvedDisplay,
+            color: onSurface,
           ),
-          labelLarge: TextStyle(fontWeight: labelFontWeight),
-          labelMedium: TextStyle(fontWeight: labelFontWeight),
-          labelSmall: TextStyle(fontWeight: labelFontWeight),
+          labelLarge: TextStyle(fontWeight: labelFontWeight, color: onSurface),
+          labelMedium: TextStyle(fontWeight: labelFontWeight, color: onSurface),
+          labelSmall: TextStyle(
+            fontWeight: labelFontWeight,
+            color: AppColors.onSurfaceVariant,
+          ),
         ),
     cupertinoOverrideTheme:
         isIOS ? const CupertinoThemeData(brightness: Brightness.dark) : null,
-    colorScheme: const ColorScheme.dark(
-      primary: Colors.blue,
-      surface: Color(0xFF121212),
-    ),
     useMaterial3: true,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1E1E1E),
+      backgroundColor: AppColors.elevated,
+      foregroundColor: AppColors.onSurface,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.elevated,
+      indicatorColor: AppColors.primary.withValues(alpha: 0.24),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          color: selected ? AppColors.primary : AppColors.onSurfaceVariant,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          color: selected ? AppColors.primary : AppColors.onSurfaceVariant,
+        );
+      }),
     ),
     cardTheme: CardThemeData(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: AppRadii.borderLg),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: AppColors.elevated,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: AppRadii.borderLg),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xFF1E1E1E),
+      backgroundColor: AppColors.elevated,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
       ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
+      backgroundColor: AppColors.surfaceContainer,
+      contentTextStyle: const TextStyle(color: AppColors.onSurface),
       shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
         shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.elevated,
+        foregroundColor: AppColors.onSurface,
         shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.onSurface,
+        side: const BorderSide(color: AppColors.outline),
         shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surfaceContainer,
       border: OutlineInputBorder(borderRadius: AppRadii.borderMd),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadii.borderMd,
-        borderSide: const BorderSide(color: Colors.white24),
+        borderSide: const BorderSide(color: AppColors.outline),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppRadii.borderMd,
-        borderSide: const BorderSide(color: Colors.blueAccent),
+        borderSide: const BorderSide(color: AppColors.primary),
       ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: AppRadii.borderMd,
+        borderSide: const BorderSide(color: AppColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: AppRadii.borderMd,
+        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+      ),
+      hintStyle: const TextStyle(color: AppColors.onSurfaceVariant),
+      labelStyle: const TextStyle(color: AppColors.onSurfaceVariant),
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
@@ -140,8 +216,8 @@ ThemeData buildAppDarkTheme({
 ThemeData buildAppBootstrapTheme() {
   return ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF121212),
-    colorScheme: const ColorScheme.dark(primary: Color(0xFF6EA8FF)),
+    scaffoldBackgroundColor: AppColors.scaffold,
+    colorScheme: _appDarkColorScheme(),
     useMaterial3: true,
   );
 }
