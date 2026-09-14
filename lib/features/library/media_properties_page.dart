@@ -75,7 +75,7 @@ class MediaPropertiesPage extends StatelessWidget {
               _Section(
                 title: '库内位置',
                 children: [
-                  _Row(label: '面包屑', value: libraryBreadcrumb),
+                  _Row(label: '所在位置', value: libraryBreadcrumb),
                   _Row(
                     label: '字幕概况',
                     value: _subtitleOverview(item),

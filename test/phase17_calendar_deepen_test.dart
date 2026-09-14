@@ -193,7 +193,8 @@ void main() {
 
       await _pumpCalendar(tester, repo);
 
-      expect(find.text('Phase17 Unit'), findsOneWidget);
+      // medium+ may also show a truncated title peek in the month cell
+      expect(find.text('Phase17 Unit'), findsAtLeastNWidgets(1));
       expect(find.text('开始学'), findsOneWidget);
       expect(find.textContaining('今天'), findsWidgets);
       expect(find.textContaining('有截止'), findsWidgets);

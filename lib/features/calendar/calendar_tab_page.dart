@@ -130,85 +130,74 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
               .toList();
 
           final metrics = _CalendarMetrics.of(context);
+          final monthGrid = _MonthGrid(
+            month: _month,
+            selectedDay: _selectedDay,
+            board: board,
+            cellAspectRatio: metrics.cellAspectRatio,
+            showCellTitle: metrics.showCellTitle,
+            onSelect: (day) {
+              setState(() {
+                _selectedDay = day;
+              });
+            },
+          );
+          final dayDetail = _DayDetailPanel(
+            metrics: metrics,
+            selected: selected,
+            daySlice: daySlice,
+            undated: undated,
+            dense: context.isCompact,
+            onOpenUnit: _openUnit,
+            onStartLearning: _startLearning,
+          );
+
+          if (metrics.useSplitLayout) {
+            // medium+ : calendar (capped width) | day detail side-by-side
+            return Padding(
+              padding: metrics.listPadding,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    flex: 5,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: metrics.calendarMaxWidth,
+                        ),
+                        child: ListView(
+                          children: [
+                            monthGrid,
+                            SizedBox(height: metrics.legendGap),
+                            const _MarkerLegend(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: metrics.splitGap),
+                  Flexible(
+                    flex: 4,
+                    child: ListView(
+                      children: [dayDetail],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // compact: vertical stack (month → legend → day detail)
           return ListView(
             padding: metrics.listPadding,
             children: [
-              _MonthGrid(
-                month: _month,
-                selectedDay: _selectedDay,
-                board: board,
-                onSelect: (day) {
-                  setState(() {
-                    _selectedDay = day;
-                  });
-                },
-              ),
+              monthGrid,
               SizedBox(height: metrics.legendGap),
               const _MarkerLegend(),
               SizedBox(height: metrics.detailGap),
-              Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: metrics.detailMaxWidth),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _DayDetailHeader(
-                        selected: selected,
-                        slice: daySlice,
-                      ),
-                      SizedBox(height: metrics.itemGap),
-                      if (daySlice.units.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: metrics.emptyVertical,
-                            horizontal: 12,
-                          ),
-                          child: const Text(
-                            '该日暂无截止或学习 · 去首页新建单元或设置截止',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppColors.onSurfaceVariant,
-                              fontSize: 13,
-                            ),
-                          ),
-                        )
-                      else
-                        ...daySlice.units.map(
-                          (u) => _CalendarUnitTile(
-                            unit: u,
-                            reason: daySlice.reasonFor(u),
-                            dense: context.isCompact,
-                            onTap: () => _openUnit(u.id),
-                            onStartLearning: u.isIncomplete
-                                ? () => _startLearning(u)
-                                : null,
-                          ),
-                        ),
-                      if (undated.isNotEmpty) ...[
-                        SizedBox(height: metrics.sectionGap),
-                        Text(
-                          '未设截止日期',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.onSurface,
-                              ),
-                        ),
-                        SizedBox(height: metrics.itemGap),
-                        ...undated.map(
-                          (u) => _CalendarUnitTile(
-                            unit: u,
-                            reason: CalendarDayUnitReason.undated,
-                            dense: context.isCompact,
-                            onTap: () => _openUnit(u.id),
-                            onStartLearning: () => _startLearning(u),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
+              dayDetail,
             ],
           );
         },
@@ -227,12 +216,26 @@ class _MonthGrid extends StatelessWidget {
     required this.selectedDay,
     required this.board,
     required this.onSelect,
+    required this.cellAspectRatio,
+    this.showCellTitle = false,
   });
 
   final DateTime month;
   final DateTime? selectedDay;
   final CalendarBoardIndex board;
   final ValueChanged<DateTime> onSelect;
+  final double cellAspectRatio;
+  final bool showCellTitle;
+
+  /// Presentation peek only — first unit title from existing board maps.
+  String? _shortTitleForDay(int dayNum) {
+    if (!showCellTitle) return null;
+    final due = board.dueByDay[dayNum];
+    if (due != null && due.isNotEmpty) return due.first.title;
+    final activity = board.activityByDay[dayNum];
+    if (activity != null && activity.isNotEmpty) return activity.first.title;
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,13 +245,16 @@ class _MonthGrid extends StatelessWidget {
     final totalCells = ((leading + daysInMonth + 6) ~/ 7) * 7;
     final today = DateTime.now();
 
-    return Container(
+    // Surface layer only (scaffold → elevated); no boxShadow / elevation.
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.elevated,
         borderRadius: AppRadii.borderMd,
       ),
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 12),
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 10, 8, 12),
+        child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: const [
@@ -266,10 +272,11 @@ class _MonthGrid extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: totalCells,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
               mainAxisSpacing: 4,
               crossAxisSpacing: 4,
+              childAspectRatio: cellAspectRatio,
             ),
             itemBuilder: (context, index) {
               final dayNum = index - leading + 1;
@@ -278,6 +285,7 @@ class _MonthGrid extends StatelessWidget {
               }
               final date = DateTime(month.year, month.month, dayNum);
               final flags = board.flagsFor(dayNum);
+              final shortTitle = _shortTitleForDay(dayNum);
               final isSelected = selectedDay != null &&
                   selectedDay!.year == date.year &&
                   selectedDay!.month == date.month &&
@@ -303,33 +311,57 @@ class _MonthGrid extends StatelessWidget {
                               )
                             : null),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '$dayNum',
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppColors.onSurface
-                              : AppColors.onSurfaceVariant,
-                          fontWeight:
-                              isToday || isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                          fontSize: 13,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 3, 4, 3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$dayNum',
+                          style: TextStyle(
+                            color: isSelected
+                                ? AppColors.onSurface
+                                : AppColors.onSurfaceVariant,
+                            fontWeight: isToday || isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            fontSize: 13,
+                            height: 1.1,
+                          ),
                         ),
-                      ),
-                      if (!flags.isEmpty) ...[
-                        const SizedBox(height: 3),
-                        _DayMarkers(flags: flags),
+                        if (shortTitle != null)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 1),
+                              child: Text(
+                                shortTitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppColors.onSurfaceVariant
+                                      .withValues(alpha: 0.85),
+                                  fontSize: 10,
+                                  height: 1.15,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          const Spacer(),
+                        if (!flags.isEmpty)
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: _DayMarkers(flags: flags),
+                          ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );
             },
           ),
         ],
+      ),
       ),
     );
   }
@@ -479,6 +511,109 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
+/// Day-detail column shared by compact stack and desktop split pane.
+class _DayDetailPanel extends StatelessWidget {
+  const _DayDetailPanel({
+    required this.metrics,
+    required this.selected,
+    required this.daySlice,
+    required this.undated,
+    required this.dense,
+    required this.onOpenUnit,
+    required this.onStartLearning,
+  });
+
+  final _CalendarMetrics metrics;
+  final DateTime? selected;
+  final CalendarDaySlice daySlice;
+  final List<LearningUnit> undated;
+  final bool dense;
+  final Future<void> Function(String unitId) onOpenUnit;
+  final Future<void> Function(LearningUnit unit) onStartLearning;
+
+  @override
+  Widget build(BuildContext context) {
+    final body = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _DayDetailHeader(
+          selected: selected,
+          slice: daySlice,
+        ),
+        SizedBox(height: metrics.itemGap),
+        if (daySlice.units.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: metrics.emptyVertical,
+              horizontal: 4,
+            ),
+            child: const Text(
+              '该日暂无截止或学习 · 去首页新建单元或设置截止',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.onSurfaceVariant,
+                fontSize: 13,
+              ),
+            ),
+          )
+        else
+          ...daySlice.units.map(
+            (u) => _CalendarUnitTile(
+              unit: u,
+              reason: daySlice.reasonFor(u),
+              dense: dense,
+              itemGap: metrics.itemGap,
+              tilePadding: metrics.tilePadding,
+              onTap: () => onOpenUnit(u.id),
+              onStartLearning:
+                  u.isIncomplete ? () => onStartLearning(u) : null,
+            ),
+          ),
+        if (undated.isNotEmpty) ...[
+          SizedBox(height: metrics.sectionGap),
+          Text(
+            '未设截止日期',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurface,
+                ),
+          ),
+          SizedBox(height: metrics.itemGap),
+          ...undated.map(
+            (u) => _CalendarUnitTile(
+              unit: u,
+              reason: CalendarDayUnitReason.undated,
+              dense: dense,
+              itemGap: metrics.itemGap,
+              tilePadding: metrics.tilePadding,
+              onTap: () => onOpenUnit(u.id),
+              onStartLearning: () => onStartLearning(u),
+            ),
+          ),
+        ],
+      ],
+    );
+
+    // Secondary surface + lg radius — layered chrome, no drop shadow.
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: metrics.detailMaxWidth),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainer,
+            borderRadius: AppRadii.borderLg,
+          ),
+          child: Padding(
+            padding: metrics.panelPadding,
+            child: body,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DayDetailHeader extends StatelessWidget {
   const _DayDetailHeader({required this.selected, required this.slice});
 
@@ -545,6 +680,8 @@ class _CalendarUnitTile extends StatelessWidget {
     this.reason = CalendarDayUnitReason.due,
     this.onStartLearning,
     this.dense = false,
+    this.itemGap = 8,
+    this.tilePadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
   });
 
   final LearningUnit unit;
@@ -552,6 +689,10 @@ class _CalendarUnitTile extends StatelessWidget {
   final CalendarDayUnitReason reason;
   final VoidCallback? onStartLearning;
   final bool dense;
+  /// Matches U3 home [_HomeCardMetrics.itemGap] between cards.
+  final double itemGap;
+  /// Horizontal/vertical inset aligned with U3 unit-card density.
+  final EdgeInsets tilePadding;
 
   @override
   Widget build(BuildContext context) {
@@ -566,7 +707,7 @@ class _CalendarUnitTile extends StatelessWidget {
     ];
 
     return Padding(
-      padding: EdgeInsets.only(bottom: dense ? 6 : 8),
+      padding: EdgeInsets.only(bottom: itemGap),
       child: Material(
         color: AppColors.elevated,
         elevation: 0,
@@ -574,10 +715,11 @@ class _CalendarUnitTile extends StatelessWidget {
         borderRadius: AppRadii.borderMd,
         child: ListTile(
           dense: dense,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: dense ? 10 : 14,
-            vertical: dense ? 0 : 2,
-          ),
+          visualDensity: dense
+              ? VisualDensity.compact
+              : VisualDensity.standard,
+          contentPadding: tilePadding,
+          minVerticalPadding: dense ? 4 : 8,
           shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
           onTap: onTap,
           leading: _reasonIcon(reason, unit),
@@ -585,12 +727,16 @@ class _CalendarUnitTile extends StatelessWidget {
             unit.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: AppColors.onSurface),
+            style: const TextStyle(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+            ),
           ),
           subtitle: Text(
             subtitleParts.join(' · '),
-            style: const TextStyle(
-              color: AppColors.onSurfaceVariant,
+            style: TextStyle(
+              color: AppColors.onSurfaceVariant.withValues(alpha: 0.85),
               fontSize: 12,
             ),
           ),
@@ -599,9 +745,13 @@ class _CalendarUnitTile extends StatelessWidget {
                   onPressed: onStartLearning,
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(0, 36),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: dense ? 6 : 10,
+                      vertical: 0,
+                    ),
+                    minimumSize: Size(0, dense ? 32 : 36),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
                   ),
                   child: const Text('开始学'),
                 )
@@ -643,7 +793,8 @@ class _CalendarUnitTile extends StatelessWidget {
   }
 }
 
-/// Responsive calendar density — tighter day detail on phone, wider on desktop.
+/// Responsive calendar density — split pane on medium+, stack on phone.
+/// [itemGap] / [tilePadding] mirror U3 home [_HomeCardMetrics] card density.
 class _CalendarMetrics {
   const _CalendarMetrics({
     required this.listPadding,
@@ -653,6 +804,13 @@ class _CalendarMetrics {
     required this.sectionGap,
     required this.emptyVertical,
     required this.detailMaxWidth,
+    required this.calendarMaxWidth,
+    required this.cellAspectRatio,
+    required this.useSplitLayout,
+    required this.splitGap,
+    required this.showCellTitle,
+    required this.panelPadding,
+    required this.tilePadding,
   });
 
   final EdgeInsets listPadding;
@@ -662,6 +820,17 @@ class _CalendarMetrics {
   final double sectionGap;
   final double emptyVertical;
   final double detailMaxWidth;
+  /// Cap so the 7-col grid does not stretch across the full desktop width.
+  final double calendarMaxWidth;
+  /// width/height — >1 flattens cells (avoids giant squares on wide screens).
+  final double cellAspectRatio;
+  final bool useSplitLayout;
+  final double splitGap;
+  final bool showCellTitle;
+  /// Inset inside the day-detail surfaceContainer panel.
+  final EdgeInsets panelPadding;
+  /// ListTile content padding — aligned with U3 unit-card padding.
+  final EdgeInsets tilePadding;
 
   static _CalendarMetrics of(BuildContext context) {
     if (context.isCompact) {
@@ -669,10 +838,17 @@ class _CalendarMetrics {
         listPadding: EdgeInsets.fromLTRB(10, 6, 10, 20),
         legendGap: 8,
         detailGap: 12,
-        itemGap: 6,
-        sectionGap: 16,
-        emptyVertical: 16,
+        itemGap: 8, // U3 compact card gap
+        sectionGap: 20,
+        emptyVertical: 22,
         detailMaxWidth: double.infinity,
+        calendarMaxWidth: double.infinity,
+        cellAspectRatio: 1.15,
+        useSplitLayout: false,
+        splitGap: 0,
+        showCellTitle: false,
+        panelPadding: EdgeInsets.fromLTRB(12, 12, 12, 10),
+        tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       );
     }
     if (context.isExpanded) {
@@ -680,20 +856,35 @@ class _CalendarMetrics {
         listPadding: EdgeInsets.fromLTRB(24, 12, 24, 32),
         legendGap: 12,
         detailGap: 20,
-        itemGap: 10,
-        sectionGap: 24,
-        emptyVertical: 24,
-        detailMaxWidth: 720,
+        itemGap: 12, // U3 expanded card gap
+        sectionGap: 28,
+        emptyVertical: 32,
+        detailMaxWidth: double.infinity,
+        calendarMaxWidth: 880,
+        cellAspectRatio: 1.5,
+        useSplitLayout: true,
+        splitGap: 20,
+        showCellTitle: true,
+        panelPadding: EdgeInsets.fromLTRB(18, 16, 18, 14),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       );
     }
+    // medium (tablet / narrow desktop)
     return const _CalendarMetrics(
       listPadding: EdgeInsets.fromLTRB(14, 8, 14, 24),
       legendGap: 10,
       detailGap: 16,
-      itemGap: 8,
-      sectionGap: 20,
-      emptyVertical: 20,
-      detailMaxWidth: 560,
+      itemGap: 10, // U3 medium card gap
+      sectionGap: 24,
+      emptyVertical: 28,
+      detailMaxWidth: double.infinity,
+      calendarMaxWidth: 720,
+      cellAspectRatio: 1.4,
+      useSplitLayout: true,
+      splitGap: 16,
+      showCellTitle: true,
+      panelPadding: EdgeInsets.fromLTRB(14, 14, 14, 12),
+      tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
     );
   }
 }
