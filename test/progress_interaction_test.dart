@@ -118,7 +118,7 @@ void main() {
     );
     final playbackService = MediaPlaybackService();
     final videoShot = BilibiliVideoShot(
-      spritePaths: const ['assets/icon/fluent-player.png'],
+      spritePaths: const ['assets/icon/fluent-learning.png'],
       timestampsSeconds: const [0, 40],
       columns: 2,
       rows: 1,

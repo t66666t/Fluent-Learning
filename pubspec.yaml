@@ -237,17 +237,20 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/fluent-player.png"
+  image_path: "assets/icon/fluent-learning.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/icon/fluent-player.png"
+    image_path: "assets/icon/fluent-learning.png"
     background_color: "#000000"
     theme_color: "#000000"
   windows:
     generate: true
-    image_path: "assets/icon/fluent-player.png"
+    image_path: "assets/icon/fluent-learning.png"
     icon_size: 256
   macos:
     generate: true
-    image_path: "assets/icon/fluent-player.png"
+    image_path: "assets/icon/fluent-learning.png"
+  linux:
+    generate: true
+    image_path: "assets/icon/fluent-learning.png"
