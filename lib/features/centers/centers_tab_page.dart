@@ -87,7 +87,7 @@ class _CentersTabPageState extends State<CentersTabPage> {
             icon: Icons.tune,
             iconColor: Colors.tealAccent,
             title: '处理中心',
-            subtitle: '批量字幕 / 转录队列',
+            subtitle: '批量字幕 / OCR / 合成 / 转录队列',
             onTap: () => _open(
               const ProcessingCenterPage(),
               name: '/processing_center',

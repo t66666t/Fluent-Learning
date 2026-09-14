@@ -157,7 +157,7 @@ class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
             icon: Icons.auto_awesome_outlined,
             iconColor: Colors.tealAccent,
             title: '处理中心',
-            subtitle: '转录与处理任务队列',
+            subtitle: '批量字幕 / OCR / 合成 / 转录队列',
             onTap: () => _openRoute(
               context,
               page: const ProcessingCenterPage(),

@@ -1,22 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/core/theme_tokens.dart';
+import 'package:fluent_learning/features/centers/ocr_subtitle_entry_page.dart';
+import 'package:fluent_learning/features/centers/video_compose_entry_page.dart';
 import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
 import 'package:fluent_learning/system/processing_center/processing_center.dart';
-import 'package:fluent_learning/core/theme_tokens.dart';
 
-/// Processing Center — live queue list mirrored from TranscriptionManager.
+/// Processing Center — capability entries + live queue from TranscriptionManager.
 class ProcessingCenterPage extends StatelessWidget {
   const ProcessingCenterPage({super.key, this.collectionId});
 
   final String? collectionId;
 
-  void _openBatchSubtitle(BuildContext context) {
+  void _open(BuildContext context, Widget page, {required String name}) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => BatchSubtitleScreen(collectionId: collectionId),
-        settings: const RouteSettings(name: '/batch_subtitle'),
+        builder: (_) => page,
+        settings: RouteSettings(name: name),
       ),
+    );
+  }
+
+  void _openBatchSubtitle(BuildContext context) {
+    _open(
+      context,
+      BatchSubtitleScreen(collectionId: collectionId),
+      name: '/batch_subtitle',
+    );
+  }
+
+  void _openOcr(BuildContext context) {
+    _open(
+      context,
+      const OcrSubtitleEntryPage(),
+      name: OcrSubtitleEntryPage.routeName,
+    );
+  }
+
+  void _openCompose(BuildContext context) {
+    _open(
+      context,
+      const VideoComposeEntryPage(),
+      name: VideoComposeEntryPage.routeName,
     );
   }
 
@@ -28,12 +54,6 @@ class ProcessingCenterPage extends StatelessWidget {
         title: const Text('处理中心'),
         backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
-        actions: [
-          TextButton(
-            onPressed: () => _openBatchSubtitle(context),
-            child: const Text('批量字幕'),
-          ),
-        ],
       ),
       body: Consumer<ProcessingCenter>(
         builder: (context, center, _) {
@@ -43,39 +63,107 @@ class ProcessingCenterPage extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _StatChip(
-                      label: '排队 ${center.queuedCount}',
-                      color: Colors.orangeAccent,
+                    const Text(
+                      '能力入口',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    _StatChip(
-                      label: '进行 ${center.runningCount}',
-                      color: Colors.lightBlueAccent,
+                    const SizedBox(height: 8),
+                    _CapabilityRow(
+                      children: [
+                        _CapabilityCard(
+                          icon: Icons.subtitles_outlined,
+                          iconColor: Colors.tealAccent,
+                          title: '批量字幕',
+                          subtitle: '转录队列批量入队',
+                          onTap: () => _openBatchSubtitle(context),
+                        ),
+                        _CapabilityCard(
+                          icon: Icons.document_scanner_outlined,
+                          iconColor: Colors.orangeAccent,
+                          title: 'OCR',
+                          subtitle: '区域识别生成字幕',
+                          onTap: () => _openOcr(context),
+                        ),
+                        _CapabilityCard(
+                          icon: Icons.movie_filter_outlined,
+                          iconColor: Colors.purpleAccent,
+                          title: '合成',
+                          subtitle: '字幕烧录 / 导出',
+                          onTap: () => _openCompose(context),
+                        ),
+                      ],
                     ),
-                    _StatChip(
-                      label: '成功 ${center.successCount}',
-                      color: Colors.tealAccent,
-                    ),
-                    _StatChip(
-                      label: '失败 ${center.failedCount}',
-                      color: Colors.redAccent,
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _StatChip(
+                          label: '排队 ${center.queuedCount}',
+                          color: Colors.orangeAccent,
+                        ),
+                        _StatChip(
+                          label: '进行 ${center.runningCount}',
+                          color: Colors.lightBlueAccent,
+                        ),
+                        _StatChip(
+                          label: '成功 ${center.successCount}',
+                          color: Colors.tealAccent,
+                        ),
+                        _StatChip(
+                          label: '失败 ${center.failedCount}',
+                          color: Colors.redAccent,
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
               const Divider(height: 1, color: Colors.white12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+                child: Row(
+                  children: [
+                    const Text(
+                      '处理队列',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${jobs.length} 项',
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: jobs.isEmpty
                     ? const Center(
                         child: Padding(
                           padding: EdgeInsets.all(24),
                           child: Text(
-                            '暂无处理任务\n播放页「生成 AI 字幕」入队后会显示在这里',
+                            '暂无处理任务\n'
+                            '播放页「生成 AI 字幕」或上方「批量字幕」入队后会显示在这里',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white38, fontSize: 13),
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
                           ),
                         ),
                       )
@@ -85,7 +173,8 @@ class ProcessingCenterPage extends StatelessWidget {
                           vertical: 8,
                         ),
                         itemCount: jobs.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 8),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           return _JobTile(job: jobs[index]);
                         },
@@ -94,6 +183,106 @@ class ProcessingCenterPage extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _CapabilityRow extends StatelessWidget {
+  const _CapabilityRow({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 520;
+        if (wide) {
+          return Row(
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(child: children[i]),
+              ],
+            ],
+          );
+        }
+        return Column(
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              children[i],
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CapabilityCard extends StatelessWidget {
+  const _CapabilityCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF1E1E1E),
+      borderRadius: AppRadii.borderMd,
+      child: InkWell(
+        borderRadius: AppRadii.borderMd,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: iconColor.withValues(alpha: 0.16),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+            ],
+          ),
+        ),
       ),
     );
   }
