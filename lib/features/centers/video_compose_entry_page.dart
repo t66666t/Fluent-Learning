@@ -105,10 +105,10 @@ class _VideoComposeEntryPageState extends State<VideoComposeEntryPage>
     final banner = buildInlineFeedbackBanner(dense: true);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: Text(item == null ? '视频合成' : '合成 · ${item.effectiveDisplayName}'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
         actions: [
           if (item != null)
@@ -164,26 +164,26 @@ class _EmptyPicker extends StatelessWidget {
             Icon(
               Icons.movie_filter_outlined,
               size: 48,
-              color: Colors.purpleAccent.withValues(alpha: 0.85),
+              color: AppColors.primary,
             ),
             const SizedBox(height: 16),
             const Text(
               '从媒体库选择视频，配置字幕轨后导出合成成品',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
+              style: TextStyle(color: AppColors.onSurface, fontSize: 14, height: 1.4),
             ),
             const SizedBox(height: 8),
             const Text(
               '不改动合成引擎；此处仅作为处理中心二级入口',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onPick,
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.purpleAccent.withValues(alpha: 0.9),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: AppRadii.borderMd,
                 ),

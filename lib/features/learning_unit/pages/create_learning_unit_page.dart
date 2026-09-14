@@ -67,8 +67,9 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.blue,
-              surface: Color(0xFF1E1E1E),
+              primary: AppColors.primary,
+              surface: AppColors.elevated,
+              onPrimary: AppColors.onPrimary,
             ),
           ),
           child: child ?? const SizedBox.shrink(),
@@ -150,10 +151,10 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
         (_mediaIds.isNotEmpty || _folderIds.isNotEmpty);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('新建学习单元'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
       ),
       body: ListView(
@@ -161,15 +162,17 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
         children: [
           TextField(
             controller: _titleController,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
+            style: const TextStyle(color: AppColors.onSurface),
+            decoration: InputDecoration(
               labelText: '标题',
-              labelStyle: TextStyle(color: Colors.white54),
+              labelStyle: const TextStyle(color: AppColors.onSurfaceVariant),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24),
+                borderRadius: AppRadii.borderMd,
+                borderSide: const BorderSide(color: AppColors.outline),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blueAccent),
+                borderRadius: AppRadii.borderMd,
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
             onChanged: (_) => setState(() {}),
@@ -177,16 +180,18 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
           const SizedBox(height: 16),
           TextField(
             controller: _notesController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.onSurface),
             maxLines: 3,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: '备注（可选）',
-              labelStyle: TextStyle(color: Colors.white54),
+              labelStyle: const TextStyle(color: AppColors.onSurfaceVariant),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24),
+                borderRadius: AppRadii.borderMd,
+                borderSide: const BorderSide(color: AppColors.outline),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blueAccent),
+                borderRadius: AppRadii.borderMd,
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
           ),
@@ -216,7 +221,7 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
                     onPressed: _saving
                         ? null
                         : () => setState(() => _dueDate = null),
-                    icon: const Icon(Icons.clear, color: Colors.white38),
+                    icon: const Icon(Icons.clear, color: AppColors.onSurfaceVariant),
                   ),
             onTap: _saving ? null : _pickDueDate,
           ),
@@ -225,6 +230,8 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
             onPressed: canSave ? _save : null,
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: AppRadii.borderMd,
               ),
@@ -265,16 +272,20 @@ class _ActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       borderRadius: AppRadii.borderMd,
       child: InkWell(
         borderRadius: AppRadii.borderMd,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           child: Row(
             children: [
-              Icon(icon, color: Colors.lightBlueAccent),
+              Icon(icon, color: AppColors.primary),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -283,7 +294,7 @@ class _ActionTile extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -291,7 +302,7 @@ class _ActionTile extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
@@ -299,7 +310,7 @@ class _ActionTile extends StatelessWidget {
                 ),
               ),
               ?trailing,
-              const Icon(Icons.chevron_right, color: Colors.white38),
+              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
             ],
           ),
         ),

@@ -8,6 +8,7 @@ import 'package:fluent_learning/services/library_service.dart';
 import 'package:fluent_learning/services/playback_navigation_service.dart';
 import 'package:fluent_learning/services/playlist_manager.dart';
 import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Detail / execution page: item list, progress, open playback, mark complete.
 class LearningUnitDetailPage extends StatefulWidget {
@@ -155,16 +156,16 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
         final unit = repo.getById(widget.unitId);
         if (unit == null) {
           return Scaffold(
-            backgroundColor: const Color(0xFF121212),
+            backgroundColor: AppColors.scaffold,
             appBar: AppBar(
               title: const Text('学习单元'),
-              backgroundColor: const Color(0xFF1E1E1E),
+              backgroundColor: AppColors.elevated,
               elevation: 0,
             ),
             body: const Center(
               child: Text(
                 '单元不存在或已删除',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(color: AppColors.onSurfaceVariant),
               ),
             ),
           );
@@ -178,10 +179,10 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
         final banner = buildInlineFeedbackBanner(dense: true);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF121212),
+          backgroundColor: AppColors.scaffold,
           appBar: AppBar(
             title: Text(unit.title),
-            backgroundColor: const Color(0xFF1E1E1E),
+            backgroundColor: AppColors.elevated,
             elevation: 0,
             actions: [
               PopupMenuButton<_UnitAction>(
@@ -232,113 +233,128 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
                 ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: Material(
+                  color: AppColors.elevated,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  borderRadius: AppRadii.borderMd,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _StatusChip(status: unit.status),
-                        const SizedBox(width: 10),
-                        Text(
-                          '$percentLabel · $completedCount/${mediaIds.length}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    InkWell(
-                      onTap: () => _editDueDate(repo, unit),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
+                        Row(
                           children: [
-                            Icon(
-                              Icons.event,
-                              size: 16,
-                              color: unit.schedule.dueDate == null
-                                  ? Colors.white38
-                                  : _dueColor(unit.schedule.dueDate!),
-                            ),
-                            const SizedBox(width: 6),
+                            _StatusChip(status: unit.status),
+                            const SizedBox(width: 10),
                             Text(
-                              unit.schedule.dueDate == null
-                                  ? '点击设置截止日期'
-                                  : '截止 ${_fmtDate(unit.schedule.dueDate!)}',
-                              style: TextStyle(
-                                color: unit.schedule.dueDate == null
-                                    ? Colors.white38
-                                    : _dueColor(unit.schedule.dueDate!),
+                              '$percentLabel · $completedCount/${mediaIds.length}',
+                              style: const TextStyle(
+                                color: AppColors.onSurface,
                                 fontSize: 13,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.edit,
-                              size: 14,
-                              color: Colors.white24,
-                            ),
                           ],
                         ),
-                      ),
-                    ),
-                    if (unit.notes != null && unit.notes!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        unit.notes!,
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: unit.progress.percent.clamp(0.0, 1.0),
-                        minHeight: 6,
-                        backgroundColor: Colors.white12,
-                      ),
-                    ),
-                    if (nextId != null && library.getVideo(nextId) != null) ...[
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () =>
-                              _continueNext(repo, library, unit),
-                          icon: const Icon(Icons.play_arrow, size: 20),
-                          label: const Text('继续学习'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E88E5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () => _editDueDate(repo, unit),
+                          borderRadius: AppRadii.borderSm,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.event,
+                                  size: 16,
+                                  color: unit.schedule.dueDate == null
+                                      ? AppColors.onSurfaceVariant
+                                      : _dueColor(unit.schedule.dueDate!),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  unit.schedule.dueDate == null
+                                      ? '点击设置截止日期'
+                                      : '截止 ${_fmtDate(unit.schedule.dueDate!)}',
+                                  style: TextStyle(
+                                    color: unit.schedule.dueDate == null
+                                        ? AppColors.onSurfaceVariant
+                                        : _dueColor(unit.schedule.dueDate!),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.edit,
+                                  size: 14,
+                                  color: AppColors.outline,
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ],
+                        if (unit.notes != null && unit.notes!.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            unit.notes!,
+                            style: const TextStyle(
+                              color: AppColors.onSurfaceVariant,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: LinearProgressIndicator(
+                            value: unit.progress.percent.clamp(0.0, 1.0),
+                            minHeight: 6,
+                            backgroundColor: AppColors.outlineVariant,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        if (nextId != null &&
+                            library.getVideo(nextId) != null) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () =>
+                                  _continueNext(repo, library, unit),
+                              icon: const Icon(Icons.play_arrow, size: 20),
+                              label: const Text('继续学习'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.onPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppRadii.borderMd,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const Divider(height: 1, color: Colors.white12),
+              const Divider(height: 1, color: AppColors.outlineVariant),
               Expanded(
                 child: mediaIds.isEmpty
                     ? const Center(
                         child: Text(
                           '暂无媒体（文件夹可能为空或已删除）',
-                          style: TextStyle(color: Colors.white54),
+                          style: TextStyle(color: AppColors.onSurfaceVariant),
                         ),
                       )
                     : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 8,
+                        ),
                         itemCount: mediaIds.length,
                         separatorBuilder: (_, _) =>
-                            const Divider(height: 1, color: Colors.white10),
+                            const SizedBox(height: 6),
                         itemBuilder: (context, index) {
                           final id = mediaIds[index];
                           final video = library.getVideo(id);
@@ -353,84 +369,98 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
                           final duration =
                               _durationLabel(video?.durationMs ?? 0);
 
-                          return ListTile(
-                            leading: Icon(
-                              done
-                                  ? Icons.check_circle
-                                  : Icons.play_circle_outline,
-                              color: done
-                                  ? Colors.greenAccent
-                                  : Colors.lightBlueAccent,
-                            ),
-                            title: Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: done ? Colors.white54 : Colors.white,
-                                decoration: done
-                                    ? TextDecoration.lineThrough
-                                    : null,
+                          return Material(
+                            color: AppColors.elevated,
+                            elevation: 0,
+                            shadowColor: Colors.transparent,
+                            borderRadius: AppRadii.borderMd,
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppRadii.borderMd,
                               ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (duration.isNotEmpty)
-                                    Text(
-                                      duration,
-                                      style: const TextStyle(
-                                        color: Colors.white38,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(3),
-                                          child: LinearProgressIndicator(
-                                            value: itemRatio.clamp(0.0, 1.0),
-                                            minHeight: 4,
-                                            backgroundColor: Colors.white12,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
+                              leading: Icon(
+                                done
+                                    ? Icons.check_circle
+                                    : Icons.play_circle_outline,
+                                color: done
+                                    ? AppColors.success
+                                    : AppColors.primary,
+                              ),
+                              title: Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: done
+                                      ? AppColors.onSurfaceVariant
+                                      : AppColors.onSurface,
+                                  decoration: done
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (duration.isNotEmpty)
                                       Text(
-                                        '$itemPct%',
+                                        duration,
                                         style: const TextStyle(
-                                          color: Colors.white54,
+                                          color: AppColors.onSurfaceVariant,
                                           fontSize: 12,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            isThreeLine: true,
-                            trailing: (done && !manual)
-                                ? const Icon(
-                                    Icons.check,
-                                    color: Colors.white24,
-                                  )
-                                : IconButton(
-                                    tooltip: done ? '取消完成' : '标记完成',
-                                    icon: Icon(
-                                      done ? Icons.undo : Icons.check,
-                                      color: Colors.white38,
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(3),
+                                            child: LinearProgressIndicator(
+                                              value:
+                                                  itemRatio.clamp(0.0, 1.0),
+                                              minHeight: 4,
+                                              backgroundColor:
+                                                  AppColors.outlineVariant,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '$itemPct%',
+                                          style: const TextStyle(
+                                            color: AppColors.onSurfaceVariant,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    onPressed: () =>
-                                        _toggleLeafComplete(repo, id, done),
-                                  ),
-                            onTap: video == null
-                                ? null
-                                : () => _openPlayback(video),
+                                  ],
+                                ),
+                              ),
+                              isThreeLine: true,
+                              trailing: (done && !manual)
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: AppColors.outline,
+                                    )
+                                  : IconButton(
+                                      tooltip: done ? '取消完成' : '标记完成',
+                                      icon: Icon(
+                                        done ? Icons.undo : Icons.check,
+                                        color: AppColors.onSurfaceVariant,
+                                      ),
+                                      onPressed: () =>
+                                          _toggleLeafComplete(repo, id, done),
+                                    ),
+                              onTap: video == null
+                                  ? null
+                                  : () => _openPlayback(video),
+                            ),
                           );
                         },
                       ),
@@ -461,8 +491,9 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Colors.blue,
-              surface: Color(0xFF1E1E1E),
+              primary: AppColors.primary,
+              surface: AppColors.elevated,
+              onPrimary: AppColors.onPrimary,
             ),
           ),
           child: child ?? const SizedBox.shrink(),
@@ -489,9 +520,9 @@ class _LearningUnitDetailPageState extends State<LearningUnitDetailPage>
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dueDay = DateTime(due.year, due.month, due.day);
-    if (dueDay.isBefore(today)) return Colors.redAccent;
-    if (dueDay.difference(today).inDays <= 2) return Colors.orangeAccent;
-    return Colors.white54;
+    if (dueDay.isBefore(today)) return AppColors.error;
+    if (dueDay.difference(today).inDays <= 2) return AppColors.warning;
+    return AppColors.onSurfaceVariant;
   }
 
   static String _durationLabel(int ms) {
@@ -520,12 +551,12 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(6),
+        color: AppColors.outlineVariant,
+        borderRadius: AppRadii.borderSm,
       ),
       child: Text(
         status.labelZh,
-        style: const TextStyle(color: Colors.white70, fontSize: 12),
+        style: const TextStyle(color: AppColors.onSurface, fontSize: 12),
       ),
     );
   }

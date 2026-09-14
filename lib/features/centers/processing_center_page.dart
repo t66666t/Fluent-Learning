@@ -5,6 +5,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/app/responsive.dart';
 import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/features/centers/ocr_subtitle_entry_page.dart';
 import 'package:fluent_learning/features/centers/video_compose_entry_page.dart';
@@ -123,11 +124,18 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
 
   @override
   Widget build(BuildContext context) {
+    final headerPad = context.isCompact
+        ? const EdgeInsets.fromLTRB(12, 10, 12, 8)
+        : context.isExpanded
+            ? const EdgeInsets.fromLTRB(24, 16, 24, 10)
+            : const EdgeInsets.fromLTRB(16, 12, 16, 8);
+    final listHPad = context.isCompact ? 10.0 : (context.isExpanded ? 20.0 : 12.0);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('处理中心'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
       ),
       body: Consumer<ProcessingCenter>(
@@ -138,7 +146,7 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                padding: headerPad,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -149,7 +157,7 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                     const Text(
                       '能力入口',
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -159,21 +167,21 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                       children: [
                         _CapabilityCard(
                           icon: Icons.subtitles_outlined,
-                          iconColor: Colors.tealAccent,
+                          iconColor: AppColors.success,
                           title: '批量字幕',
                           subtitle: '转录队列批量入队',
                           onTap: () => _openBatchSubtitle(context),
                         ),
                         _CapabilityCard(
                           icon: Icons.document_scanner_outlined,
-                          iconColor: Colors.orangeAccent,
+                          iconColor: AppColors.warning,
                           title: 'OCR',
                           subtitle: '区域识别生成字幕',
                           onTap: () => _openOcr(context),
                         ),
                         _CapabilityCard(
                           icon: Icons.movie_filter_outlined,
-                          iconColor: Colors.purpleAccent,
+                          iconColor: const Color(0xFFB39DDB),
                           title: '合成',
                           subtitle: '字幕烧录 / 导出',
                           onTap: () => _openCompose(context),
@@ -187,34 +195,39 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                       children: [
                         _StatChip(
                           label: '排队 ${center.queuedCount}',
-                          color: Colors.orangeAccent,
+                          color: AppColors.warning,
                         ),
                         _StatChip(
                           label: '进行 ${center.runningCount}',
-                          color: Colors.lightBlueAccent,
+                          color: AppColors.primary,
                         ),
                         _StatChip(
                           label: '成功 ${center.successCount}',
-                          color: Colors.tealAccent,
+                          color: AppColors.success,
                         ),
                         _StatChip(
                           label: '失败 ${center.failedCount}',
-                          color: Colors.redAccent,
+                          color: AppColors.error,
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, color: Colors.white12),
+              const Divider(height: 1, color: AppColors.outlineVariant),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+                padding: EdgeInsets.fromLTRB(
+                  headerPad.left,
+                  10,
+                  headerPad.right,
+                  4,
+                ),
                 child: Row(
                   children: [
                     const Text(
                       '处理队列',
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -223,7 +236,7 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                     Text(
                       '${jobs.length} 项',
                       style: const TextStyle(
-                        color: Colors.white38,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -240,7 +253,7 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                             '播放页「生成 AI 字幕」或上方「批量字幕」入队后会显示在这里',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white38,
+                              color: AppColors.onSurfaceVariant,
                               fontSize: 13,
                               height: 1.4,
                             ),
@@ -248,8 +261,8 @@ class _ProcessingCenterPageState extends State<ProcessingCenterPage>
                         ),
                       )
                     : ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: listHPad,
                           vertical: 8,
                         ),
                         itemCount: jobs.length,
@@ -329,10 +342,14 @@ class _CapabilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       borderRadius: AppRadii.borderMd,
       child: InkWell(
         borderRadius: AppRadii.borderMd,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -351,7 +368,7 @@ class _CapabilityCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -362,14 +379,18 @@ class _CapabilityCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 11,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.onSurfaceVariant,
+                size: 18,
+              ),
             ],
           ),
         ),
@@ -424,32 +445,36 @@ class _JobTile extends StatelessWidget {
     final IconData icon;
     switch (phase) {
       case ProcessingJobPhase.queued:
-        accent = Colors.orangeAccent;
+        accent = AppColors.warning;
         phaseLabel = '排队';
         icon = Icons.hourglass_empty;
         break;
       case ProcessingJobPhase.running:
-        accent = Colors.lightBlueAccent;
+        accent = AppColors.primary;
         phaseLabel = '进行中';
         icon = Icons.play_circle_outline;
         break;
       case ProcessingJobPhase.success:
-        accent = Colors.tealAccent;
+        accent = AppColors.success;
         phaseLabel = '成功';
         icon = Icons.check_circle_outline;
         break;
       case ProcessingJobPhase.failed:
-        accent = Colors.redAccent;
+        accent = AppColors.error;
         phaseLabel = '失败';
         icon = Icons.error_outline;
         break;
     }
 
     return Material(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       borderRadius: AppRadii.borderMd,
       child: InkWell(
         borderRadius: AppRadii.borderMd,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onOpenResult,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -466,7 +491,7 @@ class _JobTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -494,7 +519,7 @@ class _JobTile extends StatelessWidget {
               Text(
                 'ID  ${job.id}',
                 style: const TextStyle(
-                  color: Colors.white38,
+                  color: AppColors.onSurfaceVariant,
                   fontSize: 11,
                   fontFamily: 'monospace',
                 ),
@@ -505,19 +530,22 @@ class _JobTile extends StatelessWidget {
                   job.message,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
               ],
               if (phase == ProcessingJobPhase.running) ...[
                 const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(3),
                   child: LinearProgressIndicator(
                     value: job.progress > 0 && job.progress <= 1
                         ? job.progress
                         : null,
                     minHeight: 4,
-                    backgroundColor: Colors.white12,
+                    backgroundColor: AppColors.outlineVariant,
                     color: accent,
                   ),
                 ),
@@ -532,8 +560,8 @@ class _JobTile extends StatelessWidget {
                         icon: const Icon(Icons.refresh, size: 16),
                         label: const Text('重试'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.redAccent,
-                          side: const BorderSide(color: Colors.redAccent),
+                          foregroundColor: AppColors.error,
+                          side: const BorderSide(color: AppColors.error),
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -548,7 +576,7 @@ class _JobTile extends StatelessWidget {
                         icon: const Icon(Icons.open_in_new, size: 16),
                         label: const Text('查看结果'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.tealAccent,
+                          foregroundColor: AppColors.success,
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,

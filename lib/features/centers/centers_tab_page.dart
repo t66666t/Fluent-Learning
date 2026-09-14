@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/app/responsive.dart';
 import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/features/centers/download_center_page.dart';
 import 'package:fluent_learning/features/centers/model_center_page.dart';
@@ -63,19 +64,36 @@ class _CentersTabPageState extends State<CentersTabPage>
     );
   }
 
+  EdgeInsets _listPadding(BuildContext context) {
+    if (context.isCompact) {
+      return const EdgeInsets.fromLTRB(12, 12, 12, 20);
+    }
+    if (context.isExpanded) {
+      return const EdgeInsets.fromLTRB(24, 20, 24, 32);
+    }
+    return const EdgeInsets.fromLTRB(16, 16, 16, 24);
+  }
+
+  double _cardGap(BuildContext context) {
+    if (context.isCompact) return 8;
+    if (context.isExpanded) return 14;
+    return 12;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final metrics = _HallCardMetrics.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('中心'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
         actions: [
           PopupMenuButton<_CentersMenuAction>(
             tooltip: '更多',
-            icon: const Icon(Icons.more_vert, color: Colors.white54),
-            color: const Color(0xFF2A2A2A),
+            icon: const Icon(Icons.more_vert, color: AppColors.onSurfaceVariant),
+            color: AppColors.surfaceContainer,
             onSelected: (action) {
               if (action == _CentersMenuAction.trialPicker) {
                 _openTrialPicker();
@@ -87,11 +105,14 @@ class _CentersTabPageState extends State<CentersTabPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('试用选片', style: TextStyle(color: Colors.white70)),
+                    const Text(
+                      '试用选片',
+                      style: TextStyle(color: AppColors.onSurface),
+                    ),
                     Text(
                       _trialPickerSummary,
                       style: const TextStyle(
-                        color: Colors.white38,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 11,
                       ),
                     ),
@@ -115,72 +136,78 @@ class _CentersTabPageState extends State<CentersTabPage>
           final activeTranscription = models.resolve(ModelKind.transcription);
 
           final feedback = buildInlineFeedbackBanner(dense: true);
+          final gap = _cardGap(context);
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (feedback != null) ...[
-                feedback,
-                const SizedBox(height: 12),
+          return _FadeSlideIn(
+            child: ListView(
+              padding: _listPadding(context),
+              children: [
+                if (feedback != null) ...[
+                  feedback,
+                  SizedBox(height: gap),
+                ],
+                _HallCard(
+                  metrics: metrics,
+                  icon: Icons.psychology_outlined,
+                  iconColor: const Color(0xFFB39DDB),
+                  title: '模型中心',
+                  subtitle: '转录 / 翻译 / 问答 模型选择',
+                  hint: activeTranscription == null
+                      ? '转录模型未配置'
+                      : '当前转录：${activeTranscription.displayName}',
+                  onTap: () => _open(
+                    const ModelCenterPage(),
+                    name: '/model_center',
+                  ),
+                ),
+                SizedBox(height: gap),
+                _HallCard(
+                  metrics: metrics,
+                  icon: Icons.download_outlined,
+                  iconColor: AppColors.primary,
+                  title: '下载中心',
+                  subtitle: 'B站下载 · YT-DLP 下载',
+                  badges: [
+                    if (downloadInProgress > 0)
+                      _QueueBadge(
+                        label: '进行中 $downloadInProgress',
+                        color: AppColors.primary,
+                      ),
+                  ],
+                  hint: downloadInProgress > 0
+                      ? 'B站 $biliInProgress · yt-dlp $ytInProgress'
+                      : null,
+                  onTap: () => _open(
+                    const DownloadCenterPage(),
+                    name: '/download_center',
+                  ),
+                ),
+                SizedBox(height: gap),
+                _HallCard(
+                  metrics: metrics,
+                  icon: Icons.tune,
+                  iconColor: AppColors.success,
+                  title: '处理中心',
+                  subtitle: '批量字幕 / OCR / 合成 / 转录队列',
+                  badges: [
+                    if (processingInProgress > 0)
+                      _QueueBadge(
+                        label: '进行中 $processingInProgress',
+                        color: AppColors.primary,
+                      ),
+                    if (processingFailed > 0)
+                      _QueueBadge(
+                        label: '失败 $processingFailed',
+                        color: AppColors.error,
+                      ),
+                  ],
+                  onTap: () => _open(
+                    const ProcessingCenterPage(),
+                    name: '/processing_center',
+                  ),
+                ),
               ],
-              _HallCard(
-                icon: Icons.psychology_outlined,
-                iconColor: Colors.purpleAccent,
-                title: '模型中心',
-                subtitle: '转录 / 翻译 / 问答 模型选择',
-                hint: activeTranscription == null
-                    ? '转录模型未配置'
-                    : '当前转录：${activeTranscription.displayName}',
-                onTap: () => _open(
-                  const ModelCenterPage(),
-                  name: '/model_center',
-                ),
-              ),
-              const SizedBox(height: 12),
-              _HallCard(
-                icon: Icons.download_outlined,
-                iconColor: Colors.lightBlueAccent,
-                title: '下载中心',
-                subtitle: 'B站下载 · YT-DLP 下载',
-                badges: [
-                  if (downloadInProgress > 0)
-                    _QueueBadge(
-                      label: '进行中 $downloadInProgress',
-                      color: Colors.lightBlueAccent,
-                    ),
-                ],
-                hint: downloadInProgress > 0
-                    ? 'B站 $biliInProgress · yt-dlp $ytInProgress'
-                    : null,
-                onTap: () => _open(
-                  const DownloadCenterPage(),
-                  name: '/download_center',
-                ),
-              ),
-              const SizedBox(height: 12),
-              _HallCard(
-                icon: Icons.tune,
-                iconColor: Colors.tealAccent,
-                title: '处理中心',
-                subtitle: '批量字幕 / OCR / 合成 / 转录队列',
-                badges: [
-                  if (processingInProgress > 0)
-                    _QueueBadge(
-                      label: '进行中 $processingInProgress',
-                      color: Colors.lightBlueAccent,
-                    ),
-                  if (processingFailed > 0)
-                    _QueueBadge(
-                      label: '失败 $processingFailed',
-                      color: Colors.redAccent,
-                    ),
-                ],
-                onTap: () => _open(
-                  const ProcessingCenterPage(),
-                  name: '/processing_center',
-                ),
-              ),
-            ],
+            ),
           );
         },
       ),
@@ -190,8 +217,83 @@ class _CentersTabPageState extends State<CentersTabPage>
 
 enum _CentersMenuAction { trialPicker }
 
+class _HallCardMetrics {
+  const _HallCardMetrics({
+    required this.padding,
+    required this.iconRadius,
+  });
+
+  final EdgeInsets padding;
+  final double iconRadius;
+
+  static _HallCardMetrics of(BuildContext context) {
+    if (context.isCompact) {
+      return const _HallCardMetrics(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        iconRadius: 18,
+      );
+    }
+    if (context.isExpanded) {
+      return const _HallCardMetrics(
+        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+        iconRadius: 22,
+      );
+    }
+    return const _HallCardMetrics(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      iconRadius: 20,
+    );
+  }
+}
+
+/// One-shot fade + slide enter (≤ [AppMotion.emphasized]).
+class _FadeSlideIn extends StatefulWidget {
+  const _FadeSlideIn({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_FadeSlideIn> createState() => _FadeSlideInState();
+}
+
+class _FadeSlideInState extends State<_FadeSlideIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: AppMotion.emphasized,
+  )..forward();
+
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _controller,
+    curve: AppMotion.standard,
+  );
+
+  late final Animation<Offset> _slide = Tween<Offset>(
+    begin: const Offset(0, 0.04),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _controller, curve: AppMotion.standard));
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
 class _HallCard extends StatelessWidget {
   const _HallCard({
+    required this.metrics,
     required this.icon,
     required this.iconColor,
     required this.title,
@@ -201,6 +303,7 @@ class _HallCard extends StatelessWidget {
     this.badges = const <_QueueBadge>[],
   });
 
+  final _HallCardMetrics metrics;
   final IconData icon;
   final Color iconColor;
   final String title;
@@ -212,16 +315,21 @@ class _HallCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF1E1E1E),
-      borderRadius: BorderRadius.circular(12),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      borderRadius: AppRadii.borderLg,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.borderLg,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: metrics.padding,
           child: Row(
             children: [
               CircleAvatar(
+                radius: metrics.iconRadius,
                 backgroundColor: iconColor.withValues(alpha: 0.18),
                 child: Icon(icon, color: iconColor),
               ),
@@ -233,7 +341,7 @@ class _HallCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -242,7 +350,7 @@ class _HallCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
@@ -250,8 +358,10 @@ class _HallCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         hint!,
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: AppColors.onSurfaceVariant.withValues(
+                            alpha: 0.75,
+                          ),
                           fontSize: 12,
                         ),
                       ),
@@ -267,7 +377,7 @@ class _HallCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white38),
+              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/app/responsive.dart';
 import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/domain/sync/sync.dart';
 import 'package:fluent_learning/features/centers/download_center_page.dart';
@@ -115,33 +116,36 @@ class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
   @override
   Widget build(BuildContext context) {
     final feedback = buildInlineFeedbackBanner(dense: true);
+    final spacing = _MineSpacing.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('我的'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: spacing.listPadding,
         children: [
           if (feedback != null) ...[
             feedback,
-            const SizedBox(height: 12),
+            SizedBox(height: spacing.itemGap + 2),
           ],
           const _SectionLabel('设置'),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing.labelGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.settings_outlined,
-            iconColor: Colors.lightBlueAccent,
+            iconColor: AppColors.primary,
             title: '媒体库设置',
             subtitle: '导入副本、缓存与库相关选项',
             onTap: () => _openMediaLibrarySettings(context),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.sectionGap),
           const _SectionLabel('中心入口'),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing.labelGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.cloud_download_outlined,
             iconColor: const Color(0xFFFB7299),
             title: '下载中心',
@@ -152,10 +156,11 @@ class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
               name: DownloadCenterRoutes.hall,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: spacing.itemGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.auto_awesome_outlined,
-            iconColor: Colors.tealAccent,
+            iconColor: AppColors.success,
             title: '处理中心',
             subtitle: '批量字幕 / OCR / 合成 / 转录队列',
             onTap: () => _openRoute(
@@ -164,10 +169,11 @@ class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
               name: '/processing_center',
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: spacing.itemGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.smart_toy_outlined,
-            iconColor: Colors.amberAccent,
+            iconColor: AppColors.warning,
             title: '模型中心',
             subtitle: '转录 / 翻译等模型选择',
             onTap: () => _openRoute(
@@ -176,35 +182,81 @@ class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
               name: '/model_center',
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.sectionGap),
           const _SectionLabel('数据与同步（元数据）'),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing.labelGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.upload_file_outlined,
-            iconColor: Colors.lightGreenAccent,
+            iconColor: AppColors.success,
             title: '导出学习元数据',
             subtitle: 'JSON 导出学习单元 + 轻量媒体字段（不含视频文件）',
             onTap: _busy ? () {} : _exportMetadata,
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: spacing.itemGap),
           _NavCard(
+            metrics: spacing,
             icon: Icons.download_outlined,
-            iconColor: Colors.cyanAccent,
+            iconColor: AppColors.primary,
             title: '导入学习元数据',
             subtitle: '从 JSON 合并学习单元（按 updatedAt / revision）',
             onTap: _busy ? () {} : _importMetadata,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: spacing.sectionGap + 4),
           Text(
             '播放器内设置仍从播放页打开；导出仅含元数据，不同步视频/音频本体。',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.38),
+              color: AppColors.onSurfaceVariant.withValues(alpha: 0.75),
               fontSize: 12,
               height: 1.4,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MineSpacing {
+  const _MineSpacing({
+    required this.listPadding,
+    required this.sectionGap,
+    required this.itemGap,
+    required this.labelGap,
+    required this.cardPadding,
+  });
+
+  final EdgeInsets listPadding;
+  final double sectionGap;
+  final double itemGap;
+  final double labelGap;
+  final EdgeInsets cardPadding;
+
+  static _MineSpacing of(BuildContext context) {
+    if (context.isCompact) {
+      return const _MineSpacing(
+        listPadding: EdgeInsets.fromLTRB(12, 12, 12, 28),
+        sectionGap: 16,
+        itemGap: 8,
+        labelGap: 6,
+        cardPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      );
+    }
+    if (context.isExpanded) {
+      return const _MineSpacing(
+        listPadding: EdgeInsets.fromLTRB(24, 20, 24, 36),
+        sectionGap: 24,
+        itemGap: 12,
+        labelGap: 10,
+        cardPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      );
+    }
+    return const _MineSpacing(
+      listPadding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+      sectionGap: 20,
+      itemGap: 10,
+      labelGap: 8,
+      cardPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     );
   }
 }
@@ -219,7 +271,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(
-        color: Colors.white54,
+        color: AppColors.onSurfaceVariant,
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.3,
@@ -230,6 +282,7 @@ class _SectionLabel extends StatelessWidget {
 
 class _NavCard extends StatelessWidget {
   const _NavCard({
+    required this.metrics,
     required this.icon,
     required this.iconColor,
     required this.title,
@@ -237,6 +290,7 @@ class _NavCard extends StatelessWidget {
     required this.onTap,
   });
 
+  final _MineSpacing metrics;
   final IconData icon;
   final Color iconColor;
   final String title;
@@ -246,13 +300,17 @@ class _NavCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       borderRadius: AppRadii.borderLg,
       child: InkWell(
         borderRadius: AppRadii.borderLg,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          padding: metrics.cardPadding,
           child: Row(
             children: [
               CircleAvatar(
@@ -267,7 +325,7 @@ class _NavCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -276,14 +334,14 @@ class _NavCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white38),
+              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
             ],
           ),
         ),

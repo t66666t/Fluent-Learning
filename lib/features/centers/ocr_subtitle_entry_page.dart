@@ -65,10 +65,10 @@ class _OcrSubtitleEntryPageState extends State<OcrSubtitleEntryPage>
     final banner = buildInlineFeedbackBanner(dense: true);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: Text(item == null ? 'OCR 字幕' : 'OCR · ${item.effectiveDisplayName}'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
         actions: [
           if (item != null)
@@ -134,26 +134,26 @@ class _EmptyPicker extends StatelessWidget {
             Icon(
               Icons.document_scanner_outlined,
               size: 48,
-              color: Colors.orangeAccent.withValues(alpha: 0.85),
+              color: AppColors.warning,
             ),
             const SizedBox(height: 16),
             const Text(
               '从媒体库选择视频，框选字幕区域后开始 OCR 识别',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
+              style: TextStyle(color: AppColors.onSurface, fontSize: 14, height: 1.4),
             ),
             const SizedBox(height: 8),
             const Text(
               '不改动 OCR 引擎；此处仅作为处理中心二级入口',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onPick,
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.orangeAccent.withValues(alpha: 0.9),
-                foregroundColor: Colors.black,
+                backgroundColor: AppColors.warning,
+                foregroundColor: AppColors.onWarning,
                 shape: RoundedRectangleBorder(
                   borderRadius: AppRadii.borderMd,
                 ),

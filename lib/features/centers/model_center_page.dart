@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:fluent_learning/app/responsive.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/features/library/media_prompt_builder.dart';
@@ -13,21 +16,26 @@ class ModelCenterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final listPad = context.isCompact
+        ? const EdgeInsets.fromLTRB(12, 12, 12, 20)
+        : context.isExpanded
+            ? const EdgeInsets.fromLTRB(24, 20, 24, 32)
+            : const EdgeInsets.all(16);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('模型中心'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
       ),
       body: Consumer<ModelCenter>(
         builder: (context, center, _) {
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: listPad,
             children: [
               const Text(
                 '切换下方模型后立即写入设置；下一次转录 / 翻译任务会读取当前激活项。',
-                style: TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
               ),
               const SizedBox(height: 16),
               _KindSection(kind: ModelKind.transcription, center: center),
@@ -66,7 +74,7 @@ class _KindSection extends StatelessWidget {
             Text(
               kind.displayName,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.onSurface,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
@@ -78,13 +86,13 @@ class _KindSection extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: active != null
-                      ? Colors.lightBlueAccent.withValues(alpha: 0.18)
-                      : Colors.orange.withValues(alpha: 0.18),
+                      ? AppColors.primary.withValues(alpha: 0.18)
+                      : AppColors.warning.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: active != null
-                        ? Colors.lightBlueAccent.withValues(alpha: 0.45)
-                        : Colors.orange.withValues(alpha: 0.45),
+                        ? AppColors.primary.withValues(alpha: 0.45)
+                        : AppColors.warning.withValues(alpha: 0.45),
                   ),
                 ),
                 child: Text(
@@ -93,8 +101,8 @@ class _KindSection extends StatelessWidget {
                       : (kind == ModelKind.qa ? '未配置' : '未配置可用模型'),
                   style: TextStyle(
                     color: active != null
-                        ? Colors.lightBlueAccent
-                        : Colors.orangeAccent,
+                        ? AppColors.primary
+                        : AppColors.warning,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -110,10 +118,10 @@ class _KindSection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.elevated,
+              borderRadius: AppRadii.borderLg,
               border: Border.all(
-                color: Colors.orange.withValues(alpha: 0.35),
+                color: AppColors.warning.withValues(alpha: 0.35),
               ),
             ),
             child: const Column(
@@ -122,7 +130,7 @@ class _KindSection extends StatelessWidget {
                 Text(
                   '未配置',
                   style: TextStyle(
-                    color: Colors.orangeAccent,
+                    color: AppColors.warning,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -131,7 +139,7 @@ class _KindSection extends StatelessWidget {
                 Text(
                   '问答模型尚未接入。可在下方预览 MediaPromptBuilder 生成的提示词，'
                   '并预留本地模型 / API 配置。',
-                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                  style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13),
                 ),
               ],
             ),
@@ -143,11 +151,18 @@ class _KindSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Material(
                 color: selected
-                    ? const Color(0xFF243041)
-                    : const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(12),
+                    ? Color.alphaBlend(
+                        AppColors.primary.withValues(alpha: 0.14),
+                        AppColors.elevated,
+                      )
+                    : AppColors.elevated,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                borderRadius: AppRadii.borderLg,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.borderLg,
+                  hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+                  splashColor: AppColors.primary.withValues(alpha: 0.12),
                   onTap: m.available
                       ? () => center.setActive(kind, m.id)
                       : null,
@@ -163,10 +178,10 @@ class _KindSection extends StatelessWidget {
                               ? Icons.radio_button_checked
                               : Icons.radio_button_off,
                           color: !m.available
-                              ? Colors.white24
+                              ? AppColors.outline
                               : (selected
-                                  ? Colors.lightBlueAccent
-                                  : Colors.white38),
+                                  ? AppColors.primary
+                                  : AppColors.onSurfaceVariant),
                           size: 22,
                         ),
                         const SizedBox(width: 12),
@@ -181,8 +196,8 @@ class _KindSection extends StatelessWidget {
                                       m.displayName,
                                       style: TextStyle(
                                         color: m.available
-                                            ? Colors.white
-                                            : Colors.white38,
+                                            ? AppColors.onSurface
+                                            : AppColors.onSurfaceVariant,
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -193,7 +208,7 @@ class _KindSection extends StatelessWidget {
                                     const Text(
                                       '使用中',
                                       style: TextStyle(
-                                        color: Colors.lightBlueAccent,
+                                        color: AppColors.primary,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -204,7 +219,7 @@ class _KindSection extends StatelessWidget {
                                     const Text(
                                       '预留',
                                       style: TextStyle(
-                                        color: Colors.white38,
+                                        color: AppColors.onSurfaceVariant,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -217,8 +232,8 @@ class _KindSection extends StatelessWidget {
                                   m.description,
                                   style: TextStyle(
                                     color: m.available
-                                        ? Colors.white54
-                                        : Colors.white30,
+                                        ? AppColors.onSurfaceVariant
+                                        : AppColors.outline,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -310,8 +325,8 @@ class _RemoteConfigTileState extends State<_RemoteConfigTile> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surfaceContainer,
+        borderRadius: AppRadii.borderLg,
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -323,19 +338,19 @@ class _RemoteConfigTileState extends State<_RemoteConfigTile> {
           title: Text(
             '本地模型 / API 配置（预留）'
             '${widget.config.hasAny ? ' · 已填写' : ''}',
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
           ),
-          iconColor: Colors.white54,
-          collapsedIconColor: Colors.white38,
+          iconColor: AppColors.onSurfaceVariant,
+          collapsedIconColor: AppColors.onSurfaceVariant,
           children: [
             TextField(
               controller: _localPath,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
               decoration: const InputDecoration(
                 labelText: '本地模型路径',
-                labelStyle: TextStyle(color: Colors.white54),
+                labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
                 hintText: '/path/to/model.bin',
-                hintStyle: TextStyle(color: Colors.white24),
+                hintStyle: TextStyle(color: AppColors.outline),
                 isDense: true,
                 border: OutlineInputBorder(),
               ),
@@ -343,12 +358,12 @@ class _RemoteConfigTileState extends State<_RemoteConfigTile> {
             const SizedBox(height: 8),
             TextField(
               controller: _apiBase,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
               decoration: const InputDecoration(
                 labelText: 'API Base URL',
-                labelStyle: TextStyle(color: Colors.white54),
+                labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
                 hintText: 'https://api.example.com/v1',
-                hintStyle: TextStyle(color: Colors.white24),
+                hintStyle: TextStyle(color: AppColors.outline),
                 isDense: true,
                 border: OutlineInputBorder(),
               ),
@@ -357,12 +372,12 @@ class _RemoteConfigTileState extends State<_RemoteConfigTile> {
             TextField(
               controller: _apiKey,
               obscureText: true,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
               decoration: const InputDecoration(
                 labelText: 'API Key',
-                labelStyle: TextStyle(color: Colors.white54),
+                labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
                 hintText: '仅本地保存，暂不调用',
-                hintStyle: TextStyle(color: Colors.white24),
+                hintStyle: TextStyle(color: AppColors.outline),
                 isDense: true,
                 border: OutlineInputBorder(),
               ),
@@ -460,9 +475,9 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
+        color: AppColors.elevated,
+        borderRadius: AppRadii.borderLg,
+        border: Border.all(color: AppColors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,7 +485,7 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
           const Text(
             '问答 Prompt 预览',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.onSurface,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -478,15 +493,15 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
           const SizedBox(height: 4),
           const Text(
             '问答模型未配置时，可先用 MediaPromptBuilder 生成提示词文本预览。',
-            style: TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _titleController,
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
             decoration: const InputDecoration(
               labelText: '示例标题',
-              labelStyle: TextStyle(color: Colors.white54),
+              labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
               isDense: true,
               border: OutlineInputBorder(),
             ),
@@ -494,10 +509,10 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
           const SizedBox(height: 8),
           TextField(
             controller: _fileNameController,
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
             decoration: const InputDecoration(
               labelText: '示例文件名',
-              labelStyle: TextStyle(color: Colors.white54),
+              labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
               isDense: true,
               border: OutlineInputBorder(),
             ),
@@ -506,10 +521,10 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
           TextField(
             controller: _durationController,
             keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
             decoration: const InputDecoration(
               labelText: '时长 (ms)',
-              labelStyle: TextStyle(color: Colors.white54),
+              labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
               isDense: true,
               border: OutlineInputBorder(),
             ),
@@ -536,7 +551,7 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
             Text(
               '已选媒体：$_pickedMediaLabel'
               '${_pickedMediaId == null ? '' : ' ($_pickedMediaId)'}',
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
+              style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
             ),
           ],
           if (_preview.isNotEmpty) ...[
@@ -545,14 +560,14 @@ class _QaPromptPreviewCardState extends State<_QaPromptPreviewCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white12),
+                color: AppColors.surfaceContainer,
+                borderRadius: AppRadii.borderSm,
+                border: Border.all(color: AppColors.outlineVariant),
               ),
               child: SelectableText(
                 _preview,
                 style: const TextStyle(
-                  color: Colors.white70,
+                  color: AppColors.onSurface,
                   fontSize: 12,
                   height: 1.4,
                 ),

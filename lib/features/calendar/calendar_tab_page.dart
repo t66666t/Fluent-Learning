@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/app/responsive.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/features/calendar/calendar_board_index.dart';
 import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
 import 'package:fluent_learning/features/learning_unit/due_relative_label.dart';
@@ -87,10 +89,10 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('日历'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
         actions: [
           IconButton(
@@ -127,8 +129,9 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
               .take(12)
               .toList();
 
+          final metrics = _CalendarMetrics.of(context);
           return ListView(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+            padding: metrics.listPadding,
             children: [
               _MonthGrid(
                 month: _month,
@@ -140,52 +143,72 @@ class _CalendarTabPageState extends State<CalendarTabPage> {
                   });
                 },
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: metrics.legendGap),
               const _MarkerLegend(),
-              const SizedBox(height: 16),
-              _DayDetailHeader(
-                selected: selected,
-                slice: daySlice,
-              ),
-              const SizedBox(height: 8),
-              if (daySlice.units.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-                  child: Text(
-                    '该日暂无截止或学习 · 去首页新建单元或设置截止',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
-                  ),
-                )
-              else
-                ...daySlice.units.map(
-                  (u) => _CalendarUnitTile(
-                    unit: u,
-                    reason: daySlice.reasonFor(u),
-                    onTap: () => _openUnit(u.id),
-                    onStartLearning: u.isIncomplete
-                        ? () => _startLearning(u)
-                        : null,
-                  ),
-                ),
-              if (undated.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                Text(
-                  '未设截止日期',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+              SizedBox(height: metrics.detailGap),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: metrics.detailMaxWidth),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _DayDetailHeader(
+                        selected: selected,
+                        slice: daySlice,
                       ),
-                ),
-                const SizedBox(height: 8),
-                ...undated.map(
-                  (u) => _CalendarUnitTile(
-                    unit: u,
-                    reason: CalendarDayUnitReason.undated,
-                    onTap: () => _openUnit(u.id),
-                    onStartLearning: () => _startLearning(u),
+                      SizedBox(height: metrics.itemGap),
+                      if (daySlice.units.isEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: metrics.emptyVertical,
+                            horizontal: 12,
+                          ),
+                          child: const Text(
+                            '该日暂无截止或学习 · 去首页新建单元或设置截止',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppColors.onSurfaceVariant,
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      else
+                        ...daySlice.units.map(
+                          (u) => _CalendarUnitTile(
+                            unit: u,
+                            reason: daySlice.reasonFor(u),
+                            dense: context.isCompact,
+                            onTap: () => _openUnit(u.id),
+                            onStartLearning: u.isIncomplete
+                                ? () => _startLearning(u)
+                                : null,
+                          ),
+                        ),
+                      if (undated.isNotEmpty) ...[
+                        SizedBox(height: metrics.sectionGap),
+                        Text(
+                          '未设截止日期',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.onSurface,
+                              ),
+                        ),
+                        SizedBox(height: metrics.itemGap),
+                        ...undated.map(
+                          (u) => _CalendarUnitTile(
+                            unit: u,
+                            reason: CalendarDayUnitReason.undated,
+                            dense: context.isCompact,
+                            onTap: () => _openUnit(u.id),
+                            onStartLearning: () => _startLearning(u),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-              ],
+              ),
             ],
           );
         },
@@ -221,8 +244,8 @@ class _MonthGrid extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.elevated,
+        borderRadius: AppRadii.borderMd,
       ),
       padding: const EdgeInsets.fromLTRB(8, 10, 8, 12),
       child: Column(
@@ -264,17 +287,21 @@ class _MonthGrid extends StatelessWidget {
                   today.day == date.day;
 
               return InkWell(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: AppRadii.borderSm,
                 onTap: () => onSelect(date),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.blue.withValues(alpha: 0.35)
+                        ? AppColors.primary.withValues(alpha: 0.28)
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadii.borderSm,
                     border: isToday
-                        ? Border.all(color: Colors.lightBlueAccent, width: 1)
-                        : null,
+                        ? Border.all(color: AppColors.primary, width: 1)
+                        : (isSelected
+                            ? Border.all(
+                                color: AppColors.primary.withValues(alpha: 0.55),
+                              )
+                            : null),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -282,9 +309,13 @@ class _MonthGrid extends StatelessWidget {
                       Text(
                         '$dayNum',
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.white70,
+                          color: isSelected
+                              ? AppColors.onSurface
+                              : AppColors.onSurfaceVariant,
                           fontWeight:
-                              isToday ? FontWeight.w700 : FontWeight.w400,
+                              isToday || isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                           fontSize: 13,
                         ),
                       ),
@@ -317,7 +348,7 @@ class _DayMarkers extends StatelessWidget {
     if (flags.hasDue) {
       children.add(
         const _MarkerChip(
-          color: Color(0xFFFFB74D), // amber — has due
+          color: AppColors.warning, // amber — has due
           shape: _MarkerShape.diamond,
         ),
       );
@@ -325,7 +356,7 @@ class _DayMarkers extends StatelessWidget {
     if (flags.hasActivity) {
       children.add(
         const _MarkerChip(
-          color: Color(0xFF4FC3F7), // cyan — study activity
+          color: AppColors.primary, // cyan — study activity
           shape: _MarkerShape.circle,
         ),
       );
@@ -333,7 +364,7 @@ class _DayMarkers extends StatelessWidget {
     if (flags.hasCompleted) {
       children.add(
         const _MarkerChip(
-          color: Color(0xFF69F0AE), // green — completed
+          color: AppColors.success, // green — completed
           shape: _MarkerShape.square,
         ),
       );
@@ -402,21 +433,21 @@ class _MarkerLegend extends StatelessWidget {
       children: const [
         _LegendItem(
           chip: _MarkerChip(
-            color: Color(0xFFFFB74D),
+            color: AppColors.warning,
             shape: _MarkerShape.diamond,
           ),
           label: '有截止',
         ),
         _LegendItem(
           chip: _MarkerChip(
-            color: Color(0xFF4FC3F7),
+            color: AppColors.primary,
             shape: _MarkerShape.circle,
           ),
           label: '有学习',
         ),
         _LegendItem(
           chip: _MarkerChip(
-            color: Color(0xFF69F0AE),
+            color: AppColors.success,
             shape: _MarkerShape.square,
           ),
           label: '已完成',
@@ -441,7 +472,7 @@ class _LegendItem extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
         ),
       ],
     );
@@ -461,6 +492,7 @@ class _DayDetailHeader extends StatelessWidget {
         '选择日期查看单元',
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
+              color: AppColors.onSurface,
             ),
       );
     }
@@ -483,7 +515,7 @@ class _DayDetailHeader extends StatelessWidget {
         if (count > 0)
           Text(
             '完成率 $pct% · $doneCount/$count',
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
           ),
       ],
     );
@@ -500,7 +532,7 @@ class _Dow extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white38, fontSize: 12),
+        style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
       ),
     );
   }
@@ -512,12 +544,14 @@ class _CalendarUnitTile extends StatelessWidget {
     required this.onTap,
     this.reason = CalendarDayUnitReason.due,
     this.onStartLearning,
+    this.dense = false,
   });
 
   final LearningUnit unit;
   final VoidCallback onTap;
   final CalendarDayUnitReason reason;
   final VoidCallback? onStartLearning;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -532,29 +566,39 @@ class _CalendarUnitTile extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: dense ? 6 : 8),
       child: Material(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.elevated,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        borderRadius: AppRadii.borderMd,
         child: ListTile(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          dense: dense,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: dense ? 10 : 14,
+            vertical: dense ? 0 : 2,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.borderMd),
           onTap: onTap,
           leading: _reasonIcon(reason, unit),
           title: Text(
             unit.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: AppColors.onSurface),
           ),
           subtitle: Text(
             subtitleParts.join(' · '),
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: const TextStyle(
+              color: AppColors.onSurfaceVariant,
+              fontSize: 12,
+            ),
           ),
           trailing: onStartLearning != null
               ? TextButton(
                   onPressed: onStartLearning,
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.lightBlueAccent,
+                    foregroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 36),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -566,8 +610,8 @@ class _CalendarUnitTile extends StatelessWidget {
                       ? Icons.check_circle
                       : Icons.chevron_right,
                   color: unit.status == LearningUnitStatus.completed
-                      ? Colors.greenAccent
-                      : Colors.white38,
+                      ? AppColors.success
+                      : AppColors.onSurfaceVariant,
                 ),
         ),
       ),
@@ -576,18 +620,80 @@ class _CalendarUnitTile extends StatelessWidget {
 
   static Widget _reasonIcon(CalendarDayUnitReason reason, LearningUnit unit) {
     if (unit.status == LearningUnitStatus.completed) {
-      return const Icon(Icons.check_box, color: Color(0xFF69F0AE), size: 22);
+      return const Icon(Icons.check_box, color: AppColors.success, size: 22);
     }
     switch (reason) {
       case CalendarDayUnitReason.due:
-        return const Icon(Icons.event, color: Color(0xFFFFB74D), size: 22);
+        return const Icon(Icons.event, color: AppColors.warning, size: 22);
       case CalendarDayUnitReason.activity:
-        return const Icon(Icons.school, color: Color(0xFF4FC3F7), size: 22);
+        return const Icon(Icons.school, color: AppColors.primary, size: 22);
       case CalendarDayUnitReason.both:
-        return const Icon(Icons.event_available,
-            color: Color(0xFFFFB74D), size: 22);
+        return const Icon(
+          Icons.event_available,
+          color: AppColors.warning,
+          size: 22,
+        );
       case CalendarDayUnitReason.undated:
-        return const Icon(Icons.schedule, color: Colors.white38, size: 22);
+        return const Icon(
+          Icons.schedule,
+          color: AppColors.onSurfaceVariant,
+          size: 22,
+        );
     }
+  }
+}
+
+/// Responsive calendar density — tighter day detail on phone, wider on desktop.
+class _CalendarMetrics {
+  const _CalendarMetrics({
+    required this.listPadding,
+    required this.legendGap,
+    required this.detailGap,
+    required this.itemGap,
+    required this.sectionGap,
+    required this.emptyVertical,
+    required this.detailMaxWidth,
+  });
+
+  final EdgeInsets listPadding;
+  final double legendGap;
+  final double detailGap;
+  final double itemGap;
+  final double sectionGap;
+  final double emptyVertical;
+  final double detailMaxWidth;
+
+  static _CalendarMetrics of(BuildContext context) {
+    if (context.isCompact) {
+      return const _CalendarMetrics(
+        listPadding: EdgeInsets.fromLTRB(10, 6, 10, 20),
+        legendGap: 8,
+        detailGap: 12,
+        itemGap: 6,
+        sectionGap: 16,
+        emptyVertical: 16,
+        detailMaxWidth: double.infinity,
+      );
+    }
+    if (context.isExpanded) {
+      return const _CalendarMetrics(
+        listPadding: EdgeInsets.fromLTRB(24, 12, 24, 32),
+        legendGap: 12,
+        detailGap: 20,
+        itemGap: 10,
+        sectionGap: 24,
+        emptyVertical: 24,
+        detailMaxWidth: 720,
+      );
+    }
+    return const _CalendarMetrics(
+      listPadding: EdgeInsets.fromLTRB(14, 8, 14, 24),
+      legendGap: 10,
+      detailGap: 16,
+      itemGap: 8,
+      sectionGap: 20,
+      emptyVertical: 20,
+      detailMaxWidth: 560,
+    );
   }
 }

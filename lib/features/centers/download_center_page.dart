@@ -7,6 +7,7 @@ import 'package:fluent_learning/screens/bilibili_download_screen.dart';
 import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
 import 'package:fluent_learning/system/download_center/download_center.dart';
 import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/app/responsive.dart';
 import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Download Center hall — entry cards to existing B站 / yt-dlp screens.
@@ -84,11 +85,18 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
 
   @override
   Widget build(BuildContext context) {
+    final listPad = context.isCompact
+        ? const EdgeInsets.fromLTRB(12, 12, 12, 20)
+        : context.isExpanded
+            ? const EdgeInsets.fromLTRB(24, 20, 24, 32)
+            : const EdgeInsets.all(16);
+    final cardGap = context.isCompact ? 8.0 : (context.isExpanded ? 14.0 : 12.0);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.scaffold,
       appBar: AppBar(
         title: const Text('下载中心'),
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.elevated,
         elevation: 0,
       ),
       body: Consumer2<BilibiliDownloadService, YtDlpDownloadService>(
@@ -100,15 +108,19 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
           final totalInProgress = biliInProgress + ytInProgress;
 
           final feedback = buildInlineFeedbackBanner(dense: true);
+          final summarySurface = Color.alphaBlend(
+            AppColors.primary.withValues(alpha: 0.10),
+            AppColors.elevated,
+          );
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: listPad,
             children: [
               if (feedback != null) ...[
                 feedback,
-                const SizedBox(height: 12),
+                SizedBox(height: cardGap),
               ],
               Material(
-                color: const Color(0xFF1A2330),
+                color: summarySurface,
                 borderRadius: AppRadii.borderLg,
                 child: Padding(
                   padding:
@@ -116,7 +128,7 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
                   child: Row(
                     children: [
                       const Icon(Icons.cloud_download_outlined,
-                          color: Colors.lightBlueAccent),
+                          color: AppColors.primary),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -124,7 +136,7 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
                               ? '当前无进行中的下载'
                               : '进行中 $totalInProgress（B站 $biliInProgress · yt-dlp $ytInProgress）',
                           style: const TextStyle(
-                            color: Colors.white70,
+                            color: AppColors.onSurface,
                             fontSize: 13,
                           ),
                         ),
@@ -133,7 +145,7 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: cardGap + 4),
               _CenterEntryCard(
                 icon: Icons.tv,
                 iconColor: const Color(0xFFFB7299),
@@ -144,7 +156,7 @@ class _DownloadCenterPageState extends State<DownloadCenterPage>
                 badge: biliInProgress > 0 ? '$biliInProgress' : null,
                 onTap: () => _openBilibili(),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: cardGap),
               _CenterEntryCard(
                 icon: Icons.ondemand_video,
                 iconColor: const Color(0xFFFF4040),
@@ -182,14 +194,23 @@ class _CenterEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pad = context.isCompact
+        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 14)
+        : context.isExpanded
+            ? const EdgeInsets.symmetric(horizontal: 18, vertical: 20)
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 18);
     return Material(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.elevated,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       borderRadius: AppRadii.borderLg,
       child: InkWell(
         borderRadius: AppRadii.borderLg,
+        hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: pad,
           child: Row(
             children: [
               Stack(
@@ -209,13 +230,13 @@ class _CenterEntryCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.redAccent,
+                          color: AppColors.error,
                           borderRadius: AppRadii.borderSm,
                         ),
                         child: Text(
                           badge!,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.onError,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -232,7 +253,7 @@ class _CenterEntryCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -241,14 +262,14 @@ class _CenterEntryCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        color: Colors.white54,
+                        color: AppColors.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white38),
+              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
             ],
           ),
         ),
