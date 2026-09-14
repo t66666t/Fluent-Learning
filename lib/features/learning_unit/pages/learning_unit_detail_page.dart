@@ -24,6 +24,19 @@ class LearningUnitDetailPage extends StatelessWidget {
     );
   }
 
+  Future<void> _continueNext(
+    BuildContext context,
+    LearningUnitRepository repo,
+    LibraryService library,
+    LearningUnit unit,
+  ) async {
+    final nextId = repo.nextIncompleteMediaId(unit);
+    if (nextId == null) return;
+    final video = library.getVideo(nextId);
+    if (video == null) return;
+    await _openPlayback(context, video);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<LearningUnitRepository, LibraryService>(
@@ -47,8 +60,10 @@ class LearningUnitDetailPage extends StatelessWidget {
         }
 
         final mediaIds = repo.resolveMediaIds(unit);
+        final completedCount = repo.completedLeafCount(unit);
         final percentLabel =
             '${(unit.progress.percent * 100).clamp(0, 100).toStringAsFixed(0)}%';
+        final nextId = repo.nextIncompleteMediaId(unit);
 
         return Scaffold(
           backgroundColor: const Color(0xFF121212),
@@ -112,7 +127,7 @@ class LearningUnitDetailPage extends StatelessWidget {
                         _StatusChip(status: unit.status),
                         const SizedBox(width: 10),
                         Text(
-                          '$percentLabel · ${unit.progress.completedMediaIds.length}/${mediaIds.length}',
+                          '$percentLabel · $completedCount/${mediaIds.length}',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -149,6 +164,24 @@ class LearningUnitDetailPage extends StatelessWidget {
                         backgroundColor: Colors.white12,
                       ),
                     ),
+                    if (nextId != null && library.getVideo(nextId) != null) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () =>
+                              _continueNext(context, repo, library, unit),
+                          icon: const Icon(Icons.play_arrow, size: 20),
+                          label: const Text('继续学习'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E88E5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -169,12 +202,15 @@ class LearningUnitDetailPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final id = mediaIds[index];
                           final video = library.getVideo(id);
-                          final done =
-                              unit.progress.isMediaCompleted(id);
+                          final done = repo.isLeafComplete(unit, id);
+                          final manual =
+                              repo.isLeafManuallyCompleted(unit, id);
+                          final itemRatio = repo.leafRatio(unit, id);
+                          final itemPct = (itemRatio * 100)
+                              .clamp(0, 100)
+                              .toStringAsFixed(0);
                           final title = video?.title ?? '未知媒体 ($id)';
-                          final subtitle = video == null
-                              ? '媒体已不在库中'
-                              : _durationLabel(video.durationMs);
+                          final duration = _durationLabel(video?.durationMs ?? 0);
 
                           return ListTile(
                             leading: Icon(
@@ -196,29 +232,66 @@ class LearningUnitDetailPage extends StatelessWidget {
                                     : null,
                               ),
                             ),
-                            subtitle: Text(
-                              subtitle,
-                              style: const TextStyle(
-                                color: Colors.white38,
-                                fontSize: 12,
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (duration.isNotEmpty)
+                                    Text(
+                                      duration,
+                                      style: const TextStyle(
+                                        color: Colors.white38,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(3),
+                                          child: LinearProgressIndicator(
+                                            value: itemRatio.clamp(0.0, 1.0),
+                                            minHeight: 4,
+                                            backgroundColor: Colors.white12,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '$itemPct%',
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            trailing: IconButton(
-                              tooltip: done ? '取消完成' : '标记完成',
-                              icon: Icon(
-                                done
-                                    ? Icons.undo
-                                    : Icons.check,
-                                color: Colors.white38,
-                              ),
-                              onPressed: () {
-                                repo.markMediaComplete(
-                                  unitId,
-                                  id,
-                                  completed: !done,
-                                );
-                              },
-                            ),
+                            isThreeLine: true,
+                            trailing: (done && !manual)
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.white24,
+                                  )
+                                : IconButton(
+                                    tooltip: done ? '取消完成' : '标记完成',
+                                    icon: Icon(
+                                      done ? Icons.undo : Icons.check,
+                                      color: Colors.white38,
+                                    ),
+                                    onPressed: () {
+                                      repo.markMediaComplete(
+                                        unitId,
+                                        id,
+                                        completed: !done,
+                                      );
+                                    },
+                                  ),
                             onTap: video == null
                                 ? null
                                 : () => _openPlayback(context, video),

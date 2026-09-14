@@ -51,6 +51,10 @@ class HomeTabPage extends StatelessWidget {
       ),
       body: Consumer<LearningUnitRepository>(
         builder: (context, repo, _) {
+          if (repo.units.isEmpty) {
+            return _EmptyHome(onCreate: () => _openCreate(context));
+          }
+
           final continueUnits = repo.units
               .where(
                 (u) =>
@@ -87,12 +91,15 @@ class HomeTabPage extends StatelessWidget {
               const SizedBox(height: 24),
               _HomeSection(
                 title: '推荐',
-                emptyHint: '创建学习单元后将在此推荐未完成与临近截止的内容',
+                emptyHint: '暂无推荐，新建单元开始学习',
+                emptyActionLabel: '新建单元',
+                onEmptyAction: () => _openCreate(context),
                 children: recommended
                     .map(
-                      (u) => _UnitCard(
-                        unit: u,
-                        onTap: () => _openUnit(context, u.id),
+                      (item) => _UnitCard(
+                        unit: item.unit,
+                        reason: item.reason,
+                        onTap: () => _openUnit(context, item.unit.id),
                       ),
                     )
                     .toList(),
@@ -111,16 +118,72 @@ class HomeTabPage extends StatelessWidget {
   }
 }
 
+class _EmptyHome extends StatelessWidget {
+  const _EmptyHome({required this.onCreate});
+
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.auto_stories_outlined,
+              size: 56,
+              color: Colors.white24,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '还没有学习单元',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '把资料库里的媒体组成一次学习，进度会跟着播放走。',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white54, fontSize: 13),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: onCreate,
+              icon: const Icon(Icons.add),
+              label: const Text('新建单元'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF1E88E5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _HomeSection extends StatelessWidget {
   const _HomeSection({
     required this.title,
     required this.emptyHint,
     required this.children,
+    this.emptyActionLabel,
+    this.onEmptyAction,
   });
 
   final String title;
   final String emptyHint;
   final List<Widget> children;
+  final String? emptyActionLabel;
+  final VoidCallback? onEmptyAction;
 
   @override
   Widget build(BuildContext context) {
@@ -137,17 +200,28 @@ class _HomeSection extends StatelessWidget {
         if (children.isEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
             decoration: BoxDecoration(
               color: const Color(0xFF1E1E1E),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
-              emptyHint,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white54,
+            child: Column(
+              children: [
+                Text(
+                  emptyHint,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white54,
+                      ),
+                ),
+                if (emptyActionLabel != null && onEmptyAction != null) ...[
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: onEmptyAction,
+                    child: Text(emptyActionLabel!),
                   ),
+                ],
+              ],
             ),
           )
         else
@@ -163,10 +237,15 @@ class _HomeSection extends StatelessWidget {
 }
 
 class _UnitCard extends StatelessWidget {
-  const _UnitCard({required this.unit, required this.onTap});
+  const _UnitCard({
+    required this.unit,
+    required this.onTap,
+    this.reason,
+  });
 
   final LearningUnit unit;
   final VoidCallback onTap;
+  final String? reason;
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +291,18 @@ class _UnitCard extends StatelessWidget {
                 dueLabel,
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
+              if (reason != null && reason!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  reason!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.lightBlueAccent,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),

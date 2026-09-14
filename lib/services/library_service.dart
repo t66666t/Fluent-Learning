@@ -177,6 +177,10 @@ class LibraryService extends ChangeNotifier {
   BilibiliStreamingService? _bilibiliStreamingService;
   MediaMaterializationService? _mediaMaterializationService;
 
+  /// Cheap hook after [updateVideoProgress] / duration writes.
+  /// Used by LearningUnit progress sync; must not do heavy work.
+  void Function(String id, int positionMs)? onVideoProgressUpdated;
+
   /// Connects library ownership operations to the live Bilibili gateway.
   ///
   /// The filesystem fallback in [BilibiliStreamingService] keeps recycle-bin
@@ -4202,6 +4206,7 @@ class LibraryService extends ChangeNotifier {
       // Minimal Phase 5 hook: stamp lastPlayedAt on progress writes.
       item.lastPlayedAt = now;
       _scheduleDebouncedSave();
+      _emitVideoProgress(id, positionMs);
     }
   }
 
@@ -4212,6 +4217,15 @@ class LibraryService extends ChangeNotifier {
     if (item != null && item.durationMs != durationMs) {
       item.durationMs = durationMs;
       _scheduleDebouncedSave();
+      _emitVideoProgress(id, item.lastPositionMs);
+    }
+  }
+
+  void _emitVideoProgress(String id, int positionMs) {
+    try {
+      onVideoProgressUpdated?.call(id, positionMs);
+    } catch (e) {
+      debugPrint('onVideoProgressUpdated failed: $e');
     }
   }
 

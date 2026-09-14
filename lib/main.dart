@@ -18,6 +18,7 @@ import 'services/transcription_manager.dart';
 import 'package:fluent_learning/system/model_center/model_center.dart';
 import 'package:fluent_learning/system/processing_center/processing_center.dart';
 import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
+import 'package:fluent_learning/features/learning_unit/data/learning_unit_progress_bridge.dart';
 import 'services/media_materialization_service.dart';
 import 'services/batch_import_service.dart';
 import 'services/embedded_subtitle_service.dart';
@@ -57,6 +58,10 @@ void main() async {
   );
   bindProcessingCenter(processingCenter);
   final learningUnitRepository = LearningUnitRepository(libraryService: library);
+  LearningUnitProgressBridge(
+    library: library,
+    repository: learningUnitRepository,
+  ).attach();
   final embeddedSubtitleService = EmbeddedSubtitleService();
   final bilibiliService = BilibiliDownloadService();
   library.attachBilibiliStreamingService(bilibiliService.streamingService);
@@ -405,7 +410,10 @@ Future<void> _initializeDeferredServices({
   unawaited(safely('BatchImportService', batch.init));
   unawaited(safely('TranscriptionManager', transcriptionManager.initialize));
   unawaited(safely('ModelCenter', modelCenter.initialize));
-  unawaited(safely('LearningUnitRepository', learningUnitRepository.initialize));
+  unawaited(safely('LearningUnitRepository', () async {
+    await learningUnitRepository.initialize();
+    learningUnitRepository.hydrateProgressFromLibrary();
+  }));
   unawaited(safely('OcrSubtitleManager', ocrSubtitleManager.initialize));
   unawaited(safely('BilibiliDownloadService', bilibiliService.init));
   unawaited(safely('YtDlpDownloadService', ytDlpService.init));
@@ -413,6 +421,7 @@ Future<void> _initializeDeferredServices({
   // Playback restoration needs the library and Android media session, but
   // neither is allowed to delay the first Flutter frame.
   await Future.wait<void>(<Future<void>>[libraryFuture, mediaSessionFuture]);
+  learningUnitRepository.hydrateProgressFromLibrary();
 }
 
 void _configureImageCaches() {

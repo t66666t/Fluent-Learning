@@ -1,11 +1,22 @@
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 
+/// One home-tab recommendation with a one-line reason.
+class LearningUnitRecommendation {
+  final LearningUnit unit;
+  final String reason;
+
+  const LearningUnitRecommendation({
+    required this.unit,
+    required this.reason,
+  });
+}
+
 /// Heuristic recommender for home-tab cards (P1 rules, no ML).
 class LearningUnitRecommender {
   const LearningUnitRecommender();
 
   /// Incomplete units near due date, then recently updated.
-  List<LearningUnit> recommend(
+  List<LearningUnitRecommendation> recommend(
     List<LearningUnit> units, {
     DateTime? now,
     int limit = 8,
@@ -21,8 +32,52 @@ class LearningUnitRecommender {
       return b.updatedAt.compareTo(a.updatedAt);
     });
 
-    if (incomplete.length <= limit) return incomplete;
-    return incomplete.sublist(0, limit);
+    final sliced = incomplete.length <= limit
+        ? incomplete
+        : incomplete.sublist(0, limit);
+    return [
+      for (final unit in sliced)
+        LearningUnitRecommendation(
+          unit: unit,
+          reason: reasonFor(unit, now: clock),
+        ),
+    ];
+  }
+
+  /// One-line Chinese reason for a recommendation card.
+  String reasonFor(LearningUnit unit, {DateTime? now}) {
+    final clock = now ?? DateTime.now();
+    final due = unit.schedule.dueDate;
+    if (due != null) {
+      final days = due.difference(clock).inHours / 24.0;
+      if (days < 0) return '已逾期，优先完成';
+      if (days <= 1) return '即将到期';
+      if (days <= 3) return '临近截止日期';
+    }
+
+    final hoursSinceUpdate = clock.difference(unit.updatedAt).inHours;
+    final hasPartialProgress =
+        unit.progress.percent > 0 && unit.progress.percent < 1;
+    if (hoursSinceUpdate <= 24 && hasPartialProgress) {
+      return '最近学过，尚未完成';
+    }
+    if (hasPartialProgress) {
+      return '已有进度，继续完成';
+    }
+    if (hoursSinceUpdate <= 24) {
+      return '最近在学';
+    }
+    switch (unit.status) {
+      case LearningUnitStatus.active:
+        return '进行中';
+      case LearningUnitStatus.paused:
+        return '已暂停，可继续';
+      case LearningUnitStatus.planned:
+        return '计划中的新单元';
+      case LearningUnitStatus.completed:
+      case LearningUnitStatus.archived:
+        return '建议继续学习';
+    }
   }
 
   double _score(LearningUnit unit, DateTime now) {
