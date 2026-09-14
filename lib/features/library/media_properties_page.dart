@@ -43,6 +43,8 @@ class MediaPropertiesPage extends StatelessWidget {
           );
         }
 
+        final libraryBreadcrumb = _libraryBreadcrumb(library, item);
+
         return Scaffold(
           backgroundColor: const Color(0xFF121212),
           appBar: AppBar(
@@ -63,6 +65,17 @@ class MediaPropertiesPage extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             children: [
+              _Section(
+                title: '库内位置',
+                children: [
+                  _Row(label: '面包屑', value: libraryBreadcrumb),
+                  _Row(
+                    label: '字幕概况',
+                    value: _subtitleOverview(item),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               _Section(
                 title: '基本信息',
                 children: [
@@ -194,6 +207,23 @@ class MediaPropertiesPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  static String _libraryBreadcrumb(LibraryService library, VideoItem item) {
+    final parts = <String>[];
+    var parentId = item.parentId;
+    while (parentId != null) {
+      final col = library.getCollection(parentId);
+      if (col == null) break;
+      parts.add(col.name);
+      parentId = col.parentId;
+    }
+    final folderPath = parts.reversed.join(' / ');
+    final leaf = item.effectiveDisplayName;
+    if (folderPath.isEmpty) {
+      return '媒体库 / $leaf';
+    }
+    return '媒体库 / $folderPath / $leaf';
   }
 
   static String _subtitleOverview(VideoItem item) {

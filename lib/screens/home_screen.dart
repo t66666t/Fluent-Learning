@@ -14,6 +14,8 @@ import '../services/app_haptics.dart';
 import 'collection_screen.dart';
 import 'recycle_bin_screen.dart';
 import 'package:fluent_learning/features/library/media_properties_page.dart';
+import 'package:fluent_learning/features/library/library_selection_active.dart';
+import 'batch_import_screen.dart';
 import '../models/video_collection.dart';
 import '../models/video_item.dart';
 import '../widgets/folder_drop_target.dart';
@@ -308,6 +310,18 @@ class _HomeScreenState extends State<HomeScreen>
               label: '媒体库设置',
               onSelected: () =>
                   showMediaLibrarySettingsBottomSheet(context, settings),
+            ),
+            mediaLibraryCompactMenuItem(
+              icon: Icons.playlist_add,
+              label: '批量导入',
+              onSelected: () {
+                if (!mounted) return;
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const BatchImportScreen(),
+                  ),
+                );
+              },
             ),
             mediaLibraryCompactMenuItem(
               icon: Icons.checklist,
@@ -763,6 +777,9 @@ class _HomeScreenState extends State<HomeScreen>
     _revealHighlightTimer?.cancel();
     _revealHighlightController.dispose();
     _shortcutFocusNode.dispose();
+    if (librarySelectionActive.value) {
+      librarySelectionActive.value = false;
+    }
     super.dispose();
   }
 
@@ -1852,6 +1869,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Phase 8: keep MainShell NavigationBar in sync with multi-select.
+    if (librarySelectionActive.value != _isSelectionMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (librarySelectionActive.value != _isSelectionMode) {
+          librarySelectionActive.value = _isSelectionMode;
+        }
+      });
+    }
     final settings = Provider.of<SettingsService>(context);
     final useCompactTopBar = useCompactMediaLibraryTopBar(context);
     _stablePlaybackBottomInset =
@@ -2074,6 +2100,17 @@ class _HomeScreenState extends State<HomeScreen>
                             context,
                             settings,
                           ),
+                        ),
+                        ResponsiveIconButton(
+                          icon: Icons.playlist_add,
+                          tooltip: "批量导入媒体",
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const BatchImportScreen(),
+                              ),
+                            );
+                          },
                         ),
                         ResponsiveIconButton(
                           icon: Icons.checklist,
@@ -2905,6 +2942,7 @@ class _HomeScreenState extends State<HomeScreen>
         _updateDragSelection(details.globalPosition);
       },
       onSelectionLongPressEnd: (_) => _endListSelectionGesture(),
+      onOpenProperties: () => MediaPropertiesPage.open(context, item.id),
       onTap: handleTap,
     );
     return MediaLibraryItemInteractionWrapper(
@@ -3539,6 +3577,28 @@ class _HomeScreenState extends State<HomeScreen>
                             },
                           ),
                     ),
+                    if (!_isSelectionMode)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Material(
+                          color: Colors.black54,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () =>
+                                MediaPropertiesPage.open(context, item.id),
+                            child: const Padding(
+                              padding: EdgeInsets.all(6),
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.tealAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluent_learning/features/calendar/calendar_tab_page.dart';
 import 'package:fluent_learning/features/centers/centers_tab_page.dart';
 import 'package:fluent_learning/features/home/home_tab_page.dart';
+import 'package:fluent_learning/features/library/library_selection_active.dart';
 import 'package:fluent_learning/features/library/library_tab_page.dart';
 import 'package:fluent_learning/features/mine/mine_tab_page.dart';
 
@@ -21,6 +22,9 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   late int _currentIndex;
+
+  /// Library tab index in [_tabs] / IndexedStack.
+  static const int _libraryTabIndex = 1;
 
   static const List<_ShellTab> _tabs = <_ShellTab>[
     _ShellTab(
@@ -75,19 +79,29 @@ class _MainShellState extends State<MainShell> {
           MineTabPage(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _onTabSelected,
-        backgroundColor: const Color(0xFF1E1E1E),
-        indicatorColor: Colors.blue.withValues(alpha: 0.24),
-        destinations: [
-          for (final tab in _tabs)
-            NavigationDestination(
-              icon: Icon(tab.icon),
-              selectedIcon: Icon(tab.selectedIcon),
-              label: tab.label,
-            ),
-        ],
+      // Phase 8: hide shell nav while Library multi-select shows its own
+      // BottomAppBar — avoids stacking two bottom bars.
+      bottomNavigationBar: ValueListenableBuilder<bool>(
+        valueListenable: librarySelectionActive,
+        builder: (context, selectionActive, _) {
+          final hideForLibrarySelect =
+              _currentIndex == _libraryTabIndex && selectionActive;
+          if (hideForLibrarySelect) return const SizedBox.shrink();
+          return NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: _onTabSelected,
+            backgroundColor: const Color(0xFF1E1E1E),
+            indicatorColor: Colors.blue.withValues(alpha: 0.24),
+            destinations: [
+              for (final tab in _tabs)
+                NavigationDestination(
+                  icon: Icon(tab.icon),
+                  selectedIcon: Icon(tab.selectedIcon),
+                  label: tab.label,
+                ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -30,6 +30,7 @@ class MediaLibraryListTile extends StatelessWidget {
     this.onSelectionLongPressMoveUpdate,
     this.onSelectionLongPressEnd,
     this.onShowInParentFolder,
+    this.onOpenProperties,
   }) : _video = item,
        _collection = null;
 
@@ -51,6 +52,7 @@ class MediaLibraryListTile extends StatelessWidget {
     this.onSelectionLongPressMoveUpdate,
     this.onSelectionLongPressEnd,
     this.onShowInParentFolder,
+    this.onOpenProperties,
   }) : _collection = collection,
        _video = null;
 
@@ -71,6 +73,7 @@ class MediaLibraryListTile extends StatelessWidget {
   final GestureLongPressMoveUpdateCallback? onSelectionLongPressMoveUpdate;
   final GestureLongPressEndCallback? onSelectionLongPressEnd;
   final VoidCallback? onShowInParentFolder;
+  final VoidCallback? onOpenProperties;
 
   bool get _isCollection => _collection != null;
 
@@ -303,6 +306,28 @@ class MediaLibraryListTile extends StatelessWidget {
                       height: locateButtonHeight,
                       iconSize: locateButtonHeight * 0.60,
                       onPressed: onShowInParentFolder!,
+                    ),
+                  ),
+                if (onOpenProperties != null &&
+                    !_isCollection &&
+                    !isSelectionMode)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: IconButton(
+                      tooltip: '媒体属性',
+                      icon: Icon(
+                        Icons.info_outline_rounded,
+                        color: Colors.tealAccent.withValues(alpha: 0.9),
+                        size: metrics.trailingSize,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(
+                        width: metrics.trailingSize + 10,
+                        height: metrics.trailingSize + 10,
+                      ),
+                      onPressed: onOpenProperties,
                     ),
                   ),
               ],

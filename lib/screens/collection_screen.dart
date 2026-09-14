@@ -2333,6 +2333,7 @@ class _CollectionScreenState extends State<CollectionScreen>
         _updateDragSelection(details.globalPosition);
       },
       onSelectionLongPressEnd: (_) => _endListSelectionGesture(),
+      onOpenProperties: () => MediaPropertiesPage.open(context, item.id),
       onTap: handleTap,
     );
     return MediaLibraryItemInteractionWrapper(
@@ -3028,6 +3029,28 @@ class _CollectionScreenState extends State<CollectionScreen>
                             },
                           ),
                     ),
+                    if (!_isSelectionMode)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Material(
+                          color: Colors.black54,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () =>
+                                MediaPropertiesPage.open(context, item.id),
+                            child: const Padding(
+                              padding: EdgeInsets.all(6),
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: Colors.tealAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
