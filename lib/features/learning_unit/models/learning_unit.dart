@@ -1,3 +1,4 @@
+import 'package:fluent_learning/domain/sync/sync_entity.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit_item_ref.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit_progress.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit_schedule.dart';
@@ -9,7 +10,8 @@ export 'package:fluent_learning/features/learning_unit/models/learning_unit_sche
 export 'package:fluent_learning/features/learning_unit/models/learning_unit_status.dart';
 
 /// A planned set of media/folders to learn through, bound to calendar.
-class LearningUnit {
+class LearningUnit implements SyncEntity {
+  @override
   final String id;
   final String title;
   final String? notes;
@@ -18,9 +20,13 @@ class LearningUnit {
   final LearningUnitSchedule schedule;
   final LearningUnitProgress progress;
   final DateTime createdAt;
+  @override
   final DateTime updatedAt;
   final DateTime? completedAt;
+  @override
   final DateTime? deletedAt;
+  @override
+  final int? revision;
 
   const LearningUnit({
     required this.id,
@@ -34,6 +40,7 @@ class LearningUnit {
     required this.updatedAt,
     this.completedAt,
     this.deletedAt,
+    this.revision,
   });
 
   bool get isDeleted => deletedAt != null;
@@ -53,9 +60,11 @@ class LearningUnit {
     DateTime? updatedAt,
     DateTime? completedAt,
     DateTime? deletedAt,
+    int? revision,
     bool clearCompletedAt = false,
     bool clearDeletedAt = false,
     bool clearNotes = false,
+    bool clearRevision = false,
   }) {
     return LearningUnit(
       id: id,
@@ -70,6 +79,7 @@ class LearningUnit {
       completedAt:
           clearCompletedAt ? null : (completedAt ?? this.completedAt),
       deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
+      revision: clearRevision ? null : (revision ?? this.revision),
     );
   }
 
@@ -86,8 +96,12 @@ class LearningUnit {
       'updatedAt': updatedAt.toIso8601String(),
       if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
       if (deletedAt != null) 'deletedAt': deletedAt!.toIso8601String(),
+      if (revision != null) 'revision': revision,
     };
   }
+
+  @override
+  Map<String, dynamic> toSyncJson() => toJson();
 
   factory LearningUnit.fromJson(Map<String, dynamic> json) {
     final refsRaw = json['itemRefs'];
@@ -122,6 +136,7 @@ class LearningUnit {
           DateTime.fromMillisecondsSinceEpoch(0),
       completedAt: DateTime.tryParse(json['completedAt'] as String? ?? ''),
       deletedAt: DateTime.tryParse(json['deletedAt'] as String? ?? ''),
+      revision: (json['revision'] as num?)?.toInt(),
     );
   }
 }

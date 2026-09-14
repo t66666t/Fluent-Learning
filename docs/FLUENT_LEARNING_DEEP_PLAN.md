@@ -113,7 +113,7 @@
 1. 统一：`id` / `updatedAt` / `deletedAt?` / `revision?`（LearningUnit 已有则对齐 Media 扩展）
 2. `SyncEntity` 接口 + metadata 导出/导入 JSON（不含大视频文件）
 3. 「我的」里：导出/导入入口
-4. 文档：同步策略备注（云端/端到端后续）
+4. 文档：同步策略备注（云端/端到端后续）→ 见 [SYNC_STRATEGY.md](./SYNC_STRATEGY.md)
 
 **验收**：导出再导入学习单元不丢关键字段。
 

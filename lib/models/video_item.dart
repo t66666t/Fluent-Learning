@@ -59,6 +59,10 @@ class VideoItem {
   int? height;
   double? frameRate;
   int? bitRate;
+  /// Optional sync revision for metadata merge (Phase 12).
+  int? syncRevision;
+  /// Optional sync tombstone epoch ms (independent of recycleTime).
+  int? syncDeletedAt;
 
   VideoItem({
     required this.id,
@@ -109,6 +113,8 @@ class VideoItem {
     this.height,
     this.frameRate,
     this.bitRate,
+    this.syncRevision,
+    this.syncDeletedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -168,6 +174,8 @@ class VideoItem {
       'height': height,
       'frameRate': frameRate,
       'bitRate': bitRate,
+      'syncRevision': syncRevision,
+      'syncDeletedAt': syncDeletedAt,
     };
   }
 
@@ -277,6 +285,8 @@ class VideoItem {
       height: json['height'] as int?,
       frameRate: (json['frameRate'] as num?)?.toDouble(),
       bitRate: json['bitRate'] as int?,
+      syncRevision: (json['syncRevision'] as num?)?.toInt(),
+      syncDeletedAt: (json['syncDeletedAt'] as num?)?.toInt(),
     );
   }
 

@@ -427,6 +427,10 @@ class LibraryService extends ChangeNotifier {
   VideoItem? getVideo(String id) => _videos[id];
   VideoCollection? getCollection(String id) => _collections[id];
 
+  /// Snapshot of all media rows for metadata sync (no blob I/O).
+  List<VideoItem> get videosForSyncMetadata =>
+      _videos.values.toList(growable: false);
+
   /// 获取指定文件夹中的所有视频（不包括回收站中的），并按照正确的顺序排列
   List<VideoItem> getVideosInFolder(String? folderId) {
     List<String> sourceIds;

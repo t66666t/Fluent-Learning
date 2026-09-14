@@ -2,18 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/core/theme_tokens.dart';
+import 'package:fluent_learning/domain/sync/sync.dart';
 import 'package:fluent_learning/features/centers/download_center_page.dart';
 import 'package:fluent_learning/features/centers/model_center_page.dart';
 import 'package:fluent_learning/features/centers/processing_center_page.dart';
+import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
+import 'package:fluent_learning/services/library_service.dart';
 import 'package:fluent_learning/services/settings_service.dart';
 import 'package:fluent_learning/system/download_center/download_center.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
 import 'package:fluent_learning/widgets/media_library_settings_sheet.dart';
 
-/// 「我的」Tab — Phase 9 settings navigation shell.
-///
-/// Links/opens existing settings UI without rewriting settings logic.
-class MineTabPage extends StatelessWidget {
+/// 「我的」Tab — settings navigation + Phase 12 metadata export/import.
+class MineTabPage extends StatefulWidget {
   const MineTabPage({super.key});
+
+  @override
+  State<MineTabPage> createState() => _MineTabPageState();
+}
+
+class _MineTabPageState extends State<MineTabPage> with AppInlineFeedbackMixin {
+  bool _busy = false;
 
   void _openMediaLibrarySettings(BuildContext context) {
     final settings = context.read<SettingsService>();
@@ -33,8 +42,79 @@ class MineTabPage extends StatelessWidget {
     );
   }
 
+  Future<void> _exportMetadata() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    showInlineFeedback(
+      AppFeedbackMessage.loading('正在导出元数据…'),
+      autoClear: false,
+    );
+    try {
+      final units = context.read<LearningUnitRepository>().allUnitsForSync;
+      final media = context.read<LibraryService>().videosForSyncMetadata;
+      final file = await MetadataSyncIo.writeExportFile(
+        learningUnits: units,
+        mediaItems: media,
+      );
+      if (!mounted) return;
+      await MetadataSyncIo.shareExportFile(file);
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.success(
+          '已导出 ${units.length} 个学习单元（元数据，不含视频）\n${file.path}',
+          title: '导出成功',
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.error('导出失败: $e', title: '导出'),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _importMetadata() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    showInlineFeedback(
+      AppFeedbackMessage.loading('选择并导入元数据…'),
+      autoClear: false,
+    );
+    try {
+      final bundle = await MetadataSyncIo.pickAndDecodeBundle();
+      if (!mounted) return;
+      if (bundle == null) {
+        clearInlineFeedback();
+        return;
+      }
+      final repo = context.read<LearningUnitRepository>();
+      final result = await MetadataSyncIo.importBundleIntoRepository(
+        repository: repo,
+        bundle: bundle,
+      );
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.success(
+          '导入学习单元 ${result.upserted}，跳过 ${result.skipped}'
+          '${result.mediaRows > 0 ? '；媒体元数据行 ${result.mediaRows}（仅记录，未改库文件）' : ''}',
+          title: '导入完成',
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showInlineFeedback(
+        AppFeedbackMessage.error('导入失败: $e', title: '导入'),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final feedback = buildInlineFeedbackBanner(dense: true);
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
@@ -45,6 +125,10 @@ class MineTabPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
+          if (feedback != null) ...[
+            feedback,
+            const SizedBox(height: 12),
+          ],
           const _SectionLabel('设置'),
           const SizedBox(height: 8),
           _NavCard(
@@ -92,9 +176,27 @@ class MineTabPage extends StatelessWidget {
               name: '/model_center',
             ),
           ),
+          const SizedBox(height: 20),
+          const _SectionLabel('数据与同步（元数据）'),
+          const SizedBox(height: 8),
+          _NavCard(
+            icon: Icons.upload_file_outlined,
+            iconColor: Colors.lightGreenAccent,
+            title: '导出学习元数据',
+            subtitle: 'JSON 导出学习单元 + 轻量媒体字段（不含视频文件）',
+            onTap: _busy ? () {} : _exportMetadata,
+          ),
+          const SizedBox(height: 10),
+          _NavCard(
+            icon: Icons.download_outlined,
+            iconColor: Colors.cyanAccent,
+            title: '导入学习元数据',
+            subtitle: '从 JSON 合并学习单元（按 updatedAt / revision）',
+            onTap: _busy ? () {} : _importMetadata,
+          ),
           const SizedBox(height: 24),
           Text(
-            '播放器内设置仍从播放页打开；此处仅做导航壳，不重写设置逻辑。',
+            '播放器内设置仍从播放页打开；导出仅含元数据，不同步视频/音频本体。',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.38),
               fontSize: 12,

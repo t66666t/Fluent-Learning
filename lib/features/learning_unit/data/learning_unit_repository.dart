@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:fluent_learning/domain/sync/metadata_sync_codec.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit_progress_rules.dart';
 import 'package:fluent_learning/models/video_item.dart';
@@ -48,6 +49,55 @@ class LearningUnitRepository extends ChangeNotifier {
     final unit = _units[id];
     if (unit == null || unit.isDeleted) return null;
     return unit;
+  }
+
+  /// All units including soft-deleted (for metadata sync tombstones).
+  List<LearningUnit> get allUnitsForSync {
+    final list = _units.values.toList();
+    list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return list;
+  }
+
+  /// Upsert units from a metadata sync bundle (last-write-wins on updatedAt/revision).
+  Future<MetadataSyncImportResult> importMetadataBundle(
+    MetadataSyncBundle bundle, {
+    bool includeDeleted = true,
+  }) async {
+    var upserted = 0;
+    var skipped = 0;
+    for (final incoming in bundle.learningUnits) {
+      if (incoming.id.isEmpty) {
+        skipped++;
+        continue;
+      }
+      if (!includeDeleted && incoming.isDeleted) {
+        skipped++;
+        continue;
+      }
+      final existing = _units[incoming.id];
+      if (existing != null && !_shouldAcceptIncoming(existing, incoming)) {
+        skipped++;
+        continue;
+      }
+      _units[incoming.id] = incoming;
+      upserted++;
+    }
+    if (upserted > 0) {
+      await _persist();
+      notifyListeners();
+    }
+    return MetadataSyncImportResult(
+      upserted: upserted,
+      skipped: skipped,
+      mediaRows: bundle.mediaMetadata.length,
+    );
+  }
+
+  bool _shouldAcceptIncoming(LearningUnit existing, LearningUnit incoming) {
+    final cmp = incoming.updatedAt.compareTo(existing.updatedAt);
+    if (cmp > 0) return true;
+    if (cmp < 0) return false;
+    return (incoming.revision ?? 0) >= (existing.revision ?? 0);
   }
 
   void attachLibraryService(LibraryService library) {
