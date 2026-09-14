@@ -720,7 +720,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               labelFontWeight: labelFontWeight,
               isIOS: isIOS,
             ),
-            home: const MainShell(initialIndex: 1),
+            home: const MainShell(),
           ),
         ),
       ),

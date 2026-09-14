@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fluent_learning/app/main_shell.dart';
 import 'package:fluent_learning/features/learning_unit/data/learning_unit_repository.dart';
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 import 'package:fluent_learning/features/learning_unit/pages/create_learning_unit_page.dart';
 import 'package:fluent_learning/features/learning_unit/pages/learning_unit_detail_page.dart';
 import 'package:fluent_learning/features/learning_unit/recommend/learning_unit_recommender.dart';
+import 'package:fluent_learning/services/library_service.dart';
 
 /// 「首页」Tab — continue / recommend cards + create learning unit.
 class HomeTabPage extends StatelessWidget {
@@ -31,6 +33,14 @@ class HomeTabPage extends StatelessWidget {
     );
   }
 
+  void _goLibrary() {
+    mainShellTabRequest.value = MainShellTab.library;
+  }
+
+  bool _libraryHasMedia(LibraryService library) {
+    return library.videosForSyncMetadata.any((v) => !v.isRecycled);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,10 +59,14 @@ class HomeTabPage extends StatelessWidget {
           const SizedBox(width: 4),
         ],
       ),
-      body: Consumer<LearningUnitRepository>(
-        builder: (context, repo, _) {
+      body: Consumer2<LearningUnitRepository, LibraryService>(
+        builder: (context, repo, library, _) {
           if (repo.units.isEmpty) {
-            return _EmptyHome(onCreate: () => _openCreate(context));
+            return _EmptyHome(
+              hasMedia: _libraryHasMedia(library),
+              onCreate: () => _openCreate(context),
+              onGoLibrary: _goLibrary,
+            );
           }
 
           final continueUnits = repo.units
@@ -119,12 +133,24 @@ class HomeTabPage extends StatelessWidget {
 }
 
 class _EmptyHome extends StatelessWidget {
-  const _EmptyHome({required this.onCreate});
+  const _EmptyHome({
+    required this.hasMedia,
+    required this.onCreate,
+    required this.onGoLibrary,
+  });
 
+  final bool hasMedia;
   final VoidCallback onCreate;
+  final VoidCallback onGoLibrary;
 
   @override
   Widget build(BuildContext context) {
+    final primaryLabel =
+        hasMedia ? '从媒体库生成学习单元' : '新建学习单元';
+    final subtitle = hasMedia
+        ? '媒体库里已有资料。把它们组成一次学习，进度会跟着播放走。'
+        : '把资料库里的媒体组成一次学习，进度会跟着播放走。';
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -146,21 +172,30 @@ class _EmptyHome extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '把资料库里的媒体组成一次学习，进度会跟着播放走。',
+            Text(
+              subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              style: const TextStyle(color: Colors.white54, fontSize: 13),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onCreate,
-              icon: const Icon(Icons.add),
-              label: const Text('新建单元'),
+              icon: Icon(hasMedia ? Icons.auto_awesome : Icons.add),
+              label: Text(primaryLabel),
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF1E88E5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: onGoLibrary,
+              icon: const Icon(Icons.video_library_outlined, size: 18),
+              label: const Text('去媒体库导入'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.lightBlueAccent,
               ),
             ),
           ],

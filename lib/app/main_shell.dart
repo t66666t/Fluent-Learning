@@ -6,6 +6,20 @@ import 'package:fluent_learning/features/library/library_selection_active.dart';
 import 'package:fluent_learning/features/library/library_tab_page.dart';
 import 'package:fluent_learning/features/mine/mine_tab_page.dart';
 
+/// Request [MainShell] to switch tabs (e.g. Home empty CTA → Library).
+///
+/// Set to a tab index; [MainShell] applies and clears back to null.
+final ValueNotifier<int?> mainShellTabRequest = ValueNotifier<int?>(null);
+
+/// Tab indices for [MainShell] / [mainShellTabRequest].
+abstract final class MainShellTab {
+  static const int home = 0;
+  static const int library = 1;
+  static const int calendar = 2;
+  static const int centers = 3;
+  static const int mine = 4;
+}
+
 /// Root 5-tab shell for Phase 1.
 ///
 /// Uses [IndexedStack] so each tab keeps its state (including the embedded
@@ -24,7 +38,7 @@ class _MainShellState extends State<MainShell> {
   late int _currentIndex;
 
   /// Library tab index in [_tabs] / IndexedStack.
-  static const int _libraryTabIndex = 1;
+  static const int _libraryTabIndex = MainShellTab.library;
 
   static const List<_ShellTab> _tabs = <_ShellTab>[
     _ShellTab(
@@ -58,6 +72,23 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex.clamp(0, _tabs.length - 1);
+    mainShellTabRequest.addListener(_onTabRequest);
+  }
+
+  @override
+  void dispose() {
+    mainShellTabRequest.removeListener(_onTabRequest);
+    super.dispose();
+  }
+
+  void _onTabRequest() {
+    final requested = mainShellTabRequest.value;
+    if (requested == null) return;
+    // Clear so the same tab can be requested again later.
+    mainShellTabRequest.value = null;
+    final index = requested.clamp(0, _tabs.length - 1);
+    if (index == _currentIndex || !mounted) return;
+    setState(() => _currentIndex = index);
   }
 
   void _onTabSelected(int index) {
