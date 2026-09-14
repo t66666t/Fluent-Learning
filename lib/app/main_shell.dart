@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluent_learning/app/responsive.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:fluent_learning/features/calendar/calendar_tab_page.dart';
 import 'package:fluent_learning/features/centers/centers_tab_page.dart';
 import 'package:fluent_learning/features/home/home_tab_page.dart';
@@ -24,6 +26,9 @@ abstract final class MainShellTab {
 ///
 /// Uses [IndexedStack] so each tab keeps its state (including the embedded
 /// media-library [HomeScreen] under 「媒体库」).
+///
+/// Beautify U2: compact keeps bottom [NavigationBar]; medium+ uses
+/// [NavigationRail]. Selection semantics are unchanged.
 class MainShell extends StatefulWidget {
   const MainShell({super.key, this.initialIndex = 0});
 
@@ -96,44 +101,142 @@ class _MainShellState extends State<MainShell> {
     setState(() => _currentIndex = index);
   }
 
+  Widget _buildTabStack() {
+    return IndexedStack(
+      index: _currentIndex,
+      children: const <Widget>[
+        HomeTabPage(),
+        LibraryTabPage(),
+        CalendarTabPage(),
+        CentersTabPage(),
+        MineTabPage(),
+      ],
+    );
+  }
+
+  Widget _buildBottomBar() {
+    return NavigationBar(
+      selectedIndex: _currentIndex,
+      onDestinationSelected: _onTabSelected,
+      backgroundColor: AppColors.elevated,
+      indicatorColor: AppColors.primary.withValues(alpha: 0.24),
+      destinations: [
+        for (final tab in _tabs)
+          NavigationDestination(
+            icon: Icon(tab.icon),
+            selectedIcon: Icon(tab.selectedIcon),
+            label: tab.label,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRail(BuildContext context) {
+    return NavigationRail(
+      selectedIndex: _currentIndex,
+      onDestinationSelected: _onTabSelected,
+      backgroundColor: AppColors.elevated,
+      indicatorColor: AppColors.primary.withValues(alpha: 0.24),
+      labelType: NavigationRailLabelType.all,
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme:
+          const IconThemeData(color: AppColors.onSurfaceVariant),
+      selectedLabelTextStyle: const TextStyle(
+        color: AppColors.primary,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelTextStyle: const TextStyle(
+        color: AppColors.onSurfaceVariant,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ),
+      destinations: [
+        for (final tab in _tabs)
+          NavigationRailDestination(
+            icon: Icon(tab.icon),
+            selectedIcon: Icon(tab.selectedIcon),
+            label: Text(tab.label),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: const <Widget>[
-          HomeTabPage(),
-          LibraryTabPage(),
-          CalendarTabPage(),
-          CentersTabPage(),
-          MineTabPage(),
-        ],
-      ),
-      // Phase 8: hide shell nav while Library multi-select shows its own
-      // BottomAppBar — avoids stacking two bottom bars.
-      bottomNavigationBar: ValueListenableBuilder<bool>(
-        valueListenable: librarySelectionActive,
-        builder: (context, selectionActive, _) {
-          final hideForLibrarySelect =
-              _currentIndex == _libraryTabIndex && selectionActive;
-          if (hideForLibrarySelect) return const SizedBox.shrink();
-          return NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: _onTabSelected,
-            backgroundColor: const Color(0xFF1E1E1E),
-            indicatorColor: Colors.blue.withValues(alpha: 0.24),
-            destinations: [
-              for (final tab in _tabs)
-                NavigationDestination(
-                  icon: Icon(tab.icon),
-                  selectedIcon: Icon(tab.selectedIcon),
-                  label: tab.label,
-                ),
+    final compact = context.isCompact;
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: librarySelectionActive,
+      builder: (context, selectionActive, _) {
+        // Phase 8: hide shell nav while Library multi-select shows its own
+        // BottomAppBar — avoids stacking two bottom bars / chrome.
+        final hideForLibrarySelect =
+            _currentIndex == _libraryTabIndex && selectionActive;
+
+        final stack = _buildTabStack();
+
+        final Widget body;
+        if (compact) {
+          body = stack;
+        } else {
+          body = Row(
+            children: [
+              AnimatedSwitcher(
+                duration: AppMotion.normal,
+                switchInCurve: AppMotion.standard,
+                switchOutCurve: AppMotion.accelerate,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SizeTransition(
+                      sizeFactor: animation,
+                      axis: Axis.horizontal,
+                      alignment: Alignment.centerLeft,
+                      child: child,
+                    ),
+                  );
+                },
+                child: hideForLibrarySelect
+                    ? const SizedBox.shrink(key: ValueKey('rail-hidden'))
+                    : KeyedSubtree(
+                        key: const ValueKey('rail-visible'),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildRail(context),
+                            const VerticalDivider(
+                              width: 1,
+                              thickness: 1,
+                              color: AppColors.outlineVariant,
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+              Expanded(child: stack),
             ],
           );
-        },
-      ),
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.scaffold,
+          body: body,
+          bottomNavigationBar: compact
+              ? AnimatedSwitcher(
+                  duration: AppMotion.normal,
+                  switchInCurve: AppMotion.standard,
+                  switchOutCurve: AppMotion.accelerate,
+                  child: hideForLibrarySelect
+                      ? const SizedBox.shrink(key: ValueKey('bar-hidden'))
+                      : KeyedSubtree(
+                          key: const ValueKey('bar-visible'),
+                          child: _buildBottomBar(),
+                        ),
+                )
+              : null,
+        );
+      },
     );
   }
 }

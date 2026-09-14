@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 import 'package:provider/provider.dart';
 
 import '../models/video_collection.dart';
@@ -149,7 +150,7 @@ class MediaLibraryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = Colors.blueAccent;
+    final accent = AppColors.primary;
     return LayoutBuilder(
       builder: (context, constraints) {
         final metrics = MediaListLayoutMetrics.forTile(
@@ -179,13 +180,13 @@ class MediaLibraryListTile extends StatelessWidget {
           key: const ValueKey('media-list-card'),
           color: isSelected
               ? accent.withValues(alpha: 0.14)
-              : const Color(0xFF272A2F),
+              : AppColors.elevated,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(metrics.radius),
             side: BorderSide(
               color: isSelected
                   ? accent.withValues(alpha: 0.9)
-                  : Colors.white.withValues(alpha: 0.075),
+                  : AppColors.outlineVariant,
               width: isSelected
                   ? metrics.selectedBorderWidth
                   : metrics.borderWidth,
@@ -194,8 +195,10 @@ class MediaLibraryListTile extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            hoverColor: Colors.white.withValues(alpha: 0.045),
+            hoverColor: AppColors.onSurface.withValues(alpha: 0.06),
             splashColor: accent.withValues(alpha: 0.12),
+            highlightColor: accent.withValues(alpha: 0.08),
+            mouseCursor: SystemMouseCursors.click,
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -208,7 +211,7 @@ class MediaLibraryListTile extends StatelessWidget {
                           '${index + 1}'.padLeft(2, '0'),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white38,
+                            color: AppColors.onSurfaceVariant,
                             fontSize: metrics.indexFontSize,
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
@@ -260,7 +263,9 @@ class MediaLibraryListTile extends StatelessWidget {
                           right: metrics.trailingPadding,
                         ),
                         child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 160),
+                          duration: AppMotion.fast,
+                          switchInCurve: AppMotion.standard,
+                          switchOutCurve: AppMotion.accelerate,
                           child: isSelectionMode
                               ? GestureDetector(
                                   key: const ValueKey(
@@ -280,7 +285,7 @@ class MediaLibraryListTile extends StatelessWidget {
                                         ? Icons.check_circle_rounded
                                         : Icons.radio_button_unchecked_rounded,
                                     key: ValueKey(isSelected),
-                                    color: isSelected ? accent : Colors.white30,
+                                    color: isSelected ? accent : AppColors.onSurfaceVariant.withValues(alpha: 0.5),
                                     size: metrics.trailingSize,
                                   ),
                                 )
@@ -289,7 +294,7 @@ class MediaLibraryListTile extends StatelessWidget {
                                       ? Icons.chevron_right_rounded
                                       : Icons.play_arrow_rounded,
                                   key: ValueKey(_isCollection),
-                                  color: Colors.white38,
+                                  color: AppColors.onSurfaceVariant,
                                   size: metrics.trailingSize,
                                 ),
                         ),
@@ -318,7 +323,7 @@ class MediaLibraryListTile extends StatelessWidget {
                       tooltip: '媒体属性',
                       icon: Icon(
                         Icons.info_outline_rounded,
-                        color: Colors.tealAccent.withValues(alpha: 0.9),
+                        color: AppColors.primary.withValues(alpha: 0.9),
                         size: metrics.trailingSize,
                       ),
                       visualDensity: VisualDensity.compact,
@@ -349,7 +354,7 @@ class MediaLibraryListTile extends StatelessWidget {
         : _video!.type == MediaType.audio
         ? Icons.music_note_rounded
         : Icons.movie_rounded;
-    final placeholderColor = _isCollection ? Colors.blueAccent : Colors.white30;
+    final placeholderColor = _isCollection ? AppColors.primary : AppColors.onSurfaceVariant;
     final path = _isCollection
         ? _collection!.thumbnailPath
         : _video!.thumbnailPath;
@@ -359,7 +364,7 @@ class MediaLibraryListTile extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         ColoredBox(
-          color: const Color(0xFF17191D),
+          color: AppColors.scaffold,
           child: path != null && path.isNotEmpty
               ? CachedThumbnailWidget(
                   videoId: id,
@@ -401,7 +406,7 @@ class MediaLibraryListTile extends StatelessWidget {
                   indexLabel,
                   key: const ValueKey('media-list-thumbnail-index'),
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: AppColors.onSurface.withValues(alpha: 0.7),
                     fontSize: extent * 0.22,
                     height: 1,
                     fontFeatures: const [FontFeature.tabularFigures()],
@@ -472,7 +477,7 @@ class MediaLibraryListTile extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.94),
+              color: AppColors.onSurface.withValues(alpha: 0.94),
               fontSize: metrics.titleSize,
               height: 1.08,
               fontWeight: FontWeight.w600,
@@ -513,8 +518,8 @@ class MediaLibraryListTile extends StatelessWidget {
           icon,
           size: metrics.metadataIconSize,
           color: accent
-              ? Colors.blueAccent
-              : Colors.white.withValues(alpha: 0.46),
+              ? AppColors.primary
+              : AppColors.onSurfaceVariant.withValues(alpha: 0.7),
         ),
         SizedBox(width: metrics.metadataIconGap),
         Flexible(
@@ -523,7 +528,7 @@ class MediaLibraryListTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: accent ? Colors.blueAccent.shade100 : Colors.white54,
+              color: accent ? AppColors.primary : AppColors.onSurfaceVariant,
               fontSize: metrics.metadataSize,
               height: 1,
               fontWeight: FontWeight.w500,
@@ -577,7 +582,7 @@ class _VideoMetaLine extends StatelessWidget {
                     ? Icons.graphic_eq_rounded
                     : Icons.smart_display_rounded,
                 size: metrics.metadataIconSize,
-                color: Colors.white.withValues(alpha: 0.46),
+                color: AppColors.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               SizedBox(width: metrics.metadataIconGap),
               Flexible(
@@ -586,7 +591,7 @@ class _VideoMetaLine extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.white54,
+                    color: AppColors.onSurfaceVariant,
                     fontSize: metrics.metadataSize,
                     height: 1,
                     fontWeight: FontWeight.w500,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluent_learning/app/responsive.dart';
 import 'package:fluent_learning/app/theme.dart';
-import 'package:fluent_learning/core/theme_tokens.dart';
 
 void main() {
   group('AppRadii / AppMotion governance', () {

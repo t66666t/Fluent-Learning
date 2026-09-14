@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:fluent_learning/core/theme_tokens.dart';
+
 /// Shared empty / no-search-results copy for Library & Media Picker (Phase 16).
 abstract final class MediaLibraryEmptyCopy {
   static const String libraryEmptyTitle = '还没有内容';
@@ -88,13 +90,13 @@ class MediaLibraryEmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: iconSize, color: Colors.white24),
+            Icon(icon, size: iconSize, color: AppColors.outline),
             SizedBox(height: compact ? 12 : 16),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white54,
+                color: AppColors.onSurfaceVariant,
                 fontSize: titleSize,
                 fontWeight: FontWeight.w500,
               ),
@@ -105,7 +107,7 @@ class MediaLibraryEmptyState extends StatelessWidget {
                 subtitle!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white38,
+                  color: AppColors.onSurfaceVariant.withValues(alpha: 0.75),
                   fontSize: compact ? 12 : 13,
                   height: 1.35,
                 ),

@@ -133,6 +133,23 @@ ThemeData buildAppDarkTheme({
         );
       }),
     ),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: AppColors.elevated,
+      indicatorColor: AppColors.primary.withValues(alpha: 0.24),
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme:
+          const IconThemeData(color: AppColors.onSurfaceVariant),
+      selectedLabelTextStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: AppColors.primary,
+      ),
+      unselectedLabelTextStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: AppColors.onSurfaceVariant,
+      ),
+    ),
     cardTheme: CardThemeData(
       color: AppColors.elevated,
       surfaceTintColor: Colors.transparent,
