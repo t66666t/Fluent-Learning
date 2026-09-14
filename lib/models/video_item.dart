@@ -55,6 +55,8 @@ class VideoItem {
   int? importedAt;
   /// Last playback touch in epoch milliseconds.
   int? lastPlayedAt;
+  /// Optional original publish / release time in epoch milliseconds.
+  int? publishedAt;
   int? width;
   int? height;
   double? frameRate;
@@ -109,6 +111,7 @@ class VideoItem {
     this.fileName,
     this.importedAt,
     this.lastPlayedAt,
+    this.publishedAt,
     this.width,
     this.height,
     this.frameRate,
@@ -170,6 +173,7 @@ class VideoItem {
       'fileName': fileName,
       'importedAt': importedAt,
       'lastPlayedAt': lastPlayedAt,
+      'publishedAt': publishedAt,
       'width': width,
       'height': height,
       'frameRate': frameRate,
@@ -281,6 +285,7 @@ class VideoItem {
       fileName: json['fileName'] as String?,
       importedAt: json['importedAt'] as int?,
       lastPlayedAt: json['lastPlayedAt'] as int?,
+      publishedAt: (json['publishedAt'] as num?)?.toInt(),
       width: json['width'] as int?,
       height: json['height'] as int?,
       frameRate: (json['frameRate'] as num?)?.toDouble(),

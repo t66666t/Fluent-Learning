@@ -167,6 +167,10 @@ class MediaPropertiesPage extends StatelessWidget {
                 title: '时间',
                 children: [
                   _Row(
+                    label: '发布时间',
+                    value: _formatEpoch(item.publishedAt),
+                  ),
+                  _Row(
                     label: '导入时间',
                     value: _formatEpoch(item.importedAt),
                   ),
