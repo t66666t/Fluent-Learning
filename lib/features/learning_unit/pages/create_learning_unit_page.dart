@@ -5,6 +5,8 @@ import 'package:fluent_learning/features/learning_unit/data/learning_unit_reposi
 import 'package:fluent_learning/features/learning_unit/models/learning_unit.dart';
 import 'package:fluent_learning/features/learning_unit/pages/learning_unit_detail_page.dart';
 import 'package:fluent_learning/system/media_picker/media_picker.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Create flow: title → media picker → optional due date → save.
 class CreateLearningUnitPage extends StatefulWidget {
@@ -22,7 +24,7 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
   List<String> _folderIds = const <String>[];
   DateTime? _dueDate;
   bool _saving = false;
-  String? _statusMessage;
+  AppFeedbackMessage? _statusFeedback;
 
   @override
   void dispose() {
@@ -45,8 +47,10 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
     setState(() {
       _mediaIds = List<String>.from(result.mediaIds);
       _folderIds = List<String>.from(result.folderIds);
-      _statusMessage =
-          '已选媒体 ${_mediaIds.length}${_folderIds.isEmpty ? '' : '，文件夹 ${_folderIds.length}'}';
+      _statusFeedback = AppFeedbackMessage.info(
+        '已选媒体 ${_mediaIds.length}'
+        '${_folderIds.isEmpty ? '' : '，文件夹 ${_folderIds.length}'}',
+      );
     });
   }
 
@@ -80,17 +84,22 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
   Future<void> _save() async {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      setState(() => _statusMessage = '请填写标题');
+      setState(
+        () => _statusFeedback = AppFeedbackMessage.error('请填写标题', title: '无法保存'),
+      );
       return;
     }
     if (_mediaIds.isEmpty && _folderIds.isEmpty) {
-      setState(() => _statusMessage = '请选择媒体或文件夹');
+      setState(
+        () => _statusFeedback =
+            AppFeedbackMessage.error('请选择媒体或文件夹', title: '无法保存'),
+      );
       return;
     }
 
     setState(() {
       _saving = true;
-      _statusMessage = '正在保存…';
+      _statusFeedback = AppFeedbackMessage.loading('正在保存学习单元…', title: '保存');
     });
 
     try {
@@ -114,6 +123,10 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
       );
 
       if (!mounted) return;
+      // Inline success flash before navigation (no floating toast).
+      setState(() {
+        _statusFeedback = AppFeedback.saveSuccess('学习单元已保存，正在打开…');
+      });
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => LearningUnitDetailPage(unitId: unit.id),
@@ -124,7 +137,8 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _statusMessage = '保存失败: $e';
+        _statusFeedback =
+            AppFeedbackMessage.error('保存失败: $e', title: '保存失败');
       });
     }
   }
@@ -212,7 +226,7 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadii.borderMd,
               ),
             ),
             child: _saving
@@ -223,12 +237,9 @@ class _CreateLearningUnitPageState extends State<CreateLearningUnitPage> {
                   )
                 : const Text('保存并打开'),
           ),
-          if (_statusMessage != null) ...[
+          if (_statusFeedback != null) ...[
             const SizedBox(height: 12),
-            Text(
-              _statusMessage!,
-              style: const TextStyle(color: Colors.white54, fontSize: 13),
-            ),
+            AppInlineBanner(message: _statusFeedback!),
           ],
         ],
       ),
@@ -255,9 +266,9 @@ class _ActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: const Color(0xFF1E1E1E),
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: AppRadii.borderMd,
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.borderMd,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),

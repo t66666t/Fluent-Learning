@@ -16,6 +16,7 @@ import 'package:fluent_learning/features/youtube_download/services/yt_dlp_input_
 import 'package:fluent_learning/features/youtube_download/services/yt_dlp_meta_parser.dart';
 import 'package:fluent_learning/features/youtube_download/services/yt_dlp_version.dart';
 import 'package:fluent_learning/utils/app_toast.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
 
 class YtDlpDownloadScreen extends StatefulWidget {
   final String? initialInput;
@@ -38,6 +39,7 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
   );
   final Map<String, bool> _taskExpansionOverrides = <String, bool>{};
   bool _isCheckingBinaryStatus = false;
+  AppFeedbackMessage? _downloadStartFeedback;
   late final YtDlpDownloadService _service;
 
   @override
@@ -86,13 +88,20 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
 
     if (!mounted) return;
     if (successCount > 0) {
-      AppToast.show('已创建 $successCount 个任务', type: AppToastType.success);
+      // Phase 9: inline feedback instead of floating toast on download start.
+      setState(() {
+        _downloadStartFeedback = AppFeedback.downloadStarted(
+          '已创建 $successCount 个下载任务',
+        );
+      });
       _inputController.clear();
     } else {
-      AppToast.show(
-        service.resolvingStatus ?? '解析失败',
-        type: AppToastType.error,
-      );
+      setState(() {
+        _downloadStartFeedback = AppFeedbackMessage.error(
+          service.resolvingStatus ?? '解析失败',
+          title: '无法开始下载',
+        );
+      });
     }
   }
 
@@ -1502,6 +1511,16 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                         );
                       },
                     ),
+                    if (_downloadStartFeedback != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        child: AppInlineBanner(
+                          message: _downloadStartFeedback!,
+                          dense: true,
+                          onDismiss: () =>
+                              setState(() => _downloadStartFeedback = null),
+                        ),
+                      ),
                     Selector<
                       YtDlpDownloadService,
                       ({bool supported, bool enabled, bool active})
@@ -1921,6 +1940,12 @@ class _YtDlpDownloadScreenState extends State<YtDlpDownloadScreen> {
                                     switch (value) {
                                       case 'start':
                                         service.startTask(task);
+                                        setState(() {
+                                          _downloadStartFeedback =
+                                              AppFeedback.downloadStarted(
+                                            '已开始下载：${task.title}',
+                                          );
+                                        });
                                         break;
                                       case 'pause':
                                         service.pauseTask(task);

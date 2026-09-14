@@ -7,6 +7,8 @@ import 'package:fluent_learning/models/bilibili_download_task.dart';
 import 'package:fluent_learning/screens/bilibili_download_screen.dart';
 import 'package:fluent_learning/services/bilibili/bilibili_download_service.dart';
 import 'package:fluent_learning/system/download_center/download_center.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Download Center hall — entry cards to existing B站 / yt-dlp screens.
 class DownloadCenterPage extends StatefulWidget {
@@ -27,7 +29,8 @@ class DownloadCenterPage extends StatefulWidget {
   State<DownloadCenterPage> createState() => _DownloadCenterPageState();
 }
 
-class _DownloadCenterPageState extends State<DownloadCenterPage> {
+class _DownloadCenterPageState extends State<DownloadCenterPage>
+    with AppInlineFeedbackMixin {
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,12 @@ class _DownloadCenterPageState extends State<DownloadCenterPage> {
   }
 
   void _openBilibili({bool streamingMode = false}) {
+    showInlineFeedback(
+      AppFeedback.downloadStarted(
+        streamingMode ? '正在打开 B站串流导入…' : '正在打开 B站下载…',
+      ),
+      hold: AppMotion.emphasized,
+    );
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => BilibiliDownloadScreen(
@@ -60,6 +69,10 @@ class _DownloadCenterPageState extends State<DownloadCenterPage> {
   }
 
   void _openYtDlp() {
+    showInlineFeedback(
+      AppFeedback.downloadStarted('正在打开 yt-dlp 下载…'),
+      hold: AppMotion.emphasized,
+    );
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => YtDlpDownloadScreen(
@@ -110,12 +123,17 @@ class _DownloadCenterPageState extends State<DownloadCenterPage> {
           final ytInProgress = ytDlp.activeCount + ytDlp.queuedCount;
           final totalInProgress = biliInProgress + ytInProgress;
 
+          final feedback = buildInlineFeedbackBanner(dense: true);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              if (feedback != null) ...[
+                feedback,
+                const SizedBox(height: 12),
+              ],
               Material(
                 color: const Color(0xFF1A2330),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.borderLg,
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -190,9 +208,9 @@ class _CenterEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: const Color(0xFF1E1E1E),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppRadii.borderLg,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.borderLg,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -216,7 +234,7 @@ class _CenterEntryCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppRadii.borderSm,
                         ),
                         child: Text(
                           badge!,

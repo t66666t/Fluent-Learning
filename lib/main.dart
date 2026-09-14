@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart' as audio_service;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:fluent_learning/features/youtube_download/services/yt_dlp_download_service.dart';
 import 'package:fluent_learning/platform/windows_video_player_media_kit.dart';
 import 'package:fluent_learning/app/main_shell.dart';
+import 'package:fluent_learning/app/theme.dart';
 import 'services/library_service.dart';
 import 'services/settings_service.dart';
 import 'services/transcription_manager.dart';
@@ -342,11 +342,7 @@ class _StartupSurface extends StatelessWidget {
     return MaterialApp(
       title: 'Fluent Learning',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        colorScheme: const ColorScheme.dark(primary: Color(0xFF6EA8FF)),
-      ),
+      theme: buildAppBootstrapTheme(),
       home: Scaffold(
         body: Center(
           child: Semantics(
@@ -714,70 +710,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 child: child ?? const SizedBox.shrink(),
               );
             },
-            theme: ThemeData(
-              brightness: Brightness.dark,
-              primarySwatch: Colors.blue,
-              scaffoldBackgroundColor: const Color(0xFF121212),
-              typography: Typography.material2021(
-                platform: isIOS ? TargetPlatform.iOS : defaultTargetPlatform,
-              ),
+            theme: buildAppDarkTheme(
+              baseTextTheme: baseTextTheme,
               fontFamily: platformTextFontFamily,
-              textTheme: baseTextTheme
-                  .apply(
-                    bodyColor: Colors.white,
-                    displayColor: Colors.white,
-                    fontFamily: platformTextFontFamily,
-                  )
-                  .copyWith(
-                    displayLarge: baseTextTheme.displayLarge?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    displayMedium: baseTextTheme.displayMedium?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    displaySmall: baseTextTheme.displaySmall?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    headlineLarge: baseTextTheme.headlineLarge?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    headlineSmall: baseTextTheme.headlineSmall?.copyWith(
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    bodyLarge: TextStyle(fontWeight: bodyFontWeight),
-                    bodyMedium: TextStyle(fontWeight: bodyFontWeight),
-                    bodySmall: TextStyle(fontWeight: bodyFontWeight),
-                    titleLarge: TextStyle(
-                      fontWeight: titleFontWeight,
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    titleMedium: TextStyle(
-                      fontWeight: titleFontWeight,
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    titleSmall: TextStyle(
-                      fontWeight: titleFontWeight,
-                      fontFamily: platformDisplayFontFamily,
-                    ),
-                    labelLarge: TextStyle(fontWeight: labelFontWeight),
-                    labelMedium: TextStyle(fontWeight: labelFontWeight),
-                    labelSmall: TextStyle(fontWeight: labelFontWeight),
-                  ),
-              cupertinoOverrideTheme: isIOS
-                  ? const CupertinoThemeData(brightness: Brightness.dark)
-                  : null,
-              colorScheme: const ColorScheme.dark(
-                primary: Colors.blue,
-                surface: Color(0xFF121212),
-              ),
-              useMaterial3: true,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Color(0xFF1E1E1E),
-                elevation: 0,
-              ),
+              displayFontFamily: platformDisplayFontFamily,
+              bodyFontWeight: bodyFontWeight,
+              titleFontWeight: titleFontWeight,
+              labelFontWeight: labelFontWeight,
+              isIOS: isIOS,
             ),
             home: const MainShell(initialIndex: 1),
           ),

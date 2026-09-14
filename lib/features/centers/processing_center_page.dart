@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:fluent_learning/screens/batch_subtitle_screen.dart';
 import 'package:fluent_learning/system/processing_center/processing_center.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 
 /// Processing Center — live queue list mirrored from TranscriptionManager.
 class ProcessingCenterPage extends StatelessWidget {
@@ -110,7 +111,7 @@ class _StatChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.borderSm,
         border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text(
@@ -161,7 +162,7 @@ class _JobTile extends StatelessWidget {
 
     return Material(
       color: const Color(0xFF1E1E1E),
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: AppRadii.borderMd,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Column(
@@ -188,7 +189,7 @@ class _JobTile extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(AppRadii.sm - 2),
                   ),
                   child: Text(
                     phaseLabel,

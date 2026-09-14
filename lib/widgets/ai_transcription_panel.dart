@@ -5,6 +5,8 @@ import 'package:fluent_learning/services/settings_service.dart';
 import 'package:fluent_learning/services/transcription_manager.dart';
 import 'package:fluent_learning/system/model_center/model_center.dart';
 import 'package:fluent_learning/system/processing_center/processing_center.dart';
+import 'package:fluent_learning/system/feedback/feedback.dart';
+import 'package:fluent_learning/core/theme_tokens.dart';
 import '../models/transcription_status.dart';
 
 class AiTranscriptionPanel extends StatefulWidget {
@@ -31,6 +33,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
   TranscriptionStatus? _terminalStatusForCurrentVideo;
   String _terminalMessageForCurrentVideo = "";
   String? _lastProcessingJobId;
+  AppFeedbackMessage? _enqueueFeedback;
 
   @override
   void initState() {
@@ -82,6 +85,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
           _hasRequestedForCurrentVideo = true;
           _terminalStatusForCurrentVideo = null;
           _terminalMessageForCurrentVideo = "";
+          _enqueueFeedback = AppFeedbackMessage.loading('正在加入处理队列…');
         });
       }
       // Prefer Model Center resolve; do not hardcode BcutAsr in features.
@@ -109,6 +113,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
       if (mounted) {
         setState(() {
           _lastProcessingJobId = jobId;
+          _enqueueFeedback = AppFeedback.enqueueSuccess(jobId: jobId);
         });
       }
     } catch (e) {
@@ -116,6 +121,10 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
         setState(() {
           _terminalStatusForCurrentVideo = TranscriptionStatus.error;
           _terminalMessageForCurrentVideo = "启动转录失败: $e";
+          _enqueueFeedback = AppFeedbackMessage.error(
+            "启动转录失败: $e",
+            title: '入队失败',
+          );
         });
       }
       // Error is handled in manager state
@@ -220,7 +229,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.blueGrey.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadii.borderSm,
                     border: Border.all(
                       color: Colors.blueGrey.withValues(alpha: 0.45),
                     ),
@@ -261,7 +270,12 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
-                const SizedBox(height: 12),
+                if (_enqueueFeedback != null &&
+                    (_enqueueFeedback!.tone == AppFeedbackTone.error ||
+                        (!isQueued && !isProcessing))) ...[
+                  AppInlineBanner(message: _enqueueFeedback!),
+                  const SizedBox(height: 12),
+                ],
                 _buildInlineProgressSection(
                   manager: manager,
                   isJobForThisVideo: isJobForThisVideo,
@@ -373,7 +387,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.black26,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.borderSm,
         border: Border.all(color: Colors.blue.withValues(alpha: 0.35)),
       ),
       child: Column(
@@ -426,7 +440,7 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.borderSm,
         border: Border.all(color: borderColor),
       ),
       child: Row(
