@@ -9,6 +9,7 @@ import 'package:fluent_learning/services/library_service.dart';
 import 'package:fluent_learning/services/settings_service.dart';
 import 'package:fluent_learning/services/transcription_manager.dart';
 import 'package:fluent_learning/system/processing_center/processing_job.dart';
+import 'package:fluent_learning/system/model_center/model_center.dart';
 import 'package:fluent_learning/system/processing_center/processing_job_type.dart';
 
 /// System Processing Center — thin queue facade over existing managers.
@@ -20,9 +21,11 @@ class ProcessingCenter extends ChangeNotifier {
     required TranscriptionManager transcriptionManager,
     required LibraryService libraryService,
     required SettingsService settingsService,
+    ModelCenter? modelCenter,
   })  : _transcriptionManager = transcriptionManager,
         _libraryService = libraryService,
-        _settingsService = settingsService {
+        _settingsService = settingsService,
+        _modelCenter = modelCenter {
     _transcriptionManager.addListener(_onTranscriptionChanged);
     _syncFromTranscriptionManager();
   }
@@ -30,6 +33,7 @@ class ProcessingCenter extends ChangeNotifier {
   final TranscriptionManager _transcriptionManager;
   final LibraryService _libraryService;
   final SettingsService _settingsService;
+  final ModelCenter? _modelCenter;
 
   int _jobSeq = 0;
 
@@ -105,6 +109,30 @@ class ProcessingCenter extends ChangeNotifier {
     final autoStart = params?['autoStart'] as bool? ?? true;
     final autoCache =
         params?['autoCache'] as bool? ?? _settingsService.autoCacheSubtitles;
+
+    // Prefer Model Center active model for the next job (no hard-coded ASR).
+    final active = _modelCenter?.resolve(ModelKind.transcription);
+    if (_modelCenter != null && active == null) {
+      throw StateError('模型中心未配置可用转录模型');
+    }
+    final requestedId = params?['modelId'];
+    final modelId = active?.id ??
+        (requestedId is String && requestedId.trim().isNotEmpty
+            ? requestedId.trim()
+            : ModelCenter.bcutAsrId);
+    if (active != null &&
+        requestedId is String &&
+        requestedId.trim().isNotEmpty &&
+        requestedId.trim() != active.id) {
+      debugPrint(
+        'ProcessingCenter: params.modelId=$requestedId → using active '
+        '${active.id} (${active.displayName})',
+      );
+    }
+    debugPrint(
+      'ProcessingCenter: transcription job via model $modelId'
+      '${active != null ? ' (${active.displayName})' : ''}',
+    );
 
     final targets = <_TranscriptionTarget>[];
 

@@ -55,6 +55,7 @@ void main() async {
     transcriptionManager: transcriptionManager,
     libraryService: library,
     settingsService: settings,
+    modelCenter: modelCenter,
   );
   bindProcessingCenter(processingCenter);
   final learningUnitRepository = LearningUnitRepository(libraryService: library);

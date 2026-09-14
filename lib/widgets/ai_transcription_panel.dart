@@ -203,14 +203,21 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
                       onPressed: widget.onBack,
                     ),
                     const SizedBox(width: 4),
-                    const Expanded(
-                      child: Text(
-                        "AI 智能字幕 (B接口)",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    Expanded(
+                      child: Consumer<ModelCenter>(
+                        builder: (context, center, _) {
+                          final active =
+                              center.resolve(ModelKind.transcription);
+                          final name = active?.displayName ?? '未配置';
+                          return Text(
+                            "AI 智能字幕 ($name)",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     if (isProcessing)
@@ -255,9 +262,17 @@ class _AiTranscriptionPanelState extends State<AiTranscriptionPanel> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  "使用 Bilibili 接口进行云端语音转文字。\n支持中英文识别，速度快，准确率高。",
-                  style: TextStyle(color: Colors.white70),
+                Consumer<ModelCenter>(
+                  builder: (context, center, _) {
+                    final active = center.resolve(ModelKind.transcription);
+                    final desc = active?.description.isNotEmpty == true
+                        ? active!.description
+                        : '请先在模型中心选择可用转录模型。';
+                    return Text(
+                      desc,
+                      style: const TextStyle(color: Colors.white70),
+                    );
+                  },
                 ),
                 const SizedBox(height: 14),
                 ElevatedButton.icon(

@@ -14,6 +14,7 @@ import '../services/library_service.dart';
 import '../services/task_subtitle_storage_service.dart';
 import '../models/managed_subtitle_asset.dart';
 import '../services/subtitle_translation_service.dart';
+import 'package:fluent_learning/system/model_center/model_center.dart';
 import '../services/subtitle_discovery_service.dart';
 import '../utils/app_toast.dart';
 import '../utils/subtitle_parser.dart';
@@ -2605,6 +2606,53 @@ class _SubtitleManagementSheetState extends State<SubtitleManagementSheet> {
     }
   }
 
+
+  /// Prefer Model Center active translation model for the next job.
+  SubtitleTranslateProvider _providerFromModelCenter(
+    SubtitleTranslateProvider fallback,
+  ) {
+    try {
+      final center = Provider.of<ModelCenter>(context, listen: false);
+      final name = center.resolveTranslationProviderName();
+      if (name == null || name.isEmpty) return fallback;
+      for (final provider in SubtitleTranslateProvider.values) {
+        if (provider.name == name) return provider;
+      }
+    } catch (_) {
+      // ModelCenter may be absent in isolated tests.
+    }
+    return fallback;
+  }
+
+  String? _modelIdForTranslateProvider(SubtitleTranslateProvider provider) {
+    switch (provider) {
+      case SubtitleTranslateProvider.google:
+        return ModelCenter.googleTranslateId;
+      case SubtitleTranslateProvider.bing:
+        return ModelCenter.bingTranslateId;
+      case SubtitleTranslateProvider.mymemory:
+        return ModelCenter.myMemoryTranslateId;
+      case SubtitleTranslateProvider.so360:
+        return ModelCenter.so360TranslateId;
+      case SubtitleTranslateProvider.reverso:
+        return ModelCenter.reversoTranslateId;
+    }
+  }
+
+  Future<void> _syncModelCenterTranslation(
+    SubtitleTranslateProvider provider,
+  ) async {
+    final modelId = _modelIdForTranslateProvider(provider);
+    if (modelId == null) return;
+    try {
+      final center = Provider.of<ModelCenter>(context, listen: false);
+      if (center.getActive(ModelKind.translation) == modelId) return;
+      await center.setActive(ModelKind.translation, modelId);
+    } catch (_) {
+      // ModelCenter may be absent in isolated tests.
+    }
+  }
+
   Future<void> _translateSubtitle(String path) async {
     // 防止对同一视频重复发起翻译。
     if (_isPathTranslating(path)) return;
@@ -2620,15 +2668,16 @@ class _SubtitleManagementSheetState extends State<SubtitleManagementSheet> {
           ?.assetId;
       final taskDirectory = await const TaskSubtitleStorageService()
           .taskDirectory(videoId, create: true);
-      // 根据源/目标语言方向自动选择翻译服务：
-      // 中英方向用 _translateProviderEnZh，其他语言方向用 _translateProviderOther
-      final effectiveProvider =
+      // 根据源/目标语言方向得到本地默认；最终以模型中心 active 为准。
+      final directionDefault =
           _subtitleTranslationService.isEnZhDirection(
             _translateSourceLanguage,
             _translateTargetLanguage,
           )
           ? _translateProviderEnZh
           : _translateProviderOther;
+      final effectiveProvider =
+          _providerFromModelCenter(directionDefault);
       final result = await _subtitleTranslationService.translateSubtitleFile(
         inputPath: path,
         sourceLanguage: _translateSourceLanguage,
@@ -3029,6 +3078,8 @@ class _SubtitleManagementSheetState extends State<SubtitleManagementSheet> {
                         }
                       });
                       _scheduleTranslatePrefsSave();
+                      // Keep Model Center active translation in sync.
+                      unawaited(_syncModelCenterTranslation(value));
                     },
             ),
             const SizedBox(height: 10),
